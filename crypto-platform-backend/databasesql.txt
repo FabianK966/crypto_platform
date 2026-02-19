@@ -1,0 +1,65 @@
+-- Datenbank erstellen (falls nicht vorhanden)
+CREATE DATABASE IF NOT EXISTS crypto_platform;
+USE crypto_platform;
+
+-- Tabelle: account
+CREATE TABLE IF NOT EXISTS account (
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    initial_balance DECIMAL(20,2) NOT NULL DEFAULT 0.00,
+    total_realized_profit DECIMAL(20,2) NOT NULL DEFAULT 0.00,
+    created_at DATETIME(6) DEFAULT NULL,
+    updated_at DATETIME(6) DEFAULT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+-- Tabelle: market_price
+CREATE TABLE IF NOT EXISTS market_price (
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    price DOUBLE DEFAULT NULL,
+    price_change_percent DOUBLE DEFAULT NULL,
+    symbol VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (id),
+    INDEX (symbol)
+) ENGINE=InnoDB;
+
+-- Tabelle: portfolio_assets
+CREATE TABLE IF NOT EXISTS portfolio_assets (
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    avg_buy_price_eur DECIMAL(20,2) DEFAULT NULL,
+    avg_buy_price_usd DECIMAL(20,2) DEFAULT NULL,
+    created_at DATETIME(6) DEFAULT NULL,
+    quantity DECIMAL(20,8) NOT NULL,
+    symbol VARCHAR(10) NOT NULL,
+    updated_at DATETIME(6) DEFAULT NULL,
+    total_realized_profit DECIMAL(20,2) DEFAULT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+-- Tabelle: transactions
+CREATE TABLE IF NOT EXISTS transactions (
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    buy_price_usd DECIMAL(20,2) NOT NULL,
+    cost_basis DECIMAL(20,2) DEFAULT NULL,
+    price_per_unit DECIMAL(20,2) NOT NULL,
+    quantity DECIMAL(20,8) NOT NULL,
+    realized_pnl DECIMAL(20,2) DEFAULT NULL,
+    symbol VARCHAR(255) NOT NULL,
+    timestamp DATETIME(6) NOT NULL,
+    type ENUM('BUY', 'SELL') NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB;
+
+-- Beispiel-Daten einfügen
+INSERT INTO account (initial_balance, total_realized_profit, created_at) VALUES (10000.00, 0.00, NOW());
+INSERT INTO market_price (symbol, price, price_change_percent) VALUES ('BTC', 43500.50, 1.2), ('ETH', 2300.75, -0.5);
+INSERT INTO portfolio_assets (symbol, quantity, avg_buy_price_usd) VALUES ('BTC', 0.5, 42000.00);
+INSERT INTO transactions (symbol, type, quantity, price_per_unit, buy_price_usd, timestamp) 
+VALUES ('BTC', 'BUY', 0.5, 42000.00, 42000.00, NOW());
+Import über die CMD
+Um diese Befehle auszuführen, hast du zwei Möglichkeiten:
+
+Option A: Direktbefehl (wenn du die Datei setup.sql gespeichert hast)
+Öffne die CMD und navigiere zum Ordner der Datei:
+
+DOS
+mysql -u dein_benutzername -p crypto_platform < setup.sql

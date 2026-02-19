@@ -196,7 +196,7 @@ import { DatePickerModule } from 'primeng/datepicker';
   styles: [`
     .replay-container {
       padding: 2rem;
-      max-width: 1800px;
+      max-width: 2300px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -341,7 +341,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 
     .chart-container {
       width: 100%;
-      height: 600px;
+      height: 1000px;
       background: #0a0a0a;
       border-radius: 8px;
     }
@@ -559,7 +559,7 @@ export class ReplayComponent implements OnInit, OnDestroy {
 
     this.chart = createChart(this.chartContainer.nativeElement, {
       width: this.chartContainer.nativeElement.clientWidth,
-      height: 600,
+      height: 1000,
       layout: {
         background: { color: '#0a0a0a' },
         textColor: '#999',
