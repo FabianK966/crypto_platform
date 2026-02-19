@@ -1,0 +1,225 @@
+import { Component } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+
+// PrimeNG Imports
+import { MenubarModule } from 'primeng/menubar';
+import { BadgeModule } from 'primeng/badge';
+import { AvatarModule } from 'primeng/avatar';
+import { RippleModule } from 'primeng/ripple';
+import { MenuItem } from 'primeng/api';
+
+@Component({
+  selector: 'app-navbar',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MenubarModule,
+    BadgeModule,
+    AvatarModule,
+    RippleModule
+  ],
+  template: `
+    <div class="navbar-container">
+      <p-menubar [model]="menuItems" styleClass="custom-menubar">
+        <ng-template pTemplate="start">
+          <div class="navbar-brand">
+            <i class="pi pi-bolt"></i>
+            <span class="brand-text">Crypto Platform</span>
+          </div>
+        </ng-template>
+        
+        <ng-template pTemplate="end">
+          <div class="navbar-end">
+            <div class="connection-status">
+              <i class="pi pi-circle-fill live-indicator"></i>
+              <span>Live</span>
+            </div>
+            <p-avatar 
+              icon="pi pi-user" 
+              styleClass="user-avatar"
+              size="large"
+              shape="circle"
+            />
+          </div>
+        </ng-template>
+      </p-menubar>
+    </div>
+  `,
+  styles: [`
+    .navbar-container {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    /* ──────────────────────────────────────────────── */
+    /*                WICHTIG: HÖHERE NAVBAR            */
+    /* ──────────────────────────────────────────────── */
+    ::ng-deep .custom-menubar {
+      background: rgba(15, 15, 15, 0.92) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: none !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important;
+      padding: 1.1rem 2.5rem;           /* mehr Padding oben/unten + seitlich */
+      min-height: 82px;                  /* deutlich höher als Standard (~55–60px) */
+      height: auto;
+      border-radius: 0;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    ::ng-deep .custom-menubar .p-menubar-root-list {
+      gap: 3rem !important;              /* ← hier der große Abstand zwischen Portfolio & Markets */
+      align-items: center;
+    }
+
+    ::ng-deep .custom-menubar .p-menuitem-link {
+      color: #ddd !important;
+      font-weight: 500;
+      font-size: 1.05rem;
+      padding: 0.9rem 1.6rem !important;
+      border-radius: 10px;
+      transition: all 0.22s ease;
+    }
+
+    ::ng-deep .custom-menubar .p-menuitem-link:hover {
+      background: rgba(255, 255, 255, 0.06) !important;
+      color: white !important;
+      transform: translateY(-1px);
+    }
+
+    ::ng-deep .custom-menubar .p-menuitem-link:focus {
+      box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.28) !important;
+    }
+
+    ::ng-deep .custom-menubar .p-menuitem.p-highlight > .p-menuitem-link,
+    ::ng-deep .custom-menubar .p-menuitem-link.router-link-active {
+      background: rgba(41, 98, 255, 0.18) !important;
+      color: #60a5fa !important;
+      font-weight: 600;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-right: 2.5rem;
+    }
+
+    .navbar-brand i {
+      font-size: 2rem;
+      color: #60a5fa;
+      filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
+    }
+
+    .brand-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #60a5fa, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .navbar-end {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.6rem 1.3rem;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 9999px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #86efac;
+    }
+
+    .live-indicator {
+      font-size: 0.7rem;
+      color: #22c55e;
+      animation: pulse 2.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.4; }
+    }
+
+    ::ng-deep .user-avatar {
+      background-color: #3b82f6 !important;
+      border: 2px solid rgba(255,255,255,0.18) !important;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    }
+
+    @media (max-width: 960px) {
+      ::ng-deep .custom-menubar {
+        padding: 0.9rem 1.6rem;
+        min-height: 72px;
+      }
+
+      ::ng-deep .custom-menubar .p-menubar-root-list {
+        gap: 1.8rem !important;
+      }
+
+      .brand-text {
+        font-size: 1.35rem;
+      }
+
+      .navbar-brand i {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      ::ng-deep .custom-menubar {
+        padding: 0.8rem 1.2rem;
+      }
+
+      .navbar-brand {
+        gap: 0.7rem;
+      }
+
+      .brand-text {
+        font-size: 1.2rem;
+      }
+
+      ::ng-deep .custom-menubar .p-menubar-root-list {
+        gap: 1.2rem !important;
+      }
+
+      .connection-status span {
+        display: none;
+      }
+    }
+  `]
+})
+export class NavbarComponent {
+  menuItems: MenuItem[] = [
+    {
+      label: 'Portfolio',
+      icon: 'pi pi-chart-line',
+      routerLink: '/portfolio',
+      routerLinkActiveOptions: { exact: true }
+    },
+    {
+      label: 'Markets',
+      icon: 'pi pi-chart-bar',
+      routerLink: '/markets'
+    },
+    {
+      label: 'Replay',
+      icon: 'pi pi-replay',
+      routerLink: '/replay'
+    }
+  ];
+
+  constructor(private router: Router) { }
+}
