@@ -18,7 +18,7 @@ public class MarketController {
 
     @GetMapping("/prices")
     public Mono<List<MarketPriceDto>> getPrices(
-            @RequestParam String symbols  // ← String, dann splitten
+            @RequestParam String symbols
     ) {
         List<String> symbolList = Arrays.asList(symbols.split(","));
         return binanceService.getCurrentPrices(symbolList);
