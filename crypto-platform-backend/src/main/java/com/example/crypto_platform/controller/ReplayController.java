@@ -1,4 +1,3 @@
-// src/main/java/com/example/crypto_platform/controller/ReplayController.java
 package com.example.crypto_platform.controller;
 
 import com.example.crypto_platform.dto.CandleDto;
@@ -7,9 +6,6 @@ import com.example.crypto_platform.service.HistoricalDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +24,9 @@ public class ReplayController {
     @PostMapping("/candles")
     public ResponseEntity<?> getReplayCandles(@RequestBody ReplayConfigDto config) {
         try {
-            // Validierung
+            /**
+             * Validierung
+             */
             if (config.getSymbol() == null || config.getSymbol().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Symbol is required"));
             }
@@ -39,10 +37,14 @@ public class ReplayController {
                 ));
             }
 
-            // Trading Pair formatieren (Symbol + USDT)
+            /**
+             * Trading Pair formatieren (Symbol + USDT)
+             */
             String symbol = config.getSymbol().toUpperCase().replace("USDT", "") + "USDT";
 
-            // Daten holen
+            /**
+             * Daten holen
+             */
             List<CandleDto> candles = historicalDataService.getHistoricalCandles(
                     symbol,
                     config.getInterval(),
@@ -58,7 +60,9 @@ public class ReplayController {
                 ));
             }
 
-            // Response mit Metadata
+            /**
+             * Response mit Metadata
+             */
             Map<String, Object> response = new HashMap<>();
             response.put("candles", candles);
             response.put("count", candles.size());
@@ -67,12 +71,12 @@ public class ReplayController {
             response.put("startTime", config.getStartTime());
             response.put("endTime", config.getEndTime());
 
-            System.out.println("📤 Sending " + candles.size() + " candles for " + symbol + " (" + config.getInterval() + ")");
+            System.out.println("Sending " + candles.size() + " candles for " + symbol + " (" + config.getInterval() + ")");
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.err.println("❌ Error in getReplayCandles: " + e.getMessage());
+            System.err.println("Error in getReplayCandles: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(Map.of(
                     "error", "Failed to fetch historical data: " + e.getMessage()

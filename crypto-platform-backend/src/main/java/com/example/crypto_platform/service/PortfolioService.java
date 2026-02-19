@@ -9,7 +9,6 @@ import com.example.crypto_platform.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -25,7 +24,7 @@ public class PortfolioService {
     private final PortfolioAssetRepository portfolioRepository;
     private final TransactionRepository transactionRepository;
     private final BinanceService binanceService;
-    private final AccountService accountService;  // ✅ NEU
+    private final AccountService accountService;
 
     /**
      * Portfolio Summary mit Balance-Info
@@ -39,14 +38,15 @@ public class PortfolioService {
             return new PortfolioSummaryDto(
                     account.getInitialBalance(),
                     BigDecimal.ZERO,
-                    account.getInitialBalance(),  // totalBalance = nur initial balance
+                    account.getInitialBalance(),
                     account.getTotalRealizedProfit(),
                     BigDecimal.ZERO,
                     List.of()
             );
         }
-
-        // Live Preise holen
+        /**
+         * Live Preise holen
+         */
         List<String> symbols = assets.stream()
                 .map(a -> a.getSymbol() + "USDT")
                 .collect(Collectors.toList());
@@ -58,8 +58,9 @@ public class PortfolioService {
                 MarketPriceDto::getPrice
         ))
                 : Map.of();
-
-        // Asset DTOs erstellen
+        /**
+         * Asset DTOs erstellen
+         */
         List<PortfolioAssetDto> assetDtos = assets.stream()
                 .map(asset -> {
                     String tradingPair = asset.getSymbol() + "USDT";
@@ -87,7 +88,9 @@ public class PortfolioService {
                 })
                 .collect(Collectors.toList());
 
-        // Gesamtwerte berechnen
+        /**
+         * Gesamtwerte berechnen
+         */
         BigDecimal totalAssetValue = assetDtos.stream()
                 .map(PortfolioAssetDto::getCurrentValueUsd)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -152,7 +155,7 @@ public class PortfolioService {
     @Transactional
     public Transaction buyAsset(BuyRequestDto request) {
         String symbol = request.getSymbol().toUpperCase().replace("USDT", "").trim();
-        System.out.println("📈 Buying " + request.getQuantity() + " " + symbol + " @ $" + request.getPricePerCoin());
+        System.out.println("Buying " + request.getQuantity() + " " + symbol + " @ $" + request.getPricePerCoin());
 
         Optional<PortfolioAsset> existingAssetOpt = portfolioRepository.findBySymbol(symbol);
         PortfolioAsset asset;
@@ -206,20 +209,28 @@ public class PortfolioService {
             throw new RuntimeException("Insufficient balance! You have " + asset.getQuantity() + " but tried to sell " + request.getQuantity());
         }
 
-        System.out.println("📉 Selling " + request.getQuantity() + " " + symbol + " @ $" + request.getPricePerCoin());
+        System.out.println("Selling " + request.getQuantity() + " " + symbol + " @ $" + request.getPricePerCoin());
 
-        // Realisierten Gewinn/Verlust berechnen
+        /**
+         * Realisierten Gewinn/Verlust berechnen
+         */
         BigDecimal profitPerUnit = request.getPricePerCoin().subtract(asset.getAvgBuyPriceUsd());
         BigDecimal realizedPnL = profitPerUnit.multiply(request.getQuantity());
 
-        // Asset realized profit aktualisieren
+        /**
+         * Asset realized profit aktualisieren
+         */
         BigDecimal currentTotal = asset.getTotalRealizedProfit() != null ? asset.getTotalRealizedProfit() : BigDecimal.ZERO;
         asset.setTotalRealizedProfit(currentTotal.add(realizedPnL));
 
-        // Account realized profit aktualisieren
+        /**
+         * Account realized profit aktualisieren
+         */
         accountService.addRealizedProfit(realizedPnL);
 
-        // Transaktion erstellen
+        /**
+         * Transaktion erstellen
+         */
         Transaction transaction = new Transaction();
         transaction.setSymbol(symbol);
         transaction.setType(Transaction.TransactionType.SELL);
@@ -231,13 +242,15 @@ public class PortfolioService {
         transaction.setTimestamp(LocalDateTime.now());
         transactionRepository.save(transaction);
 
-        // Portfolio-Menge reduzieren
+        /**
+         * Portfolio-Menge reduzieren
+         */
         BigDecimal newQuantity = asset.getQuantity().subtract(request.getQuantity());
         asset.setQuantity(newQuantity);
         portfolioRepository.save(asset);
 
-        System.out.println("💰 Realized P&L for this trade: $" + realizedPnL);
-        System.out.println("📊 Total realized profit for " + symbol + ": $" + asset.getTotalRealizedProfit());
+        System.out.println("Realized P&L for this trade: $" + realizedPnL);
+        System.out.println("Total realized profit for " + symbol + ": $" + asset.getTotalRealizedProfit());
         return transaction;
     }
 
@@ -251,6 +264,6 @@ public class PortfolioService {
                 .orElseThrow(() -> new RuntimeException("Asset nicht gefunden: " + symbol));
 
         portfolioRepository.delete(asset);
-        System.out.println("✅ Asset deleted: " + symbol);
+        System.out.println("Asset deleted: " + symbol);
     }
 }

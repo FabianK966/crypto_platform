@@ -6,5 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    // Wir haben nur einen Account (Single-User System)
+    /**
+     * Aktuell nur einen Account (Single-User System)
+     */
 }

@@ -1,19 +1,15 @@
-// src/main/java/com/example/crypto_platform/service/HistoricalDataService.java
 package com.example.crypto_platform.service;
 
 import com.example.crypto_platform.dto.CandleDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,14 +29,15 @@ public class HistoricalDataService {
      * @return Liste von Kerzen
      */
     public List<CandleDto> getHistoricalCandles(String symbol, String interval, Long startTime, Long endTime) {
-        System.out.println("📊 Fetching historical data for " + symbol + " (" + interval + ")");
+        System.out.println("Fetching historical data for " + symbol + " (" + interval + ")");
         System.out.println("   From: " + timestampToDate(startTime) + " To: " + timestampToDate(endTime));
 
         List<CandleDto> allCandles = new ArrayList<>();
         Long currentStart = startTime;
 
-        // Binance API Limit: max 1000 candles per request
-        // Wir holen die Daten in Batches
+        /**
+         * Binance API Limit: max 1000 candles per request, Wir holen die Daten in Batches
+         */
         while (currentStart < endTime) {
             try {
                 Long finalCurrentStart = currentStart;
@@ -65,21 +62,25 @@ public class HistoricalDataService {
 
                 allCandles.addAll(batch);
 
-                // Nächster Batch startet nach der letzten Kerze
+                /**
+                 * Nächster Batch startet nach der letzten Kerze
+                 */
                 currentStart = batch.get(batch.size() - 1).getTimestamp() + 1;
 
                 System.out.println("   Fetched " + batch.size() + " candles (Total: " + allCandles.size() + ")");
 
-                // Rate limiting: kleines Delay zwischen Requests
+                /**
+                 * Rate limiting: kleines Delay zwischen Requests
+                 */
                 Thread.sleep(100);
 
             } catch (Exception e) {
-                System.err.println("❌ Error fetching historical data: " + e.getMessage());
+                System.err.println("Error fetching historical data: " + e.getMessage());
                 break;
             }
         }
 
-        System.out.println("✅ Total candles fetched: " + allCandles.size());
+        System.out.println("Total candles fetched: " + allCandles.size());
         return allCandles;
     }
 
@@ -88,7 +89,9 @@ public class HistoricalDataService {
      */
     private List<CandleDto> parseKlines(String json) {
         try {
-            // Binance gibt Array von Arrays zurück: [[timestamp, open, high, low, close, volume, ...], ...]
+            /**
+             * Binance gibt Array von Arrays zurück: [[timestamp, open, high, low, close, volume, ...], ...]
+             */
             json = json.trim();
             if (!json.startsWith("[") || !json.endsWith("]")) {
                 return List.of();
@@ -114,7 +117,7 @@ public class HistoricalDataService {
 
             return candles;
         } catch (Exception e) {
-            System.err.println("❌ Error parsing klines: " + e.getMessage());
+            System.err.println("Error parsing klines: " + e.getMessage());
             return List.of();
         }
     }

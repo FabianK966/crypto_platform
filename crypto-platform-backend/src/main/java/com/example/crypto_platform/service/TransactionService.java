@@ -14,8 +14,11 @@ public class TransactionService {
 
     @Transactional
     public void deleteTransactions(String symbol) {
-        // Löscht alle Transaktionen für das Symbol (effizient per Bulk-Delete)
+
+        /**
+         * Löscht alle Transaktionen für das Symbol
+         */
         transactionRepository.deleteBySymbol(symbol);
-        System.out.println("✅ All transactions for symbol " + symbol + " deleted.");
+        System.out.println("All transactions for symbol " + symbol + " deleted.");
     }
 }

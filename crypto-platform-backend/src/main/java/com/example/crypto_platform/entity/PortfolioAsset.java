@@ -19,16 +19,16 @@ public class PortfolioAsset {
     private Long id;
 
     @Column(nullable = false, length = 10)
-    private String symbol;  // BTC, ETH, etc.
+    private String symbol;
 
     @Column(nullable = false, precision = 20, scale = 8)
     private BigDecimal quantity;  // Menge
 
     @Column(name = "avg_buy_price_eur", precision = 20, scale = 2)
-    private BigDecimal avgBuyPriceEur;  // Durchschnittlicher Kaufpreis in EUR
+    private BigDecimal avgBuyPriceEur;
 
     @Column(name = "avg_buy_price_usd", precision = 20, scale = 2)
-    private BigDecimal avgBuyPriceUsd;  // Durchschnittlicher Kaufpreis in USD
+    private BigDecimal avgBuyPriceUsd;
 
     @Column(name = "total_realized_profit", precision = 20, scale = 2)
     private BigDecimal totalRealizedProfit;

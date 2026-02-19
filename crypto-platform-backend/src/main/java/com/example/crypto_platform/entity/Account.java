@@ -19,8 +19,7 @@ public class Account {
     private Long id;
 
     /**
-     * Initial Balance (Cash) - kann manuell erhöht/reduziert werden
-     * Das ist dein "freies Geld" zum Investieren
+     * Initial Balance (Cash)
      */
     @Column(name = "initial_balance", nullable = false, precision = 20, scale = 2)
     private BigDecimal initialBalance = BigDecimal.ZERO;

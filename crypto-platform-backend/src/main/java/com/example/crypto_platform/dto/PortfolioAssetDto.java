@@ -14,9 +14,9 @@ public class PortfolioAssetDto {
     private BigDecimal quantity;
     private BigDecimal avgBuyPriceEur;
     private BigDecimal avgBuyPriceUsd;
-    private BigDecimal currentPriceUsd;  // Wird zur Laufzeit berechnet
-    private BigDecimal currentValueUsd;  // quantity * currentPriceUsd
-    private BigDecimal profitLossUsd;    // currentValueUsd - (quantity * avgBuyPriceUsd)
+    private BigDecimal currentPriceUsd;
+    private BigDecimal currentValueUsd;
+    private BigDecimal profitLossUsd;
     private BigDecimal profitLossPercent;
     private BigDecimal totalRealizedProfit;
 }

@@ -11,13 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 public class PortfolioSummaryDto {
 
-    // Account Info
-    private BigDecimal initialBalance;        // Freies Geld (Cash)
-    private BigDecimal totalAssetValue;       // Wert aller Holdings
-    private BigDecimal totalBalance;          // initialBalance + totalAssetValue
-    private BigDecimal totalRealizedProfit;   // Realisierte Gewinne
-    private BigDecimal totalUnrealizedProfit; // Unrealisierte Gewinne
 
-    // Assets
+    private BigDecimal initialBalance;
+    private BigDecimal totalAssetValue;
+    private BigDecimal totalBalance;
+    private BigDecimal totalRealizedProfit;
+    private BigDecimal totalUnrealizedProfit;
     private List<PortfolioAssetDto> assets;
 }

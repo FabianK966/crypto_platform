@@ -45,7 +45,7 @@ public class BinanceService {
                 })
                 .collectList()
                 .doOnError(error ->
-                        System.err.println("❌ Error fetching prices: " + error.getMessage())
+                        System.err.println("Error fetching prices: " + error.getMessage())
                 );
     }
 }

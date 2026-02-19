@@ -19,26 +19,26 @@ public class Transaction {
     private Long id;
 
     @Column(nullable = false)
-    private String symbol; // z.B. BTC
+    private String symbol;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TransactionType type; // SELL (später auch BUY möglich)
+    private TransactionType type;
 
     @Column(nullable = false, precision = 20, scale = 8)
     private BigDecimal quantity;
 
     @Column(name = "price_per_unit", nullable = false, precision = 20, scale = 2)
-    private BigDecimal pricePerUnit; // Verkaufspreis pro Stück
+    private BigDecimal pricePerUnit;
 
     @Column(name = "buy_price_usd", nullable = false, precision = 20, scale = 2)
     private BigDecimal buyPriceUsd;
 
     @Column(name = "cost_basis", precision = 20, scale = 2)
-    private BigDecimal costBasis; // Dein ursprünglicher Kaufpreis (Avg Buy Price)
+    private BigDecimal costBasis;
 
     @Column(name = "realized_pnl", precision = 20, scale = 2)
-    private BigDecimal realizedPnL; // (Verkaufspreis - Kaufpreis) * Menge
+    private BigDecimal realizedPnL;
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
