@@ -1,1 +1,360 @@
-<p>replay works!</p>
+<div class="replay-container">
+
+  <!-- TOP: Portfolio Panel (nur sichtbar wenn geladen) -->
+  @if (candlesLoaded()) {
+    <div class="portfolio-panel">
+      <div class="portfolio-header">
+        <div class="portfolio-title">
+          <h2>💼 Replay Portfolio</h2>
+          <span class="portfolio-symbol-badge">{{ selectedSymbol }}/USDT</span>
+        </div>
+        <div class="portfolio-header-actions">
+          <div class="balance-set-group">
+            <label>Starting Balance ($)</label>
+            <input
+              type="number"
+              [(ngModel)]="replayInitialBalanceInput"
+              class="input-field balance-input"
+              [disabled]="replayQuantity() > 0 || replayTradeHistory().length > 0"
+              placeholder="e.g. 10000"
+            />
+          </div>
+          <button class="btn-set-balance"
+            (click)="setReplayBalance()"
+            [disabled]="replayQuantity() > 0 || replayTradeHistory().length > 0">
+            ⚙️ Set Balance
+          </button>
+          <button class="btn-reset-portfolio" (click)="resetReplayPortfolio()">
+            🔄 Reset Portfolio
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="portfolio-stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Cash Balance</div>
+          <div class="stat-value">$ {{ replayCashBalance() | number:'1.2-2' }}</div>
+          <div class="stat-sub">Available to trade</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Asset Value</div>
+          <div class="stat-value">$ {{ replayAssetValue() | number:'1.2-2' }}</div>
+          <div class="stat-sub">{{ replayQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Balance</div>
+          <div class="stat-value">$ {{ replayTotalBalance() | number:'1.2-2' }}</div>
+          <div class="stat-sub">Cash + Assets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unrealized P&amp;L</div>
+          <div class="stat-value" [ngClass]="replayUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
+            {{ replayUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ replayUnrealizedPnl() | number:'1.2-2' }}
+            @if (replayQuantity() > 0) {
+              <span class="pnl-percent">({{ replayUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
+            }
+          </div>
+          <div class="stat-sub">Open position</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Realized P&amp;L</div>
+          <div class="stat-value" [ngClass]="replayRealizedPnl() >= 0 ? 'positive' : 'negative'">
+            {{ replayRealizedPnl() >= 0 ? '+' : '' }}$ {{ replayRealizedPnl() | number:'1.2-2' }}
+          </div>
+          <div class="stat-sub">Closed trades</div>
+        </div>
+        <div class="stat-card highlight-card">
+          <div class="stat-label">Total P&amp;L</div>
+          <div class="stat-value" [ngClass]="(replayUnrealizedPnl() + replayRealizedPnl()) >= 0 ? 'positive' : 'negative'">
+            {{ (replayUnrealizedPnl() + replayRealizedPnl()) >= 0 ? '+' : '' }}$ {{ (replayUnrealizedPnl() + replayRealizedPnl()) | number:'1.2-2' }}
+          </div>
+          <div class="stat-sub">Unrealized + Realized</div>
+        </div>
+      </div>
+
+      <!-- Current Position -->
+      <div class="holdings-section">
+        <h3>📈 Current Position</h3>
+
+        @if (replayQuantity() === 0) {
+          <div class="no-position">
+            No open position — use the button below to start trading at the current replay price
+          </div>
+        } @else {
+          <table class="holdings-table">
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th>Quantity</th>
+                <th>Avg. Buy Price</th>
+                <th>Current Price</th>
+                <th>Current Value</th>
+                <th>Unrealized P&amp;L</th>
+                <th>Realized P&amp;L</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="symbol-tag">{{ selectedSymbol }}</span></td>
+                <td>{{ replayQuantity() | number:'1.0-8' }}</td>
+                <td>$ {{ replayAvgBuyPrice() | number:'1.2-2' }}</td>
+                <td>$ {{ getCurrentPrice() | number:'1.2-2' }}</td>
+                <td>$ {{ replayAssetValue() | number:'1.2-2' }}</td>
+                <td [ngClass]="replayUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
+                  {{ replayUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ replayUnrealizedPnl() | number:'1.2-2' }}
+                  <span class="percent">({{ replayUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
+                </td>
+                <td [ngClass]="replayRealizedPnl() >= 0 ? 'positive' : 'negative'">
+                  {{ replayRealizedPnl() >= 0 ? '+' : '' }}$ {{ replayRealizedPnl() | number:'1.2-2' }}
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <button class="btn-buy-small" (click)="openTradePanel('buy')">Buy More</button>
+                    <button class="btn-sell-small" (click)="openTradePanel('sell')">Sell</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        }
+
+        <!-- Trade Panel -->
+        @if (tradePanelOpen()) {
+          <div class="trade-panel" [ngClass]="tradePanelType() === 'buy' ? 'trade-panel-buy' : 'trade-panel-sell'">
+            <div class="trade-panel-header" [ngClass]="tradePanelType() === 'buy' ? 'trade-header-buy' : 'trade-header-sell'">
+              <span>{{ tradePanelType() === 'buy' ? '🟢 Buy' : '🔴 Sell' }} {{ selectedSymbol }}</span>
+              <button class="close-btn" (click)="closeTradePanel()">✕</button>
+            </div>
+            <div class="trade-panel-body">
+              <div class="trade-info-row">
+                <span class="trade-label">Current Price</span>
+                <span class="trade-value">$ {{ getCurrentPrice() | number:'1.2-2' }}</span>
+              </div>
+              @if (tradePanelType() === 'buy') {
+                <div class="trade-info-row">
+                  <span class="trade-label">Available Cash</span>
+                  <span class="trade-value">$ {{ replayCashBalance() | number:'1.2-2' }}</span>
+                </div>
+              } @else {
+                <div class="trade-info-row">
+                  <span class="trade-label">Available to Sell</span>
+                  <span class="trade-value">{{ replayQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</span>
+                </div>
+              }
+              <div class="trade-input-row">
+                <label>Quantity</label>
+                <input
+                  type="number"
+                  [(ngModel)]="tradeQuantityInput"
+                  class="input-field trade-qty-input"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.001"
+                />
+              </div>
+              <div class="trade-quick-btns">
+                @if (tradePanelType() === 'buy') {
+                  <button class="quick-btn" (click)="setTradePercent(25)">25%</button>
+                  <button class="quick-btn" (click)="setTradePercent(50)">50%</button>
+                  <button class="quick-btn" (click)="setTradePercent(75)">75%</button>
+                  <button class="quick-btn" (click)="setTradePercent(100)">MAX</button>
+                } @else {
+                  <button class="quick-btn" (click)="setSellPercent(25)">25%</button>
+                  <button class="quick-btn" (click)="setSellPercent(50)">50%</button>
+                  <button class="quick-btn" (click)="setSellPercent(75)">75%</button>
+                  <button class="quick-btn" (click)="setSellPercent(100)">ALL</button>
+                }
+              </div>
+              <div class="trade-total-row">
+                <span>Total</span>
+                <span>$ {{ tradeQuantityInput * getCurrentPrice() | number:'1.2-2' }}</span>
+              </div>
+              <div class="trade-panel-actions">
+                <button class="btn-cancel" (click)="closeTradePanel()">Cancel</button>
+                <button
+                  [ngClass]="tradePanelType() === 'buy' ? 'btn-confirm-buy' : 'btn-confirm-sell'"
+                  (click)="confirmTrade()"
+                  [disabled]="tradeQuantityInput <= 0"
+                >
+                  Confirm {{ tradePanelType() === 'buy' ? 'Buy' : 'Sell' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (replayQuantity() === 0 && !tradePanelOpen()) {
+          <div class="quick-trade-bar">
+            <button class="btn-buy-large"
+              (click)="openTradePanel('buy')"
+              [disabled]="replayCashBalance() <= 0 || getCurrentPrice() <= 0">
+              🟢 Buy {{ selectedSymbol }}
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Trade History -->
+      @if (replayTradeHistory().length > 0) {
+        <div class="trade-history-section">
+          <h3>📋 Trade History</h3>
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (trade of replayTradeHistory(); track $index) {
+                <tr>
+                  <td>
+                    <span class="trade-type-badge"
+                      [ngClass]="trade.type === 'buy' ? 'trade-badge-buy' : 'trade-badge-sell'">
+                      {{ trade.type === 'buy' ? '🟢 BUY' : '🔴 SELL' }}
+                    </span>
+                  </td>
+                  <td>{{ trade.quantity | number:'1.0-8' }}</td>
+                  <td>$ {{ trade.price | number:'1.2-2' }}</td>
+                  <td>$ {{ trade.total | number:'1.2-2' }}</td>
+                  <td>{{ trade.timestamp }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- MAIN ROW: Chart (links) + Config Sidebar (rechts) -->
+  <div class="main-row">
+
+    <!-- Chart Section -->
+    <div class="chart-section">
+      <div class="chart-header">
+        <h3>{{ selectedSymbol }}/USDT - {{ getIntervalLabel() }}</h3>
+        <div class="chart-info">
+          @if (currentCandleIndex() > 0) {
+            <span>Candle {{ currentCandleIndex() }} / {{ totalCandles() }}</span>
+            <span class="separator">•</span>
+            <span>{{ getCurrentDate() }}</span>
+            <span class="separator">•</span>
+            <span class="current-price-badge">$ {{ getCurrentPrice() | number:'1.2-2' }}</span>
+          }
+        </div>
+      </div>
+
+      <div #chartContainer class="chart-container"></div>
+
+      @if (candlesLoaded()) {
+        <div class="replay-controls">
+          <p-button icon="pi pi-step-backward" (onClick)="reset()" [outlined]="true" severity="secondary" />
+          <p-button icon="pi pi-backward" (onClick)="stepBackward()" [disabled]="currentCandleIndex() <= 1" [outlined]="true" severity="secondary" />
+          <p-button
+            [icon]="isPlaying() ? 'pi pi-pause' : 'pi pi-play'"
+            (onClick)="togglePlay()"
+            [label]="isPlaying() ? 'Pause' : 'Play'"
+            severity="success"
+          />
+          <p-button icon="pi pi-forward" (onClick)="stepForward()" [disabled]="currentCandleIndex() >= totalCandles()" [outlined]="true" severity="secondary" />
+          <p-button icon="pi pi-step-forward" (onClick)="skipToEnd()" [outlined]="true" severity="secondary" />
+
+          <div class="speed-control">
+            <label>Speed</label>
+            <p-select
+              [options]="speedOptions"
+              [(ngModel)]="playbackSpeed"
+              optionLabel="label"
+              optionValue="value"
+              [style]="{ width: '100px' }"
+              appendTo="body"
+            />
+          </div>
+
+          <div class="progress-bar-container">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="(currentCandleIndex() / totalCandles()) * 100"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Config Sidebar (rechts) -->
+    <div class="config-sidebar">
+      <div class="config-sidebar-inner">
+        <div class="sidebar-header">
+          <h2>📊 Backtesting</h2>
+          <div class="status-badge" [ngClass]="isPlaying() ? 'playing' : 'paused'">
+            {{ isPlaying() ? '▶️ Playing' : '⏸️ Paused' }}
+          </div>
+        </div>
+
+        <div class="sidebar-fields">
+          <div class="input-group">
+            <label>Symbol</label>
+            <p-select
+              [options]="symbolOptions()"
+              [(ngModel)]="selectedSymbol"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Symbol"
+              [style]="{ width: '100%' }"
+              appendTo="body"
+            />
+          </div>
+
+          <div class="input-group">
+            <label>Timeframe</label>
+            <p-select
+              [options]="availableIntervals()"
+              [(ngModel)]="selectedInterval"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Timeframe"
+              [style]="{ width: '100%' }"
+              appendTo="body"
+            />
+          </div>
+
+          <div class="input-group">
+            <label>Start Date</label>
+            <input type="date" [(ngModel)]="startDate" [max]="endDate" class="input-field" />
+          </div>
+
+          <div class="input-group">
+            <label>End Date</label>
+            <input type="date" [(ngModel)]="endDate" [min]="startDate" [max]="today" class="input-field" />
+          </div>
+        </div>
+
+        <p-button
+          label="Load Data"
+          icon="pi pi-refresh"
+          [loading]="loading()"
+          (onClick)="loadReplayData()"
+          styleClass="load-btn-full"
+        />
+
+        @if (candlesLoaded()) {
+          <div class="candle-info">✅ {{ totalCandles() }} candles loaded</div>
+        }
+
+        @if (error()) {
+          <div class="error-message">
+            <i class="pi pi-exclamation-triangle"></i>
+            {{ error() }}
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
+</div>

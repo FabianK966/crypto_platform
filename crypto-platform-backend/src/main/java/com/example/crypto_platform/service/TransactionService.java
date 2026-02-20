@@ -19,6 +19,5 @@ public class TransactionService {
          * Löscht alle Transaktionen für das Symbol
          */
         transactionRepository.deleteBySymbol(symbol);
-        System.out.println("All transactions for symbol " + symbol + " deleted.");
     }
 }

@@ -1,5 +1,3 @@
-// src/app/components/portfolio/portfolio.component.ts
-
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PortfolioService } from '../../services/portfolio.service';
@@ -7,7 +5,6 @@ import {
   PortfolioAssetDto,
   PortfolioSummaryDto,
   BuyRequestDto,
-  SellRequestDto,
   TransactionResponseDto,
   AccountDto
 } from '../../models/portfolio.model';
@@ -48,19 +45,19 @@ import { Observable } from 'rxjs/internal/Observable';
         </div>
 
         <div class="balance-stats-grid">
-          <app-stat-card 
+          <app-stat-card
             label="Initial Balance (Cash)"
             [value]="initialBalance()"
             prefix="$"
             subValue="Available to invest"
           />
-          <app-stat-card 
+          <app-stat-card
             label="Total Asset Value"
             [value]="totalAssetValue()"
             prefix="$"
             subValue="Current holdings"
           />
-          <app-stat-card 
+          <app-stat-card
             label="Total Balance"
             [value]="totalBalance()"
             prefix="$"
@@ -71,19 +68,19 @@ import { Observable } from 'rxjs/internal/Observable';
 
       <!-- Portfolio Stats -->
       <div class="stats-grid">
-        <app-stat-card 
+        <app-stat-card
           label="Unrealized P&L"
           [value]="totalUnrealizedProfit()"
           [isPositive]="true"
           prefix="$"
         />
-        <app-stat-card 
+        <app-stat-card
           label="Realized P&L"
           [value]="totalRealizedProfit()"
           [isPositive]="true"
           prefix="$"
         />
-        <app-stat-card 
+        <app-stat-card
           label="Total P&L"
           [value]="totalUnrealizedProfit() + totalRealizedProfit()"
           [isPositive]="true"
@@ -311,7 +308,7 @@ import { Observable } from 'rxjs/internal/Observable';
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
-      
+
       h2 {
         font-size: 1.5rem;
         font-weight: 600;
@@ -332,7 +329,7 @@ import { Observable } from 'rxjs/internal/Observable';
       font-weight: 500;
       transition: all 0.2s;
       box-shadow: 0 2px 8px rgba(41, 98, 255, 0.3);
-      
+
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(41, 98, 255, 0.4);
@@ -347,7 +344,7 @@ import { Observable } from 'rxjs/internal/Observable';
       border-radius: 8px;
       font-weight: 500;
       transition: all 0.2s;
-      
+
       &:hover {
         background: rgba(41, 98, 255, 0.2);
       }
@@ -356,28 +353,28 @@ import { Observable } from 'rxjs/internal/Observable';
     table {
       width: 100%;
       border-collapse: collapse;
-      
+
       th, td {
         padding: 1rem;
         text-align: left;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
-      
+
       th {
         color: #999;
         font-weight: 500;
         font-size: 0.875rem;
         text-transform: uppercase;
       }
-      
+
       td {
         color: #fff;
         font-size: 0.95rem;
       }
-      
+
       tbody tr {
         transition: background 0.2s;
-        
+
         &:hover {
           background: rgba(255, 255, 255, 0.02);
         }
@@ -388,7 +385,7 @@ import { Observable } from 'rxjs/internal/Observable';
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      
+
       .symbol {
         font-weight: 600;
         font-size: 1rem;
@@ -422,7 +419,7 @@ import { Observable } from 'rxjs/internal/Observable';
       border-radius: 6px;
       font-size: 0.875rem;
       transition: all 0.2s;
-      
+
       &:hover {
         background: rgba(38, 166, 154, 0.2);
         transform: translateY(-1px);
@@ -437,7 +434,7 @@ import { Observable } from 'rxjs/internal/Observable';
       border-radius: 6px;
       font-size: 0.875rem;
       transition: all 0.2s;
-      
+
       &:hover {
         background: rgba(239, 83, 80, 0.2);
         transform: translateY(-1px);
@@ -452,7 +449,7 @@ import { Observable } from 'rxjs/internal/Observable';
       border-radius: 6px;
       font-size: 0.875rem;
       transition: all 0.2s;
-      
+
       &:hover {
         background: rgba(239, 83, 80, 0.2);
         transform: translateY(-1px);
@@ -495,7 +492,7 @@ import { Observable } from 'rxjs/internal/Observable';
         font-size: 1rem;
         transition: all 0.2s;
         box-shadow: 0 4px 12px rgba(41, 98, 255, 0.3);
-        
+
         &:hover {
           transform: translateY(-2px);
           box-shadow: 0 6px 16px rgba(41, 98, 255, 0.4);
@@ -620,8 +617,7 @@ export class PortfolioComponent implements OnInit {
     if (!asset) return;
 
     const type = this.modalType();
-    const totalAmount = data.quantity * data.price; // ← genau dieser Wert wird jetzt verwendet!
-
+    const totalAmount = data.quantity * data.price;
     let tradeObservable: Observable<TransactionResponseDto>;
     let balanceObservable: Observable<AccountDto>;
 
@@ -646,7 +642,7 @@ export class PortfolioComponent implements OnInit {
     ).subscribe({
       next: () => {
         console.log(`${type.toUpperCase()} erfolgreich + Balance um $${totalAmount.toFixed(2)} angepasst`);
-        this.loadPortfolio(); // lädt Assets + neue Balance
+        this.loadPortfolio();
       },
       error: (err) => {
         console.error(`${type} oder Balance-Update fehlgeschlagen:`, err);
@@ -657,7 +653,6 @@ export class PortfolioComponent implements OnInit {
     this.closeTradeModal();
   }
 
-  // Add Asset Modal Methods
   openAddAssetModal() {
     this.isAddAssetModalOpen.set(true);
   }
@@ -680,7 +675,7 @@ export class PortfolioComponent implements OnInit {
     ).subscribe({
       next: (account) => {
         console.log('✅ Neues Asset hinzugefügt + Balance abgezogen:', account);
-        this.loadPortfolio();   // alles neu laden (Assets + Balance)
+        this.loadPortfolio();
       },
       error: (err) => {
         console.error('❌ Fehler beim Hinzufügen oder Balance-Update:', err);
@@ -706,7 +701,7 @@ export class PortfolioComponent implements OnInit {
     ).subscribe({
       next: (account) => {
         console.log(`✅ Asset ${asset.symbol} deleted + $${currentValue.toFixed(2)} added back to balance:`, account);
-        this.loadPortfolio(); // lädt Assets + neue Balance neu
+        this.loadPortfolio();
       },
       error: (err) => {
         this.error.set('Failed to delete asset or update balance');

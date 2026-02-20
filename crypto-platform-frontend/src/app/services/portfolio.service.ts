@@ -2,14 +2,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { 
-  PortfolioAssetDto, 
+import {
+  PortfolioAssetDto,
   PortfolioSummaryDto,
   AccountDto,
-  BuyRequestDto, 
-  SellRequestDto, 
+  BuyRequestDto,
+  SellRequestDto,
   TransactionResponseDto,
-  BalanceOperationDto
 } from '../models/portfolio.model';
 
 @Injectable({
@@ -20,7 +19,6 @@ export class PortfolioService {
   private apiUrl = 'http://localhost:8080/api/portfolio';
   private accountUrl = 'http://localhost:8080/api/account';
 
-  // Portfolio Endpoints
   getPortfolio(): Observable<PortfolioAssetDto[]> {
     return this.http.get<PortfolioAssetDto[]>(this.apiUrl);
   }

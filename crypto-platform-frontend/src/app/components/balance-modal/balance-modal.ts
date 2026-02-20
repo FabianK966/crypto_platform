@@ -1,5 +1,3 @@
-// src/app/components/balance-modal/balance-modal.component.ts
-
 import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -26,13 +24,11 @@ export type BalanceOperationType = 'deposit' | 'withdraw' | 'set';
           </div>
 
           <div class="modal-body">
-            <!-- Current Balance Info -->
             <div class="balance-info">
               <div class="info-label">Current Initial Balance</div>
               <div class="info-value">\${{ currentBalance() | number:'1.2-2' }}</div>
             </div>
 
-            <!-- Amount Input -->
             <div class="input-group">
               <label>
                 @switch (operationType()) {
@@ -43,8 +39,8 @@ export type BalanceOperationType = 'deposit' | 'withdraw' | 'set';
               </label>
               <div class="input-wrapper">
                 <span class="currency-symbol">$</span>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   [(ngModel)]="amountInput"
                   (input)="onInputChange()"
                   placeholder="0.00"
@@ -72,7 +68,6 @@ export type BalanceOperationType = 'deposit' | 'withdraw' | 'set';
               </div>
             }
 
-            <!-- Error Message -->
             @if (errorMessage()) {
               <div class="error-message">
                 ⚠️ {{ errorMessage() }}
@@ -92,7 +87,7 @@ export type BalanceOperationType = 'deposit' | 'withdraw' | 'set';
 
           <div class="modal-footer">
             <button class="btn-cancel" (click)="close()">Cancel</button>
-            <button 
+            <button
               [class]="getConfirmButtonClass()"
               (click)="confirm()"
               [disabled]="!isValid()"
@@ -457,13 +452,13 @@ export class BalanceModalComponent {
 
   setQuickAmount(amount: number) {
     const type = this.operationType();
-    
+
     if (type === 'set') {
       this.amountInput = amount;
     } else {
       this.amountInput = (this.amountInput || 0) + amount;
     }
-    
+
     this.onInputChange();
   }
 

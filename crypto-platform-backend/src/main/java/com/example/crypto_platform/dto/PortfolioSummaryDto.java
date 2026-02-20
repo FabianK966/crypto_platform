@@ -10,8 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PortfolioSummaryDto {
-
-
     private BigDecimal initialBalance;
     private BigDecimal totalAssetValue;
     private BigDecimal totalBalance;

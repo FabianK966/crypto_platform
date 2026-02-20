@@ -248,9 +248,6 @@ public class PortfolioService {
         BigDecimal newQuantity = asset.getQuantity().subtract(request.getQuantity());
         asset.setQuantity(newQuantity);
         portfolioRepository.save(asset);
-
-        System.out.println("Realized P&L for this trade: $" + realizedPnL);
-        System.out.println("Total realized profit for " + symbol + ": $" + asset.getTotalRealizedProfit());
         return transaction;
     }
 

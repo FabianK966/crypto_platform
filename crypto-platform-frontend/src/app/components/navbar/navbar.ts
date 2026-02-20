@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
-// PrimeNG Imports
 import { MenubarModule } from 'primeng/menubar';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
@@ -29,15 +27,15 @@ import { MenuItem } from 'primeng/api';
             <span class="brand-text">Crypto Platform</span>
           </div>
         </ng-template>
-        
+
         <ng-template pTemplate="end">
           <div class="navbar-end">
             <div class="connection-status">
               <i class="pi pi-circle-fill live-indicator"></i>
               <span>Live</span>
             </div>
-            <p-avatar 
-              icon="pi pi-user" 
+            <p-avatar
+              icon="pi pi-user"
               styleClass="user-avatar"
               size="large"
               shape="circle"
@@ -54,24 +52,22 @@ import { MenuItem } from 'primeng/api';
       z-index: 1000;
     }
 
-    /* ──────────────────────────────────────────────── */
-    /*                WICHTIG: HÖHERE NAVBAR            */
-    /* ──────────────────────────────────────────────── */
+
     ::ng-deep .custom-menubar {
       background: rgba(15, 15, 15, 0.92) !important;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: none !important;
       border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important;
-      padding: 1.1rem 2.5rem;           /* mehr Padding oben/unten + seitlich */
-      min-height: 82px;                  /* deutlich höher als Standard (~55–60px) */
+      padding: 1.1rem 2.5rem;
+      min-height: 82px;
       height: auto;
       border-radius: 0;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     }
 
     ::ng-deep .custom-menubar .p-menubar-root-list {
-      gap: 3rem !important;              /* ← hier der große Abstand zwischen Portfolio & Markets */
+      gap: 3rem !important;
       align-items: center;
     }
 
@@ -205,18 +201,15 @@ export class NavbarComponent {
   menuItems: MenuItem[] = [
     {
       label: 'Portfolio',
-      icon: 'pi pi-chart-line',
       routerLink: '/portfolio',
       routerLinkActiveOptions: { exact: true }
     },
     {
       label: 'Markets',
-      icon: 'pi pi-chart-bar',
       routerLink: '/markets'
     },
     {
       label: 'Replay',
-      icon: 'pi pi-replay',
       routerLink: '/replay'
     }
   ];

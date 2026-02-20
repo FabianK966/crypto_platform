@@ -4,8 +4,6 @@ import { Subscription, interval } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { MarketService } from '../../services/market.service';
 import { MarketPrice } from '../../models/markets.model';
-
-// PrimeNG Imports
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -33,8 +31,8 @@ interface CoinInfo {
     <div [ngStyle]="containerStyle">
       <div [ngStyle]="headerStyle">
         <h2 [ngStyle]="titleStyle">Markets</h2>
-        <p-button 
-          icon="pi pi-refresh" 
+        <p-button
+          icon="pi pi-refresh"
           label="Refresh"
           [outlined]="true"
           severity="info"
@@ -46,7 +44,7 @@ interface CoinInfo {
         #marketsTable
         [value]="coins"
         [loading]="isLoading()"
-        [paginator]="false"          
+        [paginator]="false"
         [scrollable]="true"
         scrollHeight="flex"
         [globalFilterFields]="['symbol', 'name']"
@@ -56,10 +54,10 @@ interface CoinInfo {
           <div [ngStyle]="captionStyle">
             <span class="p-input-icon-left">
               <i class="pi pi-search"></i>
-              <input 
-                pInputText 
-                type="text" 
-                (input)="marketsTable.filterGlobal($any($event.target).value, 'contains')" 
+              <input
+                pInputText
+                type="text"
+                (input)="marketsTable.filterGlobal($any($event.target).value, 'contains')"
                 placeholder="Search markets..."
                 [ngStyle]="searchInputStyle"
               />
@@ -101,7 +99,7 @@ interface CoinInfo {
             </td>
             <td>
               @if (coin.priceChange !== undefined) {
-                <p-tag 
+                <p-tag
                   [value]="(coin.priceChange > 0 ? '+' : '') + (coin.priceChange | number:'1.2-2') + '%'"
                   [severity]="getChangeSeverity(coin.priceChange)"
                 />
@@ -157,7 +155,6 @@ interface CoinInfo {
     </div>
   `,
   styles: [`
-  /* PrimeNG Global Overrides - ALLE TRANSPARENT */
   ::ng-deep .p-datatable {
     background: transparent !important;
     color: #fff;
@@ -330,7 +327,6 @@ export class Markets implements OnInit, OnDestroy {
     { symbol: 'BCH', name: 'Bitcoin Cash', tradingPair: 'BCHUSDT' },
     { symbol: 'XLM', name: 'Stellar', tradingPair: 'XLMUSDT' },
     { symbol: 'SUI', name: 'Sui', tradingPair: 'SUIUSDT' },
-    { symbol: 'XMR', name: 'Monero', tradingPair: 'XMRUSDT' },
     { symbol: 'AVAX', name: 'Avalanche', tradingPair: 'AVAXUSDT' },
     { symbol: 'LINK', name: 'Chainlink', tradingPair: 'LINKUSDT' },
     { symbol: 'WBTC', name: 'Wrapped Bitcoin', tradingPair: 'WBTCUSDT' },
@@ -369,7 +365,7 @@ export class Markets implements OnInit, OnDestroy {
 
   private pricesSub?: Subscription;
 
-  // Inline Styles – nur containerStyle angepasst
+  // Inline Styles Container
   containerStyle = {
     'background': 'rgba(20, 20, 20, 0.3)',
     'border': '1px solid rgba(255, 255, 255, 0.15)',
@@ -381,7 +377,7 @@ export class Markets implements OnInit, OnDestroy {
     'flex-direction': 'column',
     'max-width': '1800px',
     'margin': '2rem auto',
-    'max-height': 'calc(100vh - 200px)',   // passt perfekt zum Bild
+    'max-height': 'calc(100vh - 200px)',
     'overflow-y': 'auto',
     'height': 'auto'
   };
