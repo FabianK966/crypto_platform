@@ -27,6 +27,12 @@ interface ReplayTrade {
   total: number;
 }
 
+interface ReplayDeposit {
+  amount: number;
+  timestamp: string;
+  newBalance: number;
+}
+
 @Component({
   selector: 'app-replay',
   standalone: true,
@@ -57,6 +63,7 @@ export class ReplayComponent implements OnInit, OnDestroy {
     { label: '0.5x', value: 0.5 },
     { label: '1x', value: 1 },
     { label: '2x', value: 2 },
+    { label: '3x', value: 3 },
     { label: '5x', value: 5 },
     { label: '10x', value: 10 },
   ];
@@ -83,7 +90,7 @@ export class ReplayComponent implements OnInit, OnDestroy {
   replayAvgBuyPrice = signal(0);
   replayRealizedPnl = signal(0);
   replayTradeHistory = signal<ReplayTrade[]>([]);
-
+  replayDepositHistory = signal<ReplayDeposit[]>([]);  
   replayInitialBalanceInput = 10000;
   private replayInitialBalance = 10000;
 
@@ -100,9 +107,14 @@ export class ReplayComponent implements OnInit, OnDestroy {
     return ((this.getCurrentPrice() - this.replayAvgBuyPrice()) / this.replayAvgBuyPrice()) * 100;
   });
 
+  // Trade Panel
   tradePanelOpen = signal(false);
   tradePanelType = signal<'buy' | 'sell'>('buy');
   tradeQuantityInput = 0;
+
+  // Deposit Panel
+  depositPanelOpen = signal(false);
+  depositAmountInput = 0;
 
   constructor() {
     effect(() => {
@@ -157,7 +169,7 @@ export class ReplayComponent implements OnInit, OnDestroy {
         this.currentCandleIndex.set(0);
         this.loading.set(false);
         this.resetReplayPortfolio();
-        setTimeout(() => this.initializeChart(), 10000);
+        setTimeout(() => this.initializeChart(), 100);
       },
       error: (err) => {
         this.error.set(err.error?.error || 'Failed to load historical data');
@@ -282,7 +294,10 @@ export class ReplayComponent implements OnInit, OnDestroy {
   // Portfolio methods
   setReplayBalance() {
     const amount = Number(this.replayInitialBalanceInput);
-    if (amount > 0) { this.replayInitialBalance = amount; this.replayCashBalance.set(amount); }
+    if (amount > 0) { 
+      this.replayInitialBalance = amount; 
+      this.replayCashBalance.set(amount); 
+    }
   }
 
   resetReplayPortfolio() {
@@ -291,9 +306,55 @@ export class ReplayComponent implements OnInit, OnDestroy {
     this.replayAvgBuyPrice.set(0);
     this.replayRealizedPnl.set(0);
     this.replayTradeHistory.set([]);
+    this.replayDepositHistory.set([]); 
     this.closeTradePanel();
+    this.closeDepositPanel();  
   }
 
+  // Deposit Panel Methods
+  openDepositPanel() {
+    this.depositAmountInput = 0;
+    this.depositPanelOpen.set(true);
+  }
+
+  closeDepositPanel() {
+    this.depositPanelOpen.set(false);
+    this.depositAmountInput = 0;
+  }
+
+  setDepositQuickAmount(amount: number) {
+    this.depositAmountInput = amount;
+  }
+
+  confirmDeposit() {
+    const amount = Number(this.depositAmountInput);
+    if (amount <= 0) {
+      alert('Please enter a valid deposit amount');
+      return;
+    }
+
+    // Balance erhöhen
+    this.replayCashBalance.update((b) => b + amount);
+    
+    const newBalance = this.replayCashBalance();
+
+    // Deposit in Historie speichern
+    this.replayDepositHistory.update((h) => [
+      {
+        amount,
+        timestamp: this.getCurrentDate(),
+        newBalance
+      },
+      ...h
+    ]);
+
+    console.log(`💰 Deposited $${amount.toFixed(2)} at ${this.getCurrentDate()}`);
+    console.log(`💵 New cash balance: $${newBalance.toFixed(2)}`);
+
+    this.closeDepositPanel();
+  }
+
+  // Trade Panel Methods
   openTradePanel(type: 'buy' | 'sell') {
     this.tradePanelType.set(type);
     this.tradeQuantityInput = 0;
@@ -325,7 +386,10 @@ export class ReplayComponent implements OnInit, OnDestroy {
 
   private executeBuy(qty: number, price: number) {
     const totalCost = qty * price;
-    if (totalCost > this.replayCashBalance()) { alert('Insufficient cash balance'); return; }
+    if (totalCost > this.replayCashBalance()) { 
+      alert('Insufficient cash balance'); 
+      return; 
+    }
     const existingQty = this.replayQuantity();
     const newAvg = existingQty > 0
       ? (existingQty * this.replayAvgBuyPrice() + qty * price) / (existingQty + qty)
@@ -334,12 +398,16 @@ export class ReplayComponent implements OnInit, OnDestroy {
     this.replayAvgBuyPrice.set(newAvg);
     this.replayCashBalance.update((b) => b - totalCost);
     this.replayTradeHistory.update((h) => [
-      { type: 'buy', quantity: qty, price, total: totalCost, timestamp: this.getCurrentDate() }, ...h,
+      { type: 'buy', quantity: qty, price, total: totalCost, timestamp: this.getCurrentDate() }, 
+      ...h,
     ]);
   }
 
   private executeSell(qty: number, price: number) {
-    if (qty > this.replayQuantity()) { alert('Insufficient asset quantity'); return; }
+    if (qty > this.replayQuantity()) { 
+      alert('Insufficient asset quantity'); 
+      return; 
+    }
     const proceeds = qty * price;
     const realizedProfit = proceeds - qty * this.replayAvgBuyPrice();
     this.replayQuantity.update((q) => q - qty);
@@ -347,7 +415,8 @@ export class ReplayComponent implements OnInit, OnDestroy {
     this.replayRealizedPnl.update((p) => p + realizedProfit);
     if (this.replayQuantity() === 0) this.replayAvgBuyPrice.set(0);
     this.replayTradeHistory.update((h) => [
-      { type: 'sell', quantity: qty, price, total: proceeds, timestamp: this.getCurrentDate() }, ...h,
+      { type: 'sell', quantity: qty, price, total: proceeds, timestamp: this.getCurrentDate() }, 
+      ...h,
     ]);
   }
 }
