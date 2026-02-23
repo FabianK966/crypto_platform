@@ -1,0 +1,71 @@
+<!-- src/app/components/replay/components/replay-history/replay-history.component.html -->
+
+<div class="history-grid">
+  @if (tradingService.replayTradeHistory().length > 0) {
+    <div class="trade-history-section">
+      <h3>📋 Trade History</h3>
+      <div class="history-scroll">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Pos</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Total</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (trade of tradingService.replayTradeHistory(); track $index) {
+              <tr>
+                <td>
+                  <span class="trade-type-badge" [ngClass]="trade.type === 'buy' ? 'trade-badge-buy' : 'trade-badge-sell'">
+                    {{ trade.type === 'buy' ? '🟢 BUY' : '🔴 SELL' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="position-badge" [ngClass]="trade.positionType === 'long' ? 'long-badge' : 'short-badge'">
+                    {{ trade.positionType | uppercase }}
+                  </span>
+                </td>
+                <td>{{ trade.quantity | number:'1.0-8' }}</td>
+                <td>$ {{ trade.price | number:'1.2-2' }}</td>
+                <td>$ {{ trade.total | number:'1.2-2' }}</td>
+                <td class="timestamp-cell">{{ trade.timestamp }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  @if (tradingService.replayDepositHistory().length > 0) {
+    <div class="deposit-history-section">
+      <h3>💵 Deposit History</h3>
+      <div class="history-scroll">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Amount</th>
+              <th>New Balance</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (deposit of tradingService.replayDepositHistory(); track $index) {
+              <tr>
+                <td>
+                  <span class="deposit-amount positive">+$ {{ deposit.amount | number:'1.2-2' }}</span>
+                </td>
+                <td>$ {{ deposit.newBalance | number:'1.2-2' }}</td>
+                <td class="timestamp-cell">{{ deposit.timestamp }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

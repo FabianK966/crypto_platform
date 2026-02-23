@@ -1,0 +1,303 @@
+ .portfolio-container {
+     padding: 2rem;
+     max-width: 1800px;
+     margin: 0 auto;
+ }
+
+ /* Balance Section */
+ .balance-section {
+     background: rgba(20, 20, 20, 0.6);
+     border: 1px solid rgba(255, 255, 255, 0.1);
+     border-radius: 12px;
+     padding: 1.5rem;
+     backdrop-filter: blur(10px);
+     margin-bottom: 2rem;
+ }
+
+ .balance-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 1.5rem;
+
+     h2 {
+         font-size: 1.5rem;
+         font-weight: 600;
+     }
+ }
+
+ .balance-actions {
+     display: flex;
+     gap: 0.75rem;
+ }
+
+ .btn-deposit {
+     background: linear-gradient(135deg, #26a69a 0%, #1e8e7e 100%);
+     border: none;
+     color: white;
+     padding: 0.5rem 1rem;
+     border-radius: 8px;
+     font-weight: 500;
+     transition: all 0.2s;
+     box-shadow: 0 2px 8px rgba(38, 166, 154, 0.3);
+
+     &:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 4px 12px rgba(38, 166, 154, 0.4);
+     }
+ }
+
+ .btn-withdraw {
+     background: linear-gradient(135deg, #ef5350 0%, #d32f2f 100%);
+     border: none;
+     color: white;
+     padding: 0.5rem 1rem;
+     border-radius: 8px;
+     font-weight: 500;
+     transition: all 0.2s;
+     box-shadow: 0 2px 8px rgba(239, 83, 80, 0.3);
+
+     &:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 4px 12px rgba(239, 83, 80, 0.4);
+     }
+ }
+
+ .btn-set-balance {
+     background: rgba(41, 98, 255, 0.1);
+     border: 1px solid #2962ff;
+     color: #2962ff;
+     padding: 0.5rem 1rem;
+     border-radius: 8px;
+     font-weight: 500;
+     transition: all 0.2s;
+
+     &:hover {
+         background: rgba(41, 98, 255, 0.2);
+     }
+ }
+
+ .balance-stats-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+     gap: 1.5rem;
+ }
+
+ .stats-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+     gap: 1.5rem;
+     margin-bottom: 2rem;
+ }
+
+ .portfolio-table {
+     background: rgba(20, 20, 20, 0.6);
+     border: 1px solid rgba(255, 255, 255, 0.1);
+     border-radius: 12px;
+     padding: 1.5rem;
+     backdrop-filter: blur(10px);
+ }
+
+ .table-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 1.5rem;
+
+     h2 {
+         font-size: 1.5rem;
+         font-weight: 600;
+     }
+ }
+
+ .header-actions {
+     display: flex;
+     gap: 0.75rem;
+ }
+
+ .btn-add-new {
+     background: linear-gradient(135deg, #2962ff 0%, #1e4ed8 100%);
+     border: none;
+     color: white;
+     padding: 0.5rem 1rem;
+     border-radius: 8px;
+     font-weight: 500;
+     transition: all 0.2s;
+     box-shadow: 0 2px 8px rgba(41, 98, 255, 0.3);
+
+     &:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 4px 12px rgba(41, 98, 255, 0.4);
+     }
+ }
+
+ .btn-refresh {
+     background: rgba(41, 98, 255, 0.1);
+     border: 1px solid #2962ff;
+     color: #2962ff;
+     padding: 0.5rem 1rem;
+     border-radius: 8px;
+     font-weight: 500;
+     transition: all 0.2s;
+
+     &:hover {
+         background: rgba(41, 98, 255, 0.2);
+     }
+ }
+
+ table {
+     width: 100%;
+     border-collapse: collapse;
+
+     th,
+     td {
+         padding: 1rem;
+         text-align: left;
+         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+     }
+
+     th {
+         color: #999;
+         font-weight: 500;
+         font-size: 0.875rem;
+         text-transform: uppercase;
+     }
+
+     td {
+         color: #fff;
+         font-size: 0.95rem;
+     }
+
+     tbody tr {
+         transition: background 0.2s;
+
+         &:hover {
+             background: rgba(255, 255, 255, 0.02);
+         }
+     }
+ }
+
+ .asset-cell {
+     display: flex;
+     align-items: center;
+     gap: 0.75rem;
+
+     .symbol {
+         font-weight: 600;
+         font-size: 1rem;
+     }
+ }
+
+ .positive {
+     color: #26a69a !important;
+ }
+
+ .negative {
+     color: #ef5350 !important;
+ }
+
+ .percent {
+     font-size: 0.875rem;
+     opacity: 0.8;
+     margin-left: 0.25rem;
+ }
+
+ .actions {
+     display: flex;
+     gap: 0.5rem;
+ }
+
+ .btn-buy {
+     background: rgba(38, 166, 154, 0.1);
+     border: 1px solid #26a69a;
+     color: #26a69a;
+     padding: 0.4rem 0.8rem;
+     border-radius: 6px;
+     font-size: 0.875rem;
+     transition: all 0.2s;
+
+     &:hover {
+         background: rgba(38, 166, 154, 0.2);
+         transform: translateY(-1px);
+     }
+ }
+
+ .btn-sell {
+     background: rgba(239, 83, 80, 0.1);
+     border: 1px solid #ef5350;
+     color: #ef5350;
+     padding: 0.4rem 0.8rem;
+     border-radius: 6px;
+     font-size: 0.875rem;
+     transition: all 0.2s;
+
+     &:hover {
+         background: rgba(239, 83, 80, 0.2);
+         transform: translateY(-1px);
+     }
+ }
+
+ .btn-delete {
+     background: rgba(239, 83, 80, 0.1);
+     border: 1px solid rgba(239, 83, 80, 0.3);
+     color: #ef5350;
+     padding: 0.4rem 0.6rem;
+     border-radius: 6px;
+     font-size: 0.875rem;
+     transition: all 0.2s;
+
+     &:hover {
+         background: rgba(239, 83, 80, 0.2);
+         transform: translateY(-1px);
+     }
+ }
+
+ .loading,
+ .error,
+ .empty {
+     text-align: center;
+     padding: 3rem;
+     color: #999;
+ }
+
+ .empty {
+     padding: 4rem 2rem;
+
+     .empty-icon {
+         font-size: 4rem;
+         margin-bottom: 1rem;
+     }
+
+     h3 {
+         font-size: 1.5rem;
+         font-weight: 600;
+         margin-bottom: 0.5rem;
+         color: #fff;
+     }
+
+     p {
+         color: #999;
+         margin-bottom: 2rem;
+     }
+
+     .btn-primary {
+         background: linear-gradient(135deg, #2962ff 0%, #1e4ed8 100%);
+         border: none;
+         color: white;
+         padding: 0.875rem 1.75rem;
+         border-radius: 8px;
+         font-weight: 600;
+         font-size: 1rem;
+         transition: all 0.2s;
+         box-shadow: 0 4px 12px rgba(41, 98, 255, 0.3);
+
+         &:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 6px 16px rgba(41, 98, 255, 0.4);
+         }
+     }
+ }
+
+ .error {
+     color: #ef5350;
+ }

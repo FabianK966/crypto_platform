@@ -1,0 +1,174 @@
+/* src/app/components/replay/components/replay-config-sidebar/replay-config-sidebar.component.css */
+
+.config-sidebar {
+  background: rgba(20, 20, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  overflow: visible;
+  position: sticky;
+  top: 1rem;
+  z-index: 10;
+}
+
+.config-sidebar-inner {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.sidebar-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 0.4rem 0.875rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.status-badge.playing {
+  background: rgba(38, 166, 154, 0.2);
+  border: 1px solid #26a69a;
+  color: #26a69a;
+}
+
+.status-badge.paused {
+  background: rgba(255, 193, 7, 0.2);
+  border: 1px solid #ffc107;
+  color: #ffc107;
+}
+
+.sidebar-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.input-group label {
+  color: #999;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.input-field {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  color: #fff;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #2962ff;
+}
+
+.ema-toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.ema-toggle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #999;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ema-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.ema-toggle-btn.active {
+  background: rgba(41, 98, 255, 0.2);
+  border-color: #2962ff;
+  color: #2962ff;
+  font-weight: 600;
+}
+
+.candle-info {
+  color: #26a69a;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(38, 166, 154, 0.08);
+  border-radius: 6px;
+  border: 1px solid rgba(38, 166, 154, 0.2);
+}
+
+.error-message {
+  background: rgba(239, 83, 80, 0.1);
+  border: 1px solid rgba(239, 83, 80, 0.3);
+  border-radius: 8px;
+  padding: 0.875rem;
+  color: #ef5350;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 1524px) {
+  .config-sidebar {
+    position: static;
+  }
+
+  .config-sidebar-inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    align-items: end;
+  }
+
+  .sidebar-header {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+  }
+
+  .sidebar-fields {
+    display: contents;
+  }
+}
+
+::ng-deep .load-btn-full.p-button {
+  width: 100% !important;
+  justify-content: center;
+}
+
+::ng-deep .p-select-overlay {
+  background: rgba(20, 20, 20, 0.95) !important; /* Dunkler Hintergrund mit 5% Transparenz */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

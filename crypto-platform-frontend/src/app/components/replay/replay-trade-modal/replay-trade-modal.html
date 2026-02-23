@@ -1,0 +1,39 @@
+<!-- src/app/components/replay/components/replay-trade-modal/replay-trade-modal.component.html -->
+
+<div class="trade-panel" [ngClass]="type === 'buy' ? 'trade-panel-buy' : 'trade-panel-sell'">
+  <div class="trade-panel-header" [ngClass]="type === 'buy' ? 'trade-header-buy' : 'trade-header-sell'">
+    <span>{{ getTitle() }}</span>
+    <button class="close-btn" (click)="close.emit()">✕</button>
+  </div>
+  <div class="trade-panel-body">
+    <div class="trade-info-row">
+      <span class="trade-label">Current Price</span>
+      <span class="trade-value">$ {{ currentPrice | number:'1.2-2' }}</span>
+    </div>
+    <div class="trade-info-row">
+      <span class="trade-label">Available</span>
+      <span class="trade-value">{{ getAvailableAmount() }}</span>
+    </div>
+    <div class="trade-input-row">
+      <label>Quantity</label>
+      <input type="number" [(ngModel)]="quantityInput" class="input-field trade-qty-input" placeholder="0.00" min="0" step="0.001" />
+    </div>
+    <div class="trade-quick-btns">
+      <button class="quick-btn" (click)="setPercent(10)">10%</button>
+      <button class="quick-btn" (click)="setPercent(25)">25%</button>
+      <button class="quick-btn" (click)="setPercent(50)">50%</button>
+      <button class="quick-btn" (click)="setPercent(75)">75%</button>
+      <button class="quick-btn" (click)="setPercent(100)">100%</button>
+    </div>
+    <div class="trade-total-row">
+      <span>Total</span>
+      <span>$ {{ quantityInput * currentPrice | number:'1.2-2' }}</span>
+    </div>
+    <div class="trade-panel-actions">
+      <button class="btn-cancel" (click)="close.emit()">Cancel</button>
+      <button [ngClass]="type === 'buy' ? 'btn-confirm-buy' : 'btn-confirm-sell'" (click)="confirmTrade()" [disabled]="quantityInput <= 0">
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>

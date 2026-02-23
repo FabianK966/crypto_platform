@@ -1,0 +1,162 @@
+::ng-deep .p-datatable {
+    background: transparent !important;
+    color: #fff;
+}
+
+::ng-deep .p-datatable .p-datatable-header {
+    background: transparent !important;
+    border: none;
+    padding: 0 0 1rem 0;
+}
+
+::ng-deep .p-datatable-wrapper {
+    background: transparent !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+::ng-deep .p-datatable-wrapper::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::ng-deep .p-datatable-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::ng-deep .p-datatable-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 252, 252, 0.18);
+    border-radius: 20px;
+}
+
+::ng-deep .p-datatable-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+    background: rgba(20, 20, 20, 0.98) !important;
+    color: #999;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    padding: 1rem;
+    position: sticky !important;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+::ng-deep .p-datatable .p-datatable-tbody>tr {
+    background: transparent !important;
+    color: #ffffff;
+    transition: background 0.2s;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody>tr:hover {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.1rem 1rem;
+    background: transparent !important;
+}
+
+::ng-deep .p-datatable-table {
+    background: transparent !important;
+}
+
+::ng-deep .p-sortable-column:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+::ng-deep .p-sortable-column .p-sortable-column-icon {
+    color: #999;
+}
+
+::ng-deep .p-sortable-column.p-highlight {
+    background: rgba(41, 98, 255, 0.1) !important;
+    color: #2962ff;
+}
+
+::ng-deep .p-sortable-column.p-highlight .p-sortable-column-icon {
+    color: #2962ff;
+}
+
+::ng-deep .p-tag.p-tag-success {
+    background: rgba(38, 166, 154, 0.2) !important;
+    color: #26a69a;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+}
+
+::ng-deep .p-tag.p-tag-danger {
+    background: rgba(239, 83, 80, 0.2) !important;
+    color: #ef5350;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+}
+
+::ng-deep .p-tag.p-tag-secondary {
+    background: rgba(153, 153, 153, 0.2) !important;
+    color: #999;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+}
+
+::ng-deep .p-button {
+    background: transparent !important;
+}
+
+::ng-deep .p-button.p-button-outlined.p-button-info {
+    color: #2962ff;
+    border-color: #2962ff;
+    background: transparent !important;
+}
+
+::ng-deep .p-button.p-button-outlined.p-button-info:hover {
+    background: rgba(41, 98, 255, 0.1) !important;
+}
+
+::ng-deep .p-input-icon-left>input {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding-left: 2.5rem;
+}
+
+::ng-deep .p-input-icon-left>input:focus {
+    border-color: #2962ff;
+    box-shadow: 0 0 0 0.2rem rgba(41, 98, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+::ng-deep .p-input-icon-left>input::placeholder {
+    color: #666;
+}
+
+::ng-deep .p-input-icon-left>i {
+    color: #999;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+
+    ::ng-deep .p-datatable .p-datatable-thead>tr>th,
+    ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+    }
+}

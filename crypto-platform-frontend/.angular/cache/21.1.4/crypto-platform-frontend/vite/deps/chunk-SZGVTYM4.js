@@ -1,21 +1,21 @@
 import {
-  BaseInput,
-  Motion,
-  MotionModule
-} from "./chunk-BGJJTX5H.js";
-import {
-  InputText
-} from "./chunk-YOBBWYQC.js";
+  Scroller
+} from "./chunk-GTK4PUUZ.js";
 import {
   AutoFocus
 } from "./chunk-7MO6B5JF.js";
 import {
-  Tooltip
-} from "./chunk-GR2VH3QD.js";
+  BaseModelHolder,
+  InputText
+} from "./chunk-YOBBWYQC.js";
+import {
+  Fluid
+} from "./chunk-UECOTVFO.js";
 import {
   ObjectUtils,
+  Tooltip,
   zindexutils
-} from "./chunk-3WXT4SWY.js";
+} from "./chunk-Q2HW4WAN.js";
 import {
   ConnectedOverlayScrollHandler,
   unblockBodyScroll
@@ -24,15 +24,12 @@ import {
   Ripple
 } from "./chunk-X5LCEWOY.js";
 import {
-  Scroller
-} from "./chunk-UBONRQTM.js";
-import {
   BlankIcon,
   CheckIcon,
   ChevronDownIcon,
   SearchIcon,
   TimesIcon
-} from "./chunk-P63AVWAJ.js";
+} from "./chunk-QPX5C5TN.js";
 import {
   NG_VALUE_ACCESSOR
 } from "./chunk-FNO6ZY34.js";
@@ -56,6 +53,7 @@ import {
   OverlayService,
   P,
   PrimeTemplate,
+  Qt,
   SharedModule,
   TranslationKeys,
   W,
@@ -65,12 +63,16 @@ import {
   j,
   k2 as k,
   l,
+  oe,
   p,
+  qt,
   s2 as s,
   s3 as s2,
+  te,
   ut,
   v,
   vt,
+  w,
   y,
   z
 } from "./chunk-CRLYQE4L.js";
@@ -87,6 +89,7 @@ import {
   Component,
   ContentChild,
   ContentChildren,
+  Directive,
   EventEmitter,
   Injectable,
   InjectionToken,
@@ -96,6 +99,7 @@ import {
   Output,
   ViewChild,
   ViewEncapsulation,
+  afterRenderEffect,
   booleanAttribute,
   computed,
   effect,
@@ -103,6 +107,7 @@ import {
   inject,
   input,
   numberAttribute,
+  output,
   setClassMetadata,
   signal,
   ɵɵHostDirectivesFeature,
@@ -115,6 +120,7 @@ import {
   ɵɵconditionalCreate,
   ɵɵcontentQuery,
   ɵɵdefineComponent,
+  ɵɵdefineDirective,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
@@ -157,6 +163,342 @@ import {
   __spreadProps,
   __spreadValues
 } from "./chunk-GOMI4DH3.js";
+
+// node_modules/primeng/fesm2022/primeng-baseeditableholder.mjs
+var BaseEditableHolder = class _BaseEditableHolder extends BaseModelHolder {
+  /**
+   * There must be a value (if set).
+   * @defaultValue false
+   * @group Props
+   */
+  required = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "required"
+  } : {}), {
+    transform: booleanAttribute
+  }));
+  /**
+   * When present, it specifies that the component should have invalid state style.
+   * @defaultValue false
+   * @group Props
+   */
+  invalid = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "invalid"
+  } : {}), {
+    transform: booleanAttribute
+  }));
+  /**
+   * When present, it specifies that the component should have disabled state style.
+   * @defaultValue false
+   * @group Props
+   */
+  disabled = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "disabled"
+  } : {}), {
+    transform: booleanAttribute
+  }));
+  /**
+   * When present, it specifies that the name of the input.
+   * @defaultValue undefined
+   * @group Props
+   */
+  name = input(...ngDevMode ? [void 0, {
+    debugName: "name"
+  }] : []);
+  _disabled = signal(false, ...ngDevMode ? [{
+    debugName: "_disabled"
+  }] : []);
+  $disabled = computed(() => this.disabled() || this._disabled(), ...ngDevMode ? [{
+    debugName: "$disabled"
+  }] : []);
+  onModelChange = () => {
+  };
+  onModelTouched = () => {
+  };
+  writeDisabledState(value) {
+    this._disabled.set(value);
+  }
+  writeControlValue(value, setModelValue) {
+  }
+  /**** Angular ControlValueAccessors ****/
+  writeValue(value) {
+    this.writeControlValue(value, this.writeModelValue.bind(this));
+  }
+  registerOnChange(fn) {
+    this.onModelChange = fn;
+  }
+  registerOnTouched(fn) {
+    this.onModelTouched = fn;
+  }
+  setDisabledState(val) {
+    this.writeDisabledState(val);
+    this.cd.markForCheck();
+  }
+  static ɵfac = /* @__PURE__ */ (() => {
+    let ɵBaseEditableHolder_BaseFactory;
+    return function BaseEditableHolder_Factory(__ngFactoryType__) {
+      return (ɵBaseEditableHolder_BaseFactory || (ɵBaseEditableHolder_BaseFactory = ɵɵgetInheritedFactory(_BaseEditableHolder)))(__ngFactoryType__ || _BaseEditableHolder);
+    };
+  })();
+  static ɵdir = ɵɵdefineDirective({
+    type: _BaseEditableHolder,
+    inputs: {
+      required: [1, "required"],
+      invalid: [1, "invalid"],
+      disabled: [1, "disabled"],
+      name: [1, "name"]
+    },
+    features: [ɵɵInheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BaseEditableHolder, [{
+    type: Directive,
+    args: [{
+      standalone: true
+    }]
+  }], null, {
+    required: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "required",
+        required: false
+      }]
+    }],
+    invalid: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "invalid",
+        required: false
+      }]
+    }],
+    disabled: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "disabled",
+        required: false
+      }]
+    }],
+    name: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "name",
+        required: false
+      }]
+    }]
+  });
+})();
+
+// node_modules/primeng/fesm2022/primeng-baseinput.mjs
+var BaseInput = class _BaseInput extends BaseEditableHolder {
+  pcFluid = inject(Fluid, {
+    optional: true,
+    host: true,
+    skipSelf: true
+  });
+  /**
+   * Spans 100% width of the container when enabled.
+   * @defaultValue false
+   * @group Props
+   */
+  fluid = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "fluid"
+  } : {}), {
+    transform: booleanAttribute
+  }));
+  /**
+   * Specifies the input variant of the component.
+   * @defaultValue 'outlined'
+   * @group Props
+   */
+  variant = input(...ngDevMode ? [void 0, {
+    debugName: "variant"
+  }] : []);
+  /**
+   * Specifies the size of the component.
+   * @defaultValue undefined
+   * @group Props
+   */
+  size = input(...ngDevMode ? [void 0, {
+    debugName: "size"
+  }] : []);
+  /**
+   * Specifies the visible width of the input element in characters.
+   * @defaultValue undefined
+   * @group Props
+   */
+  inputSize = input(...ngDevMode ? [void 0, {
+    debugName: "inputSize"
+  }] : []);
+  /**
+   * Specifies the value must match the pattern.
+   * @defaultValue undefined
+   * @group Props
+   */
+  pattern = input(...ngDevMode ? [void 0, {
+    debugName: "pattern"
+  }] : []);
+  /**
+   * The value must be greater than or equal to the value.
+   * @defaultValue undefined
+   * @group Props
+   */
+  min = input(...ngDevMode ? [void 0, {
+    debugName: "min"
+  }] : []);
+  /**
+   * The value must be less than or equal to the value.
+   * @defaultValue undefined
+   * @group Props
+   */
+  max = input(...ngDevMode ? [void 0, {
+    debugName: "max"
+  }] : []);
+  /**
+   * Unless the step is set to the any literal, the value must be min + an integral multiple of the step.
+   * @defaultValue undefined
+   * @group Props
+   */
+  step = input(...ngDevMode ? [void 0, {
+    debugName: "step"
+  }] : []);
+  /**
+   * The number of characters (code points) must not be less than the value of the attribute, if non-empty.
+   * @defaultValue undefined
+   * @group Props
+   */
+  minlength = input(...ngDevMode ? [void 0, {
+    debugName: "minlength"
+  }] : []);
+  /**
+   * The number of characters (code points) must not exceed the value of the attribute.
+   * @defaultValue undefined
+   * @group Props
+   */
+  maxlength = input(...ngDevMode ? [void 0, {
+    debugName: "maxlength"
+  }] : []);
+  $variant = computed(() => this.variant() || this.config.inputStyle() || this.config.inputVariant(), ...ngDevMode ? [{
+    debugName: "$variant"
+  }] : []);
+  get hasFluid() {
+    return this.fluid() ?? !!this.pcFluid;
+  }
+  static ɵfac = /* @__PURE__ */ (() => {
+    let ɵBaseInput_BaseFactory;
+    return function BaseInput_Factory(__ngFactoryType__) {
+      return (ɵBaseInput_BaseFactory || (ɵBaseInput_BaseFactory = ɵɵgetInheritedFactory(_BaseInput)))(__ngFactoryType__ || _BaseInput);
+    };
+  })();
+  static ɵdir = ɵɵdefineDirective({
+    type: _BaseInput,
+    inputs: {
+      fluid: [1, "fluid"],
+      variant: [1, "variant"],
+      size: [1, "size"],
+      inputSize: [1, "inputSize"],
+      pattern: [1, "pattern"],
+      min: [1, "min"],
+      max: [1, "max"],
+      step: [1, "step"],
+      minlength: [1, "minlength"],
+      maxlength: [1, "maxlength"]
+    },
+    features: [ɵɵInheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BaseInput, [{
+    type: Directive,
+    args: [{
+      standalone: true
+    }]
+  }], null, {
+    fluid: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "fluid",
+        required: false
+      }]
+    }],
+    variant: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "variant",
+        required: false
+      }]
+    }],
+    size: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "size",
+        required: false
+      }]
+    }],
+    inputSize: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "inputSize",
+        required: false
+      }]
+    }],
+    pattern: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pattern",
+        required: false
+      }]
+    }],
+    min: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "min",
+        required: false
+      }]
+    }],
+    max: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "max",
+        required: false
+      }]
+    }],
+    step: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "step",
+        required: false
+      }]
+    }],
+    minlength: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "minlength",
+        required: false
+      }]
+    }],
+    maxlength: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "maxlength",
+        required: false
+      }]
+    }]
+  });
+})();
 
 // node_modules/@primeuix/styles/dist/iconfield/index.mjs
 var style = "\n    .p-iconfield {\n        position: relative;\n        display: block;\n    }\n\n    .p-inputicon {\n        position: absolute;\n        top: 50%;\n        margin-top: calc(-1 * (dt('icon.size') / 2));\n        color: dt('iconfield.icon.color');\n        line-height: 1;\n        z-index: 1;\n    }\n\n    .p-iconfield .p-inputicon:first-child {\n        inset-inline-start: dt('form.field.padding.x');\n    }\n\n    .p-iconfield .p-inputicon:last-child {\n        inset-inline-end: dt('form.field.padding.x');\n    }\n\n    .p-iconfield .p-inputtext:not(:first-child),\n    .p-iconfield .p-inputwrapper:not(:first-child) .p-inputtext {\n        padding-inline-start: calc((dt('form.field.padding.x') * 2) + dt('icon.size'));\n    }\n\n    .p-iconfield .p-inputtext:not(:last-child) {\n        padding-inline-end: calc((dt('form.field.padding.x') * 2) + dt('icon.size'));\n    }\n\n    .p-iconfield:has(.p-inputfield-sm) .p-inputicon {\n        font-size: dt('form.field.sm.font.size');\n        width: dt('form.field.sm.font.size');\n        height: dt('form.field.sm.font.size');\n        margin-top: calc(-1 * (dt('form.field.sm.font.size') / 2));\n    }\n\n    .p-iconfield:has(.p-inputfield-lg) .p-inputicon {\n        font-size: dt('form.field.lg.font.size');\n        width: dt('form.field.lg.font.size');\n        height: dt('form.field.lg.font.size');\n        margin-top: calc(-1 * (dt('form.field.lg.font.size') / 2));\n    }\n";
@@ -458,8 +800,1369 @@ var InputIconModule = class _InputIconModule {
   }], null, null);
 })();
 
+// node_modules/@primeuix/motion/dist/index.mjs
+var j2 = Object.defineProperty;
+var T = Object.getOwnPropertySymbols;
+var q = Object.prototype.hasOwnProperty;
+var V = Object.prototype.propertyIsEnumerable;
+var D2 = (t, n, e) => n in t ? j2(t, n, { enumerable: true, configurable: true, writable: true, value: e }) : t[n] = e;
+var p2 = (t, n) => {
+  for (var e in n || (n = {})) q.call(n, e) && D2(t, e, n[e]);
+  if (T) for (var e of T(n)) V.call(n, e) && D2(t, e, n[e]);
+  return t;
+};
+var N = (t, n, e) => new Promise((o, m) => {
+  var i = (r) => {
+    try {
+      f(e.next(r));
+    } catch (u) {
+      m(u);
+    }
+  }, M2 = (r) => {
+    try {
+      f(e.throw(r));
+    } catch (u) {
+      m(u);
+    }
+  }, f = (r) => r.done ? o(r.value) : Promise.resolve(r.value).then(i, M2);
+  f((e = e.apply(t, n)).next());
+});
+var E = "animation";
+var v2 = "transition";
+function H(t) {
+  return t ? t.disabled || !!(t.safe && qt()) : false;
+}
+function k2(t, n) {
+  return t ? p2(p2({}, t), Object.entries(n).reduce((e, [o, m]) => {
+    var i;
+    return e[o] = (i = t[o]) != null ? i : m, e;
+  }, {})) : n;
+}
+function L(t) {
+  let { name: n, enterClass: e, leaveClass: o } = t || {};
+  return { enter: { from: (e == null ? void 0 : e.from) || `${n}-enter-from`, to: (e == null ? void 0 : e.to) || `${n}-enter-to`, active: (e == null ? void 0 : e.active) || `${n}-enter-active` }, leave: { from: (o == null ? void 0 : o.from) || `${n}-leave-from`, to: (o == null ? void 0 : o.to) || `${n}-leave-to`, active: (o == null ? void 0 : o.active) || `${n}-leave-active` } };
+}
+function W2(t) {
+  return { enter: { onBefore: t == null ? void 0 : t.onBeforeEnter, onStart: t == null ? void 0 : t.onEnter, onAfter: t == null ? void 0 : t.onAfterEnter, onCancelled: t == null ? void 0 : t.onEnterCancelled }, leave: { onBefore: t == null ? void 0 : t.onBeforeLeave, onStart: t == null ? void 0 : t.onLeave, onAfter: t == null ? void 0 : t.onAfterLeave, onCancelled: t == null ? void 0 : t.onLeaveCancelled } };
+}
+function A(t, n) {
+  let e = window.getComputedStyle(t), o = (l2) => {
+    let c = e[`${l2}Delay`], h = e[`${l2}Duration`];
+    return [c.split(", ").map(oe), h.split(", ").map(oe)];
+  }, [m, i] = o(v2), [M2, f] = o(E), r = Math.max(...i.map((l2, c) => l2 + m[c])), u = Math.max(...f.map((l2, c) => l2 + M2[c])), a, s3 = 0, d = 0;
+  return n === v2 ? r > 0 && (a = v2, s3 = r, d = i.length) : n === E ? u > 0 && (a = E, s3 = u, d = f.length) : (s3 = Math.max(r, u), a = s3 > 0 ? r > u ? v2 : E : void 0, d = a ? a === v2 ? i.length : f.length : 0), { type: a, timeout: s3, count: d };
+}
+function $(t, n) {
+  return typeof t == "number" ? t : typeof t == "object" && t[n] != null ? t[n] : null;
+}
+function S(t, n = true, e = false) {
+  if (!n && !e) return;
+  let o = w(t);
+  n && te(t, "--pui-motion-height", o.height + "px"), e && te(t, "--pui-motion-width", o.width + "px");
+}
+var U = { name: "p", safe: true, disabled: false, enter: true, leave: true, autoHeight: true, autoWidth: false };
+function tt(t, n) {
+  if (!t) throw new Error("Element is required.");
+  let e = {}, o = false, m = {}, i = null, M2 = {}, f = (a) => {
+    if (Object.assign(e, k2(a, U)), !e.enter && !e.leave) throw new Error("Enter or leave must be true.");
+    M2 = W2(e), o = H(e), m = L(e), i = null;
+  }, r = (a) => N(null, null, function* () {
+    i == null || i();
+    let { onBefore: s3, onStart: d, onAfter: l2, onCancelled: c } = M2[a] || {}, h = { element: t };
+    if (o) {
+      s3 == null || s3(h), d == null || d(h), l2 == null || l2(h);
+      return;
+    }
+    let { from: g, active: y2, to: P2 } = m[a] || {};
+    return S(t, e.autoHeight, e.autoWidth), s3 == null || s3(h), W(t, g), W(t, y2), t.offsetHeight, P(t, g), W(t, P2), d == null || d(h), new Promise((b2) => {
+      let C = $(e.duration, a), x = () => {
+        P(t, [P2, y2]), i = null;
+      }, R = () => {
+        x(), l2 == null || l2(h), b2();
+      };
+      i = () => {
+        x(), c == null || c(h), b2();
+      }, G(t, e.type, C, R);
+    });
+  });
+  f(n);
+  let u = { enter: () => e.enter ? r("enter") : Promise.resolve(), leave: () => e.leave ? r("leave") : Promise.resolve(), cancel: () => {
+    i == null || i(), i = null;
+  }, update: (a, s3) => {
+    if (!a) throw new Error("Element is required.");
+    t = a, u.cancel(), f(s3);
+  } };
+  return e.appear && u.enter(), u;
+}
+var z2 = 0;
+function G(t, n, e, o) {
+  let m = t._motionEndId = ++z2, i = () => {
+    m === t._motionEndId && o();
+  };
+  if (e != null) return setTimeout(i, e);
+  let { type: M2, timeout: f, count: r } = A(t, n);
+  if (!M2) {
+    o();
+    return;
+  }
+  let u = M2 + "end", a = 0, s3 = () => {
+    t.removeEventListener(u, d, true), i();
+  }, d = (l2) => {
+    l2.target === t && ++a >= r && s3();
+  };
+  t.addEventListener(u, d, { capture: true, once: true }), setTimeout(() => {
+    a < r && s3();
+  }, f + 1);
+}
+
+// node_modules/primeng/fesm2022/primeng-motion.mjs
+var _c03 = ["*"];
+function Motion_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    ɵɵprojection(0);
+  }
+}
+var originalStyles = /* @__PURE__ */ new WeakMap();
+function applyHiddenStyles(element, strategy) {
+  if (!element) return;
+  if (!originalStyles.has(element)) {
+    originalStyles.set(element, {
+      display: element.style.display,
+      visibility: element.style.visibility,
+      maxHeight: element.style.maxHeight
+    });
+  }
+  switch (strategy) {
+    case "display":
+      element.style.display = "none";
+      break;
+    case "visibility":
+      element.style.visibility = "hidden";
+      element.style.maxHeight = "0";
+      break;
+  }
+}
+function resetStyles(element, strategy) {
+  if (!element) return;
+  const original = originalStyles.get(element) ?? element.style;
+  switch (strategy) {
+    case "display":
+      element.style.display = original?.display || "";
+      break;
+    case "visibility":
+      element.style.visibility = original?.visibility || "";
+      element.style.maxHeight = original?.maxHeight || "";
+      break;
+  }
+  originalStyles.delete(element);
+}
+var style2 = (
+  /*css*/
+  `
+    .p-motion {
+        display: block;
+    }
+`
+);
+var classes3 = {
+  root: "p-motion"
+};
+var MotionStyle = class _MotionStyle extends BaseStyle {
+  name = "motion";
+  style = style2;
+  classes = classes3;
+  static ɵfac = /* @__PURE__ */ (() => {
+    let ɵMotionStyle_BaseFactory;
+    return function MotionStyle_Factory(__ngFactoryType__) {
+      return (ɵMotionStyle_BaseFactory || (ɵMotionStyle_BaseFactory = ɵɵgetInheritedFactory(_MotionStyle)))(__ngFactoryType__ || _MotionStyle);
+    };
+  })();
+  static ɵprov = ɵɵdefineInjectable({
+    token: _MotionStyle,
+    factory: _MotionStyle.ɵfac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MotionStyle, [{
+    type: Injectable
+  }], null, null);
+})();
+var MotionClasses;
+(function(MotionClasses2) {
+  MotionClasses2["root"] = "p-motion";
+})(MotionClasses || (MotionClasses = {}));
+var MOTION_INSTANCE = new InjectionToken("MOTION_INSTANCE");
+var Motion = class _Motion extends BaseComponent {
+  $pcMotion = inject(MOTION_INSTANCE, {
+    optional: true,
+    skipSelf: true
+  }) ?? void 0;
+  bindDirectiveInstance = inject(Bind, {
+    self: true
+  });
+  onAfterViewChecked() {
+    const options = this.options();
+    const optionsAttrs = options?.root || {};
+    this.bindDirectiveInstance.setAttrs(__spreadValues(__spreadValues({}, this.ptms(["host", "root"])), optionsAttrs));
+  }
+  _componentStyle = inject(MotionStyle);
+  /******************** Inputs ********************/
+  /**
+   * Whether the element is visible or not.
+   * @group Props
+   */
+  visible = input(false, ...ngDevMode ? [{
+    debugName: "visible"
+  }] : []);
+  /**
+   * Whether to mount the element on enter.
+   * @group Props
+   */
+  mountOnEnter = input(true, ...ngDevMode ? [{
+    debugName: "mountOnEnter"
+  }] : []);
+  /**
+   * Whether to unmount the element on leave.
+   * @group Props
+   */
+  unmountOnLeave = input(true, ...ngDevMode ? [{
+    debugName: "unmountOnLeave"
+  }] : []);
+  /**
+   * The name of the motion. It can be a predefined motion name or a custom one.
+   * phases:
+   *     [name]-enter
+   *     [name]-enter-active
+   *     [name]-enter-to
+   *     [name]-leave
+   *     [name]-leave-active
+   *     [name]-leave-to
+   * @group Props
+   */
+  name = input(void 0, ...ngDevMode ? [{
+    debugName: "name"
+  }] : []);
+  /**
+   * The type of the motion, valid values 'transition' and 'animation'.
+   * @group Props
+   */
+  type = input(void 0, ...ngDevMode ? [{
+    debugName: "type"
+  }] : []);
+  /**
+   * Whether the motion is safe.
+   * @group Props
+   */
+  safe = input(void 0, ...ngDevMode ? [{
+    debugName: "safe"
+  }] : []);
+  /**
+   * Whether the motion is disabled.
+   * @group Props
+   */
+  disabled = input(false, ...ngDevMode ? [{
+    debugName: "disabled"
+  }] : []);
+  /**
+   * Whether the motion should appear.
+   * @group Props
+   */
+  appear = input(false, ...ngDevMode ? [{
+    debugName: "appear"
+  }] : []);
+  /**
+   * Whether the motion should enter.
+   * @group Props
+   */
+  enter = input(true, ...ngDevMode ? [{
+    debugName: "enter"
+  }] : []);
+  /**
+   * Whether the motion should leave.
+   * @group Props
+   */
+  leave = input(true, ...ngDevMode ? [{
+    debugName: "leave"
+  }] : []);
+  /**
+   * The duration of the motion.
+   * @group Props
+   */
+  duration = input(void 0, ...ngDevMode ? [{
+    debugName: "duration"
+  }] : []);
+  /**
+   * The hide strategy of the motion, valid values 'display' and 'visibility'.
+   * @group Props
+   */
+  hideStrategy = input("display", ...ngDevMode ? [{
+    debugName: "hideStrategy"
+  }] : []);
+  /**
+   * The enter from class of the motion.
+   * @group Props
+   */
+  enterFromClass = input(void 0, ...ngDevMode ? [{
+    debugName: "enterFromClass"
+  }] : []);
+  /**
+   * The enter to class of the motion.
+   * @group Props
+   */
+  enterToClass = input(void 0, ...ngDevMode ? [{
+    debugName: "enterToClass"
+  }] : []);
+  /**
+   * The enter active class of the motion.
+   * @group Props
+   */
+  enterActiveClass = input(void 0, ...ngDevMode ? [{
+    debugName: "enterActiveClass"
+  }] : []);
+  /**
+   * The leave from class of the motion.
+   * @group Props
+   */
+  leaveFromClass = input(void 0, ...ngDevMode ? [{
+    debugName: "leaveFromClass"
+  }] : []);
+  /**
+   * The leave to class of the motion.
+   * @group Props
+   */
+  leaveToClass = input(void 0, ...ngDevMode ? [{
+    debugName: "leaveToClass"
+  }] : []);
+  /**
+   * The leave active class of the motion.
+   * @group Props
+   */
+  leaveActiveClass = input(void 0, ...ngDevMode ? [{
+    debugName: "leaveActiveClass"
+  }] : []);
+  /******************** All Inputs ********************/
+  /**
+   * The motion options.
+   * @group Props
+   */
+  options = input({}, ...ngDevMode ? [{
+    debugName: "options"
+  }] : []);
+  /******************** Outputs ********************/
+  /**
+   * Callback fired before the enter transition/animation starts.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onBeforeEnter = output();
+  /**
+   * Callback fired when the enter transition/animation starts.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onEnter = output();
+  /**
+   * Callback fired after the enter transition/animation ends.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onAfterEnter = output();
+  /**
+   * Callback fired when the enter transition/animation is cancelled.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onEnterCancelled = output();
+  /**
+   * Callback fired before the leave transition/animation starts.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onBeforeLeave = output();
+  /**
+   * Callback fired when the leave transition/animation starts.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onLeave = output();
+  /**
+   * Callback fired after the leave transition/animation ends.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onAfterLeave = output();
+  /**
+   * Callback fired when the leave transition/animation is cancelled.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onLeaveCancelled = output();
+  /******************** Computed ********************/
+  motionOptions = computed(() => {
+    const options = this.options();
+    return {
+      name: options.name ?? this.name(),
+      type: options.type ?? this.type(),
+      safe: options.safe ?? this.safe(),
+      disabled: options.disabled ?? this.disabled(),
+      appear: false,
+      enter: options.enter ?? this.enter(),
+      leave: options.leave ?? this.leave(),
+      duration: options.duration ?? this.duration(),
+      enterClass: {
+        from: options.enterClass?.from ?? (!options.name ? this.enterFromClass() : void 0),
+        to: options.enterClass?.to ?? (!options.name ? this.enterToClass() : void 0),
+        active: options.enterClass?.active ?? (!options.name ? this.enterActiveClass() : void 0)
+      },
+      leaveClass: {
+        from: options.leaveClass?.from ?? (!options.name ? this.leaveFromClass() : void 0),
+        to: options.leaveClass?.to ?? (!options.name ? this.leaveToClass() : void 0),
+        active: options.leaveClass?.active ?? (!options.name ? this.leaveActiveClass() : void 0)
+      },
+      onBeforeEnter: options.onBeforeEnter ?? this.handleBeforeEnter,
+      onEnter: options.onEnter ?? this.handleEnter,
+      onAfterEnter: options.onAfterEnter ?? this.handleAfterEnter,
+      onEnterCancelled: options.onEnterCancelled ?? this.handleEnterCancelled,
+      onBeforeLeave: options.onBeforeLeave ?? this.handleBeforeLeave,
+      onLeave: options.onLeave ?? this.handleLeave,
+      onAfterLeave: options.onAfterLeave ?? this.handleAfterLeave,
+      onLeaveCancelled: options.onLeaveCancelled ?? this.handleLeaveCancelled
+    };
+  }, ...ngDevMode ? [{
+    debugName: "motionOptions"
+  }] : []);
+  motion;
+  isInitialMount = true;
+  cancelled = false;
+  destroyed = false;
+  rendered = signal(false, ...ngDevMode ? [{
+    debugName: "rendered"
+  }] : []);
+  handleBeforeEnter = (event) => !this.destroyed && this.onBeforeEnter.emit(event);
+  handleEnter = (event) => !this.destroyed && this.onEnter.emit(event);
+  handleAfterEnter = (event) => !this.destroyed && this.onAfterEnter.emit(event);
+  handleEnterCancelled = (event) => !this.destroyed && this.onEnterCancelled.emit(event);
+  handleBeforeLeave = (event) => !this.destroyed && this.onBeforeLeave.emit(event);
+  handleLeave = (event) => !this.destroyed && this.onLeave.emit(event);
+  handleAfterLeave = (event) => !this.destroyed && this.onAfterLeave.emit(event);
+  handleLeaveCancelled = (event) => !this.destroyed && this.onLeaveCancelled.emit(event);
+  constructor() {
+    super();
+    effect(() => {
+      const hideStrategy = this.hideStrategy();
+      if (this.isInitialMount) {
+        applyHiddenStyles(this.$el, hideStrategy);
+        this.rendered.set(this.visible() && this.mountOnEnter() || !this.mountOnEnter());
+      } else if (this.visible() && !this.rendered()) {
+        applyHiddenStyles(this.$el, hideStrategy);
+        this.rendered.set(true);
+      }
+    });
+    effect(() => {
+      if (!this.motion) {
+        this.motion = tt(this.$el, this.motionOptions());
+      } else {
+      }
+    });
+    afterRenderEffect(async () => {
+      if (!this.$el) return;
+      const shouldAppear = this.isInitialMount && this.visible() && this.appear();
+      const hideStrategy = this.hideStrategy();
+      if (this.visible()) {
+        await Qt();
+        resetStyles(this.$el, hideStrategy);
+        if (shouldAppear || !this.isInitialMount) {
+          this.motion?.enter();
+        }
+      } else if (!this.isInitialMount) {
+        await Qt();
+        this.motion?.leave()?.then(async () => {
+          if (this.$el && !this.cancelled && !this.visible()) {
+            applyHiddenStyles(this.$el, hideStrategy);
+            if (this.unmountOnLeave()) {
+              await Qt();
+              if (!this.cancelled) {
+                this.rendered.set(false);
+              }
+            }
+          }
+        });
+      }
+      this.isInitialMount = false;
+    });
+  }
+  onDestroy() {
+    this.destroyed = true;
+    this.cancelled = true;
+    this.motion?.cancel();
+    this.motion = void 0;
+    resetStyles(this.$el, this.hideStrategy());
+    this.$el?.remove();
+    this.isInitialMount = true;
+  }
+  static ɵfac = function Motion_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _Motion)();
+  };
+  static ɵcmp = ɵɵdefineComponent({
+    type: _Motion,
+    selectors: [["p-motion"]],
+    hostVars: 2,
+    hostBindings: function Motion_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        ɵɵclassMap(ctx.cx("root"));
+      }
+    },
+    inputs: {
+      visible: [1, "visible"],
+      mountOnEnter: [1, "mountOnEnter"],
+      unmountOnLeave: [1, "unmountOnLeave"],
+      name: [1, "name"],
+      type: [1, "type"],
+      safe: [1, "safe"],
+      disabled: [1, "disabled"],
+      appear: [1, "appear"],
+      enter: [1, "enter"],
+      leave: [1, "leave"],
+      duration: [1, "duration"],
+      hideStrategy: [1, "hideStrategy"],
+      enterFromClass: [1, "enterFromClass"],
+      enterToClass: [1, "enterToClass"],
+      enterActiveClass: [1, "enterActiveClass"],
+      leaveFromClass: [1, "leaveFromClass"],
+      leaveToClass: [1, "leaveToClass"],
+      leaveActiveClass: [1, "leaveActiveClass"],
+      options: [1, "options"]
+    },
+    outputs: {
+      onBeforeEnter: "onBeforeEnter",
+      onEnter: "onEnter",
+      onAfterEnter: "onAfterEnter",
+      onEnterCancelled: "onEnterCancelled",
+      onBeforeLeave: "onBeforeLeave",
+      onLeave: "onLeave",
+      onAfterLeave: "onAfterLeave",
+      onLeaveCancelled: "onLeaveCancelled"
+    },
+    features: [ɵɵProvidersFeature([MotionStyle, {
+      provide: MOTION_INSTANCE,
+      useExisting: _Motion
+    }, {
+      provide: PARENT_INSTANCE,
+      useExisting: _Motion
+    }]), ɵɵHostDirectivesFeature([Bind]), ɵɵInheritDefinitionFeature],
+    ngContentSelectors: _c03,
+    decls: 1,
+    vars: 1,
+    template: function Motion_Template(rf, ctx) {
+      if (rf & 1) {
+        ɵɵprojectionDef();
+        ɵɵconditionalCreate(0, Motion_Conditional_0_Template, 1, 0);
+      }
+      if (rf & 2) {
+        ɵɵconditional(ctx.rendered() ? 0 : -1);
+      }
+    },
+    dependencies: [CommonModule, BindModule],
+    encapsulation: 2
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Motion, [{
+    type: Component,
+    args: [{
+      selector: "p-motion",
+      standalone: true,
+      imports: [CommonModule, BindModule],
+      template: `
+        @if (rendered()) {
+            <ng-content />
+        }
+    `,
+      providers: [MotionStyle, {
+        provide: MOTION_INSTANCE,
+        useExisting: Motion
+      }, {
+        provide: PARENT_INSTANCE,
+        useExisting: Motion
+      }],
+      host: {
+        "[class]": "cx('root')"
+      },
+      hostDirectives: [Bind]
+    }]
+  }], () => [], {
+    visible: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "visible",
+        required: false
+      }]
+    }],
+    mountOnEnter: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "mountOnEnter",
+        required: false
+      }]
+    }],
+    unmountOnLeave: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "unmountOnLeave",
+        required: false
+      }]
+    }],
+    name: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "name",
+        required: false
+      }]
+    }],
+    type: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "type",
+        required: false
+      }]
+    }],
+    safe: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "safe",
+        required: false
+      }]
+    }],
+    disabled: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "disabled",
+        required: false
+      }]
+    }],
+    appear: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "appear",
+        required: false
+      }]
+    }],
+    enter: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "enter",
+        required: false
+      }]
+    }],
+    leave: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "leave",
+        required: false
+      }]
+    }],
+    duration: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "duration",
+        required: false
+      }]
+    }],
+    hideStrategy: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "hideStrategy",
+        required: false
+      }]
+    }],
+    enterFromClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "enterFromClass",
+        required: false
+      }]
+    }],
+    enterToClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "enterToClass",
+        required: false
+      }]
+    }],
+    enterActiveClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "enterActiveClass",
+        required: false
+      }]
+    }],
+    leaveFromClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "leaveFromClass",
+        required: false
+      }]
+    }],
+    leaveToClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "leaveToClass",
+        required: false
+      }]
+    }],
+    leaveActiveClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "leaveActiveClass",
+        required: false
+      }]
+    }],
+    options: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "options",
+        required: false
+      }]
+    }],
+    onBeforeEnter: [{
+      type: Output,
+      args: ["onBeforeEnter"]
+    }],
+    onEnter: [{
+      type: Output,
+      args: ["onEnter"]
+    }],
+    onAfterEnter: [{
+      type: Output,
+      args: ["onAfterEnter"]
+    }],
+    onEnterCancelled: [{
+      type: Output,
+      args: ["onEnterCancelled"]
+    }],
+    onBeforeLeave: [{
+      type: Output,
+      args: ["onBeforeLeave"]
+    }],
+    onLeave: [{
+      type: Output,
+      args: ["onLeave"]
+    }],
+    onAfterLeave: [{
+      type: Output,
+      args: ["onAfterLeave"]
+    }],
+    onLeaveCancelled: [{
+      type: Output,
+      args: ["onLeaveCancelled"]
+    }]
+  });
+})();
+var MOTION_DIRECTIVE_INSTANCE = new InjectionToken("MOTION_DIRECTIVE_INSTANCE");
+var MotionDirective = class _MotionDirective extends BaseComponent {
+  $pcMotionDirective = inject(MOTION_DIRECTIVE_INSTANCE, {
+    optional: true,
+    skipSelf: true
+  }) ?? void 0;
+  /******************** Inputs ********************/
+  /**
+   * Whether the element is visible or not.
+   * @group Props
+   */
+  visible = input(false, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "visible"
+  } : {}), {
+    alias: "pMotion"
+  }));
+  /**
+   * The name of the motion. It can be a predefined motion name or a custom one.
+   * phases:
+   *     [name]-enter
+   *     [name]-enter-active
+   *     [name]-enter-to
+   *     [name]-leave
+   *     [name]-leave-active
+   *     [name]-leave-to
+   * @group Props
+   */
+  name = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "name"
+  } : {}), {
+    alias: "pMotionName"
+  }));
+  /**
+   * The type of the motion, valid values 'transition' and 'animation'.
+   * @group Props
+   */
+  type = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "type"
+  } : {}), {
+    alias: "pMotionType"
+  }));
+  /**
+   * Whether the motion is safe.
+   * @group Props
+   */
+  safe = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "safe"
+  } : {}), {
+    alias: "pMotionSafe"
+  }));
+  /**
+   * Whether the motion is disabled.
+   * @group Props
+   */
+  disabled = input(false, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "disabled"
+  } : {}), {
+    alias: "pMotionDisabled"
+  }));
+  /**
+   * Whether the motion should appear.
+   * @group Props
+   */
+  appear = input(false, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "appear"
+  } : {}), {
+    alias: "pMotionAppear"
+  }));
+  /**
+   * Whether the motion should enter.
+   * @group Props
+   */
+  enter = input(true, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "enter"
+  } : {}), {
+    alias: "pMotionEnter"
+  }));
+  /**
+   * Whether the motion should leave.
+   * @group Props
+   */
+  leave = input(true, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "leave"
+  } : {}), {
+    alias: "pMotionLeave"
+  }));
+  /**
+   * The duration of the motion.
+   * @group Props
+   */
+  duration = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "duration"
+  } : {}), {
+    alias: "pMotionDuration"
+  }));
+  /**
+   * The hide strategy of the motion, valid values 'display' and 'visibility'.
+   * @group Props
+   */
+  hideStrategy = input("display", __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "hideStrategy"
+  } : {}), {
+    alias: "pMotionHideStrategy"
+  }));
+  /**
+   * The enter from class of the motion.
+   * @group Props
+   */
+  enterFromClass = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "enterFromClass"
+  } : {}), {
+    alias: "pMotionEnterFromClass"
+  }));
+  /**
+   * The enter to class of the motion.
+   * @group Props
+   */
+  enterToClass = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "enterToClass"
+  } : {}), {
+    alias: "pMotionEnterToClass"
+  }));
+  /**
+   * The enter active class of the motion.
+   * @group Props
+   */
+  enterActiveClass = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "enterActiveClass"
+  } : {}), {
+    alias: "pMotionEnterActiveClass"
+  }));
+  /**
+   * The leave from class of the motion.
+   * @group Props
+   */
+  leaveFromClass = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "leaveFromClass"
+  } : {}), {
+    alias: "pMotionLeaveFromClass"
+  }));
+  /**
+   * The leave to class of the motion.
+   * @group Props
+   */
+  leaveToClass = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "leaveToClass"
+  } : {}), {
+    alias: "pMotionLeaveToClass"
+  }));
+  /**
+   * The leave active class of the motion.
+   * @group Props
+   */
+  leaveActiveClass = input(void 0, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "leaveActiveClass"
+  } : {}), {
+    alias: "pMotionLeaveActiveClass"
+  }));
+  /******************** All Inputs ********************/
+  /**
+   * The motion options.
+   * @group Props
+   */
+  options = input({}, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "options"
+  } : {}), {
+    alias: "pMotionOptions"
+  }));
+  /******************** Outputs ********************/
+  /**
+   * Callback fired before the enter transition/animation starts.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onBeforeEnter = output({
+    alias: "pMotionOnBeforeEnter"
+  });
+  /**
+   * Callback fired when the enter transition/animation starts.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onEnter = output({
+    alias: "pMotionOnEnter"
+  });
+  /**
+   * Callback fired after the enter transition/animation ends.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onAfterEnter = output({
+    alias: "pMotionOnAfterEnter"
+  });
+  /**
+   * Callback fired when the enter transition/animation is cancelled.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onEnterCancelled = output({
+    alias: "pMotionOnEnterCancelled"
+  });
+  /**
+   * Callback fired before the leave transition/animation starts.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onBeforeLeave = output({
+    alias: "pMotionOnBeforeLeave"
+  });
+  /**
+   * Callback fired when the leave transition/animation starts.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onLeave = output({
+    alias: "pMotionOnLeave"
+  });
+  /**
+   * Callback fired after the leave transition/animation ends.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onAfterLeave = output({
+    alias: "pMotionOnAfterLeave"
+  });
+  /**
+   * Callback fired when the leave transition/animation is cancelled.
+   * @param {MotionEvent} [event] - The event object containing details about the motion.
+   * @param {Element} event.element - The element being transitioned/animated.
+   * @group Emits
+   */
+  onLeaveCancelled = output({
+    alias: "pMotionOnLeaveCancelled"
+  });
+  /******************** Computed ********************/
+  motionOptions = computed(() => {
+    const options = this.options() ?? {};
+    return {
+      name: options.name ?? this.name(),
+      type: options.type ?? this.type(),
+      safe: options.safe ?? this.safe(),
+      disabled: options.disabled ?? this.disabled(),
+      appear: false,
+      enter: options.enter ?? this.enter(),
+      leave: options.leave ?? this.leave(),
+      duration: options.duration ?? this.duration(),
+      enterClass: {
+        from: options.enterClass?.from ?? (!options.name ? this.enterFromClass() : void 0),
+        to: options.enterClass?.to ?? (!options.name ? this.enterToClass() : void 0),
+        active: options.enterClass?.active ?? (!options.name ? this.enterActiveClass() : void 0)
+      },
+      leaveClass: {
+        from: options.leaveClass?.from ?? (!options.name ? this.leaveFromClass() : void 0),
+        to: options.leaveClass?.to ?? (!options.name ? this.leaveToClass() : void 0),
+        active: options.leaveClass?.active ?? (!options.name ? this.leaveActiveClass() : void 0)
+      },
+      onBeforeEnter: options.onBeforeEnter ?? this.handleBeforeEnter,
+      onEnter: options.onEnter ?? this.handleEnter,
+      onAfterEnter: options.onAfterEnter ?? this.handleAfterEnter,
+      onEnterCancelled: options.onEnterCancelled ?? this.handleEnterCancelled,
+      onBeforeLeave: options.onBeforeLeave ?? this.handleBeforeLeave,
+      onLeave: options.onLeave ?? this.handleLeave,
+      onAfterLeave: options.onAfterLeave ?? this.handleAfterLeave,
+      onLeaveCancelled: options.onLeaveCancelled ?? this.handleLeaveCancelled
+    };
+  }, ...ngDevMode ? [{
+    debugName: "motionOptions"
+  }] : []);
+  motion;
+  isInitialMount = true;
+  cancelled = false;
+  destroyed = false;
+  handleBeforeEnter = (event) => !this.destroyed && this.onBeforeEnter.emit(event);
+  handleEnter = (event) => !this.destroyed && this.onEnter.emit(event);
+  handleAfterEnter = (event) => !this.destroyed && this.onAfterEnter.emit(event);
+  handleEnterCancelled = (event) => !this.destroyed && this.onEnterCancelled.emit(event);
+  handleBeforeLeave = (event) => !this.destroyed && this.onBeforeLeave.emit(event);
+  handleLeave = (event) => !this.destroyed && this.onLeave.emit(event);
+  handleAfterLeave = (event) => !this.destroyed && this.onAfterLeave.emit(event);
+  handleLeaveCancelled = (event) => !this.destroyed && this.onLeaveCancelled.emit(event);
+  constructor() {
+    super();
+    effect(() => {
+      if (!this.motion) {
+        this.motion = tt(this.$el, this.motionOptions());
+      } else {
+      }
+    });
+    afterRenderEffect(() => {
+      if (!this.$el) return;
+      const shouldAppear = this.isInitialMount && this.visible() && this.appear();
+      const hideStrategy = this.hideStrategy();
+      if (this.visible()) {
+        resetStyles(this.$el, hideStrategy);
+        if (shouldAppear || !this.isInitialMount) {
+          this.motion?.enter();
+        }
+      } else if (!this.isInitialMount) {
+        this.motion?.leave()?.then(() => {
+          if (this.$el && !this.cancelled && !this.visible()) {
+            applyHiddenStyles(this.$el, hideStrategy);
+          }
+        });
+      } else {
+        applyHiddenStyles(this.$el, hideStrategy);
+      }
+      this.isInitialMount = false;
+    });
+  }
+  onDestroy() {
+    this.destroyed = true;
+    this.cancelled = true;
+    this.motion?.cancel();
+    this.motion = void 0;
+    resetStyles(this.$el, this.hideStrategy());
+    this.isInitialMount = true;
+  }
+  static ɵfac = function MotionDirective_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MotionDirective)();
+  };
+  static ɵdir = ɵɵdefineDirective({
+    type: _MotionDirective,
+    selectors: [["", "pMotion", ""]],
+    inputs: {
+      visible: [1, "pMotion", "visible"],
+      name: [1, "pMotionName", "name"],
+      type: [1, "pMotionType", "type"],
+      safe: [1, "pMotionSafe", "safe"],
+      disabled: [1, "pMotionDisabled", "disabled"],
+      appear: [1, "pMotionAppear", "appear"],
+      enter: [1, "pMotionEnter", "enter"],
+      leave: [1, "pMotionLeave", "leave"],
+      duration: [1, "pMotionDuration", "duration"],
+      hideStrategy: [1, "pMotionHideStrategy", "hideStrategy"],
+      enterFromClass: [1, "pMotionEnterFromClass", "enterFromClass"],
+      enterToClass: [1, "pMotionEnterToClass", "enterToClass"],
+      enterActiveClass: [1, "pMotionEnterActiveClass", "enterActiveClass"],
+      leaveFromClass: [1, "pMotionLeaveFromClass", "leaveFromClass"],
+      leaveToClass: [1, "pMotionLeaveToClass", "leaveToClass"],
+      leaveActiveClass: [1, "pMotionLeaveActiveClass", "leaveActiveClass"],
+      options: [1, "pMotionOptions", "options"]
+    },
+    outputs: {
+      onBeforeEnter: "pMotionOnBeforeEnter",
+      onEnter: "pMotionOnEnter",
+      onAfterEnter: "pMotionOnAfterEnter",
+      onEnterCancelled: "pMotionOnEnterCancelled",
+      onBeforeLeave: "pMotionOnBeforeLeave",
+      onLeave: "pMotionOnLeave",
+      onAfterLeave: "pMotionOnAfterLeave",
+      onLeaveCancelled: "pMotionOnLeaveCancelled"
+    },
+    features: [ɵɵProvidersFeature([MotionStyle, {
+      provide: MOTION_DIRECTIVE_INSTANCE,
+      useExisting: _MotionDirective
+    }, {
+      provide: PARENT_INSTANCE,
+      useExisting: _MotionDirective
+    }]), ɵɵInheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MotionDirective, [{
+    type: Directive,
+    args: [{
+      selector: "[pMotion]",
+      standalone: true,
+      providers: [MotionStyle, {
+        provide: MOTION_DIRECTIVE_INSTANCE,
+        useExisting: MotionDirective
+      }, {
+        provide: PARENT_INSTANCE,
+        useExisting: MotionDirective
+      }]
+    }]
+  }], () => [], {
+    visible: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotion",
+        required: false
+      }]
+    }],
+    name: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionName",
+        required: false
+      }]
+    }],
+    type: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionType",
+        required: false
+      }]
+    }],
+    safe: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionSafe",
+        required: false
+      }]
+    }],
+    disabled: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionDisabled",
+        required: false
+      }]
+    }],
+    appear: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionAppear",
+        required: false
+      }]
+    }],
+    enter: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionEnter",
+        required: false
+      }]
+    }],
+    leave: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionLeave",
+        required: false
+      }]
+    }],
+    duration: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionDuration",
+        required: false
+      }]
+    }],
+    hideStrategy: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionHideStrategy",
+        required: false
+      }]
+    }],
+    enterFromClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionEnterFromClass",
+        required: false
+      }]
+    }],
+    enterToClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionEnterToClass",
+        required: false
+      }]
+    }],
+    enterActiveClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionEnterActiveClass",
+        required: false
+      }]
+    }],
+    leaveFromClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionLeaveFromClass",
+        required: false
+      }]
+    }],
+    leaveToClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionLeaveToClass",
+        required: false
+      }]
+    }],
+    leaveActiveClass: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionLeaveActiveClass",
+        required: false
+      }]
+    }],
+    options: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "pMotionOptions",
+        required: false
+      }]
+    }],
+    onBeforeEnter: [{
+      type: Output,
+      args: ["pMotionOnBeforeEnter"]
+    }],
+    onEnter: [{
+      type: Output,
+      args: ["pMotionOnEnter"]
+    }],
+    onAfterEnter: [{
+      type: Output,
+      args: ["pMotionOnAfterEnter"]
+    }],
+    onEnterCancelled: [{
+      type: Output,
+      args: ["pMotionOnEnterCancelled"]
+    }],
+    onBeforeLeave: [{
+      type: Output,
+      args: ["pMotionOnBeforeLeave"]
+    }],
+    onLeave: [{
+      type: Output,
+      args: ["pMotionOnLeave"]
+    }],
+    onAfterLeave: [{
+      type: Output,
+      args: ["pMotionOnAfterLeave"]
+    }],
+    onLeaveCancelled: [{
+      type: Output,
+      args: ["pMotionOnLeaveCancelled"]
+    }]
+  });
+})();
+var MotionModule = class _MotionModule {
+  static ɵfac = function MotionModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MotionModule)();
+  };
+  static ɵmod = ɵɵdefineNgModule({
+    type: _MotionModule,
+    imports: [Motion, MotionDirective],
+    exports: [Motion, MotionDirective]
+  });
+  static ɵinj = ɵɵdefineInjector({
+    imports: [Motion]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MotionModule, [{
+    type: NgModule,
+    args: [{
+      imports: [Motion, MotionDirective],
+      exports: [Motion, MotionDirective]
+    }]
+  }], null, null);
+})();
+
 // node_modules/primeng/fesm2022/primeng-overlay.mjs
-var _c03 = ["content"];
+var _c04 = ["content"];
 var _c1 = ["overlay"];
 var _c2 = ["*", "*"];
 var _c3 = () => ({
@@ -566,7 +2269,7 @@ var inlineStyles = {
     top: "0"
   })
 };
-var style2 = (
+var style3 = (
   /*css*/
   `
 .p-overlay-modal {
@@ -653,7 +2356,7 @@ var style2 = (
 }
 `
 );
-var classes3 = {
+var classes4 = {
   host: "p-overlay-host",
   root: ({
     instance
@@ -677,8 +2380,8 @@ var classes3 = {
 };
 var OverlayStyle = class _OverlayStyle extends BaseStyle {
   name = "overlay";
-  style = style2;
-  classes = classes3;
+  style = style3;
+  classes = classes4;
   inlineStyles = inlineStyles;
   static ɵfac = /* @__PURE__ */ (() => {
     let ɵOverlayStyle_BaseFactory;
@@ -1315,7 +3018,7 @@ var Overlay = class _Overlay extends BaseComponent {
     selectors: [["p-overlay"]],
     contentQueries: function Overlay_ContentQueries(rf, ctx, dirIndex) {
       if (rf & 1) {
-        ɵɵcontentQuery(dirIndex, _c03, 4)(dirIndex, PrimeTemplate, 4);
+        ɵɵcontentQuery(dirIndex, _c04, 4)(dirIndex, PrimeTemplate, 4);
       }
       if (rf & 2) {
         let _t;
@@ -1325,7 +3028,7 @@ var Overlay = class _Overlay extends BaseComponent {
     },
     viewQuery: function Overlay_Query(rf, ctx) {
       if (rf & 1) {
-        ɵɵviewQuery(_c1, 5)(_c03, 5);
+        ɵɵviewQuery(_c1, 5)(_c04, 5);
       }
       if (rf & 2) {
         let _t;
@@ -1603,10 +3306,10 @@ var OverlayModule = class _OverlayModule {
 })();
 
 // node_modules/@primeuix/styles/dist/select/index.mjs
-var style3 = "\n    .p-select {\n        display: inline-flex;\n        cursor: pointer;\n        position: relative;\n        user-select: none;\n        background: dt('select.background');\n        border: 1px solid dt('select.border.color');\n        transition:\n            background dt('select.transition.duration'),\n            color dt('select.transition.duration'),\n            border-color dt('select.transition.duration'),\n            outline-color dt('select.transition.duration'),\n            box-shadow dt('select.transition.duration');\n        border-radius: dt('select.border.radius');\n        outline-color: transparent;\n        box-shadow: dt('select.shadow');\n    }\n\n    .p-select:not(.p-disabled):hover {\n        border-color: dt('select.hover.border.color');\n    }\n\n    .p-select:not(.p-disabled).p-focus {\n        border-color: dt('select.focus.border.color');\n        box-shadow: dt('select.focus.ring.shadow');\n        outline: dt('select.focus.ring.width') dt('select.focus.ring.style') dt('select.focus.ring.color');\n        outline-offset: dt('select.focus.ring.offset');\n    }\n\n    .p-select.p-variant-filled {\n        background: dt('select.filled.background');\n    }\n\n    .p-select.p-variant-filled:not(.p-disabled):hover {\n        background: dt('select.filled.hover.background');\n    }\n\n    .p-select.p-variant-filled:not(.p-disabled).p-focus {\n        background: dt('select.filled.focus.background');\n    }\n\n    .p-select.p-invalid {\n        border-color: dt('select.invalid.border.color');\n    }\n\n    .p-select.p-disabled {\n        opacity: 1;\n        background: dt('select.disabled.background');\n    }\n\n    .p-select-clear-icon {\n        align-self: center;\n        color: dt('select.clear.icon.color');\n        inset-inline-end: dt('select.dropdown.width');\n    }\n\n    .p-select-dropdown {\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        flex-shrink: 0;\n        background: transparent;\n        color: dt('select.dropdown.color');\n        width: dt('select.dropdown.width');\n        border-start-end-radius: dt('select.border.radius');\n        border-end-end-radius: dt('select.border.radius');\n    }\n\n    .p-select-label {\n        display: block;\n        white-space: nowrap;\n        overflow: hidden;\n        flex: 1 1 auto;\n        width: 1%;\n        padding: dt('select.padding.y') dt('select.padding.x');\n        text-overflow: ellipsis;\n        cursor: pointer;\n        color: dt('select.color');\n        background: transparent;\n        border: 0 none;\n        outline: 0 none;\n        font-size: 1rem;\n    }\n\n    .p-select-label.p-placeholder {\n        color: dt('select.placeholder.color');\n    }\n\n    .p-select.p-invalid .p-select-label.p-placeholder {\n        color: dt('select.invalid.placeholder.color');\n    }\n\n    .p-select.p-disabled .p-select-label {\n        color: dt('select.disabled.color');\n    }\n\n    .p-select-label-empty {\n        overflow: hidden;\n        opacity: 0;\n    }\n\n    input.p-select-label {\n        cursor: default;\n    }\n\n    .p-select-overlay {\n        position: absolute;\n        top: 0;\n        left: 0;\n        background: dt('select.overlay.background');\n        color: dt('select.overlay.color');\n        border: 1px solid dt('select.overlay.border.color');\n        border-radius: dt('select.overlay.border.radius');\n        box-shadow: dt('select.overlay.shadow');\n        min-width: 100%;\n        transform-origin: inherit;\n        will-change: transform;\n    }\n\n    .p-select-header {\n        padding: dt('select.list.header.padding');\n    }\n\n    .p-select-filter {\n        width: 100%;\n    }\n\n    .p-select-list-container {\n        overflow: auto;\n    }\n\n    .p-select-option-group {\n        cursor: auto;\n        margin: 0;\n        padding: dt('select.option.group.padding');\n        background: dt('select.option.group.background');\n        color: dt('select.option.group.color');\n        font-weight: dt('select.option.group.font.weight');\n    }\n\n    .p-select-list {\n        margin: 0;\n        padding: 0;\n        list-style-type: none;\n        padding: dt('select.list.padding');\n        gap: dt('select.list.gap');\n        display: flex;\n        flex-direction: column;\n    }\n\n    .p-select-option {\n        cursor: pointer;\n        font-weight: normal;\n        white-space: nowrap;\n        position: relative;\n        overflow: hidden;\n        display: flex;\n        align-items: center;\n        padding: dt('select.option.padding');\n        border: 0 none;\n        color: dt('select.option.color');\n        background: transparent;\n        transition:\n            background dt('select.transition.duration'),\n            color dt('select.transition.duration'),\n            border-color dt('select.transition.duration'),\n            box-shadow dt('select.transition.duration'),\n            outline-color dt('select.transition.duration');\n        border-radius: dt('select.option.border.radius');\n    }\n\n    .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {\n        background: dt('select.option.focus.background');\n        color: dt('select.option.focus.color');\n    }\n\n    .p-select-option:not(.p-select-option-selected):not(.p-disabled):hover {\n        background: dt('select.option.focus.background');\n        color: dt('select.option.focus.color');\n    }\n\n    .p-select-option.p-select-option-selected {\n        background: dt('select.option.selected.background');\n        color: dt('select.option.selected.color');\n    }\n\n    .p-select-option.p-select-option-selected.p-focus {\n        background: dt('select.option.selected.focus.background');\n        color: dt('select.option.selected.focus.color');\n    }\n   \n    .p-select-option-blank-icon {\n        flex-shrink: 0;\n    }\n\n    .p-select-option-check-icon {\n        position: relative;\n        flex-shrink: 0;\n        margin-inline-start: dt('select.checkmark.gutter.start');\n        margin-inline-end: dt('select.checkmark.gutter.end');\n        color: dt('select.checkmark.color');\n    }\n\n    .p-select-empty-message {\n        padding: dt('select.empty.message.padding');\n    }\n\n    .p-select-fluid {\n        display: flex;\n        width: 100%;\n    }\n\n    .p-select-sm .p-select-label {\n        font-size: dt('select.sm.font.size');\n        padding-block: dt('select.sm.padding.y');\n        padding-inline: dt('select.sm.padding.x');\n    }\n\n    .p-select-sm .p-select-dropdown .p-icon {\n        font-size: dt('select.sm.font.size');\n        width: dt('select.sm.font.size');\n        height: dt('select.sm.font.size');\n    }\n\n    .p-select-lg .p-select-label {\n        font-size: dt('select.lg.font.size');\n        padding-block: dt('select.lg.padding.y');\n        padding-inline: dt('select.lg.padding.x');\n    }\n\n    .p-select-lg .p-select-dropdown .p-icon {\n        font-size: dt('select.lg.font.size');\n        width: dt('select.lg.font.size');\n        height: dt('select.lg.font.size');\n    }\n\n    .p-floatlabel-in .p-select-filter {\n        padding-block-start: dt('select.padding.y');\n        padding-block-end: dt('select.padding.y');\n    }\n";
+var style4 = "\n    .p-select {\n        display: inline-flex;\n        cursor: pointer;\n        position: relative;\n        user-select: none;\n        background: dt('select.background');\n        border: 1px solid dt('select.border.color');\n        transition:\n            background dt('select.transition.duration'),\n            color dt('select.transition.duration'),\n            border-color dt('select.transition.duration'),\n            outline-color dt('select.transition.duration'),\n            box-shadow dt('select.transition.duration');\n        border-radius: dt('select.border.radius');\n        outline-color: transparent;\n        box-shadow: dt('select.shadow');\n    }\n\n    .p-select:not(.p-disabled):hover {\n        border-color: dt('select.hover.border.color');\n    }\n\n    .p-select:not(.p-disabled).p-focus {\n        border-color: dt('select.focus.border.color');\n        box-shadow: dt('select.focus.ring.shadow');\n        outline: dt('select.focus.ring.width') dt('select.focus.ring.style') dt('select.focus.ring.color');\n        outline-offset: dt('select.focus.ring.offset');\n    }\n\n    .p-select.p-variant-filled {\n        background: dt('select.filled.background');\n    }\n\n    .p-select.p-variant-filled:not(.p-disabled):hover {\n        background: dt('select.filled.hover.background');\n    }\n\n    .p-select.p-variant-filled:not(.p-disabled).p-focus {\n        background: dt('select.filled.focus.background');\n    }\n\n    .p-select.p-invalid {\n        border-color: dt('select.invalid.border.color');\n    }\n\n    .p-select.p-disabled {\n        opacity: 1;\n        background: dt('select.disabled.background');\n    }\n\n    .p-select-clear-icon {\n        align-self: center;\n        color: dt('select.clear.icon.color');\n        inset-inline-end: dt('select.dropdown.width');\n    }\n\n    .p-select-dropdown {\n        display: flex;\n        align-items: center;\n        justify-content: center;\n        flex-shrink: 0;\n        background: transparent;\n        color: dt('select.dropdown.color');\n        width: dt('select.dropdown.width');\n        border-start-end-radius: dt('select.border.radius');\n        border-end-end-radius: dt('select.border.radius');\n    }\n\n    .p-select-label {\n        display: block;\n        white-space: nowrap;\n        overflow: hidden;\n        flex: 1 1 auto;\n        width: 1%;\n        padding: dt('select.padding.y') dt('select.padding.x');\n        text-overflow: ellipsis;\n        cursor: pointer;\n        color: dt('select.color');\n        background: transparent;\n        border: 0 none;\n        outline: 0 none;\n        font-size: 1rem;\n    }\n\n    .p-select-label.p-placeholder {\n        color: dt('select.placeholder.color');\n    }\n\n    .p-select.p-invalid .p-select-label.p-placeholder {\n        color: dt('select.invalid.placeholder.color');\n    }\n\n    .p-select.p-disabled .p-select-label {\n        color: dt('select.disabled.color');\n    }\n\n    .p-select-label-empty {\n        overflow: hidden;\n        opacity: 0;\n    }\n\n    input.p-select-label {\n        cursor: default;\n    }\n\n    .p-select-overlay {\n        position: absolute;\n        top: 0;\n        left: 0;\n        background: dt('select.overlay.background');\n        color: dt('select.overlay.color');\n        border: 1px solid dt('select.overlay.border.color');\n        border-radius: dt('select.overlay.border.radius');\n        box-shadow: dt('select.overlay.shadow');\n        min-width: 100%;\n        transform-origin: inherit;\n        will-change: transform;\n    }\n\n    .p-select-header {\n        padding: dt('select.list.header.padding');\n    }\n\n    .p-select-filter {\n        width: 100%;\n    }\n\n    .p-select-list-container {\n        overflow: auto;\n    }\n\n    .p-select-option-group {\n        cursor: auto;\n        margin: 0;\n        padding: dt('select.option.group.padding');\n        background: dt('select.option.group.background');\n        color: dt('select.option.group.color');\n        font-weight: dt('select.option.group.font.weight');\n    }\n\n    .p-select-list {\n        margin: 0;\n        padding: 0;\n        list-style-type: none;\n        padding: dt('select.list.padding');\n        gap: dt('select.list.gap');\n        display: flex;\n        flex-direction: column;\n    }\n\n    .p-select-option {\n        cursor: pointer;\n        font-weight: normal;\n        white-space: nowrap;\n        position: relative;\n        overflow: hidden;\n        display: flex;\n        align-items: center;\n        padding: dt('select.option.padding');\n        border: 0 none;\n        color: dt('select.option.color');\n        background: transparent;\n        transition:\n            background dt('select.transition.duration'),\n            color dt('select.transition.duration'),\n            border-color dt('select.transition.duration'),\n            box-shadow dt('select.transition.duration'),\n            outline-color dt('select.transition.duration');\n        border-radius: dt('select.option.border.radius');\n    }\n\n    .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {\n        background: dt('select.option.focus.background');\n        color: dt('select.option.focus.color');\n    }\n\n    .p-select-option:not(.p-select-option-selected):not(.p-disabled):hover {\n        background: dt('select.option.focus.background');\n        color: dt('select.option.focus.color');\n    }\n\n    .p-select-option.p-select-option-selected {\n        background: dt('select.option.selected.background');\n        color: dt('select.option.selected.color');\n    }\n\n    .p-select-option.p-select-option-selected.p-focus {\n        background: dt('select.option.selected.focus.background');\n        color: dt('select.option.selected.focus.color');\n    }\n   \n    .p-select-option-blank-icon {\n        flex-shrink: 0;\n    }\n\n    .p-select-option-check-icon {\n        position: relative;\n        flex-shrink: 0;\n        margin-inline-start: dt('select.checkmark.gutter.start');\n        margin-inline-end: dt('select.checkmark.gutter.end');\n        color: dt('select.checkmark.color');\n    }\n\n    .p-select-empty-message {\n        padding: dt('select.empty.message.padding');\n    }\n\n    .p-select-fluid {\n        display: flex;\n        width: 100%;\n    }\n\n    .p-select-sm .p-select-label {\n        font-size: dt('select.sm.font.size');\n        padding-block: dt('select.sm.padding.y');\n        padding-inline: dt('select.sm.padding.x');\n    }\n\n    .p-select-sm .p-select-dropdown .p-icon {\n        font-size: dt('select.sm.font.size');\n        width: dt('select.sm.font.size');\n        height: dt('select.sm.font.size');\n    }\n\n    .p-select-lg .p-select-label {\n        font-size: dt('select.lg.font.size');\n        padding-block: dt('select.lg.padding.y');\n        padding-inline: dt('select.lg.padding.x');\n    }\n\n    .p-select-lg .p-select-dropdown .p-icon {\n        font-size: dt('select.lg.font.size');\n        width: dt('select.lg.font.size');\n        height: dt('select.lg.font.size');\n    }\n\n    .p-floatlabel-in .p-select-filter {\n        padding-block-start: dt('select.padding.y');\n        padding-block-end: dt('select.padding.y');\n    }\n";
 
 // node_modules/primeng/fesm2022/primeng-select.mjs
-var _c04 = (a0) => ({
+var _c05 = (a0) => ({
   height: a0
 });
 var _c12 = (a0) => ({
@@ -2159,7 +3862,7 @@ function Select_ng_template_9_p_scroller_6_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r2 = ɵɵnextContext(2);
-    ɵɵstyleMap(ɵɵpureFunction1(9, _c04, ctx_r2.scrollHeight));
+    ɵɵstyleMap(ɵɵpureFunction1(9, _c05, ctx_r2.scrollHeight));
     ɵɵproperty("items", ctx_r2.visibleOptions())("itemSize", ctx_r2.virtualScrollItemSize)("autoSize", true)("lazy", ctx_r2.lazy)("options", ctx_r2.virtualScrollOptions)("pt", ctx_r2.ptm("virtualScroller"));
     ɵɵadvance(4);
     ɵɵproperty("ngIf", ctx_r2.loaderTemplate || ctx_r2._loaderTemplate);
@@ -2220,7 +3923,7 @@ function Select_ng_template_9_ng_template_8_ng_template_2_ng_container_0_Templat
     const ctx_r2 = ɵɵnextContext(2);
     ɵɵadvance();
     ɵɵclassMap(ctx_r2.cx("optionGroup"));
-    ɵɵproperty("ngStyle", ɵɵpureFunction1(8, _c04, scrollerOptions_r20.itemSize + "px"))("pBind", ctx_r2.ptm("optionGroup"));
+    ɵɵproperty("ngStyle", ɵɵpureFunction1(8, _c05, scrollerOptions_r20.itemSize + "px"))("pBind", ctx_r2.ptm("optionGroup"));
     ɵɵattribute("id", ctx_r2.id + "_" + ctx_r2.getOptionIndex(i_r19, scrollerOptions_r20));
     ɵɵadvance();
     ɵɵproperty("ngIf", !ctx_r2.groupTemplate && !ctx_r2._groupTemplate);
@@ -2303,7 +4006,7 @@ function Select_ng_template_9_ng_template_8_li_3_Template(rf, ctx) {
     const scrollerOptions_r20 = ɵɵnextContext().options;
     const ctx_r2 = ɵɵnextContext(2);
     ɵɵclassMap(ctx_r2.cx("emptyMessage"));
-    ɵɵproperty("ngStyle", ɵɵpureFunction1(5, _c04, scrollerOptions_r20.itemSize + "px"))("pBind", ctx_r2.ptm("emptyMessage"));
+    ɵɵproperty("ngStyle", ɵɵpureFunction1(5, _c05, scrollerOptions_r20.itemSize + "px"))("pBind", ctx_r2.ptm("emptyMessage"));
     ɵɵadvance();
     ɵɵconditional(!ctx_r2.emptyFilterTemplate && !ctx_r2._emptyFilterTemplate && !ctx_r2.emptyTemplate ? 1 : 2);
   }
@@ -2341,7 +4044,7 @@ function Select_ng_template_9_ng_template_8_li_4_Template(rf, ctx) {
     const scrollerOptions_r20 = ɵɵnextContext().options;
     const ctx_r2 = ɵɵnextContext(2);
     ɵɵclassMap(ctx_r2.cx("emptyMessage"));
-    ɵɵproperty("ngStyle", ɵɵpureFunction1(5, _c04, scrollerOptions_r20.itemSize + "px"))("pBind", ctx_r2.ptm("emptyMessage"));
+    ɵɵproperty("ngStyle", ɵɵpureFunction1(5, _c05, scrollerOptions_r20.itemSize + "px"))("pBind", ctx_r2.ptm("emptyMessage"));
     ɵɵadvance();
     ɵɵconditional(!ctx_r2.emptyTemplate && !ctx_r2._emptyTemplate ? 1 : 2);
   }
@@ -2423,10 +4126,10 @@ function Select_ng_template_9_Template(rf, ctx) {
     ɵɵattribute("tabindex", 0)("data-p-hidden-accessible", true)("data-p-hidden-focusable", true);
   }
 }
-var style4 = (
+var style5 = (
   /*css*/
   `
-    ${style3}
+    ${style4}
 
     /* For PrimeNG */
     .p-select-label.p-placeholder {
@@ -2443,7 +4146,7 @@ var style4 = (
     }
 `
 );
-var classes4 = {
+var classes5 = {
   root: ({
     instance
   }) => ["p-select p-component p-inputwrapper", {
@@ -2489,8 +4192,8 @@ var classes4 = {
 };
 var SelectStyle = class _SelectStyle extends BaseStyle {
   name = "select";
-  style = style4;
-  classes = classes4;
+  style = style5;
+  classes = classes5;
   static ɵfac = /* @__PURE__ */ (() => {
     let ɵSelectStyle_BaseFactory;
     return function SelectStyle_Factory(__ngFactoryType__) {
@@ -2627,7 +4330,7 @@ var SelectItem = class _SelectItem extends BaseComponent {
       }
       if (rf & 2) {
         ɵɵclassMap(ctx.cx("option"));
-        ɵɵproperty("id", ctx.id)("pBind", ctx.getPTOptions())("ngStyle", ɵɵpureFunction1(17, _c04, (ctx.scrollerOptions == null ? null : ctx.scrollerOptions.itemSize) + "px"));
+        ɵɵproperty("id", ctx.id)("pBind", ctx.getPTOptions())("ngStyle", ɵɵpureFunction1(17, _c05, (ctx.scrollerOptions == null ? null : ctx.scrollerOptions.itemSize) + "px"));
         ɵɵattribute("aria-label", ctx.label)("aria-setsize", ctx.ariaSetSize)("aria-posinset", ctx.ariaPosInset)("aria-selected", ctx.selected)("data-p-focused", ctx.focused)("data-p-highlight", ctx.selected)("data-p-selected", ctx.selected)("data-p-disabled", ctx.disabled);
         ɵɵadvance();
         ɵɵproperty("ngIf", ctx.checkmark);
@@ -4939,6 +6642,11 @@ var SelectModule = class _SelectModule {
 })();
 
 export {
+  BaseEditableHolder,
+  BaseInput,
+  Motion,
+  MotionDirective,
+  MotionModule,
   SelectStyle,
   SelectClasses,
   SELECT_VALUE_ACCESSOR,
@@ -4946,4 +6654,4 @@ export {
   Select,
   SelectModule
 };
-//# sourceMappingURL=chunk-EKXQCQOT.js.map
+//# sourceMappingURL=chunk-SZGVTYM4.js.map

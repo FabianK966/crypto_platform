@@ -9,7 +9,7 @@ import {
 } from "./chunk-X5LCEWOY.js";
 import {
   SpinnerIcon
-} from "./chunk-P63AVWAJ.js";
+} from "./chunk-QPX5C5TN.js";
 import {
   Badge,
   BadgeModule
@@ -2304,4 +2304,4 @@ export {
   Button,
   ButtonModule
 };
-//# sourceMappingURL=chunk-FGMH3EDP.js.map
+//# sourceMappingURL=chunk-M7JLUI3A.js.map

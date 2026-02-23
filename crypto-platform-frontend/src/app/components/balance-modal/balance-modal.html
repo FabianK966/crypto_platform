@@ -1,1 +1,82 @@
-<p>balance-modal works!</p>
+@if (isOpen()) {
+<div class="modal-overlay" (click)="close()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>
+                @switch (operationType()) {
+                @case ('deposit') { 💰 Deposit Money }
+                @case ('withdraw') { 💸 Withdraw Money }
+                @case ('set') { ⚙️ Set Balance }
+                }
+            </h2>
+            <button class="close-btn" (click)="close()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="balance-info">
+                <div class="info-label">Current Initial Balance</div>
+                <div class="info-value">\${{ currentBalance() | number:'1.2-2' }}</div>
+            </div>
+
+            <div class="input-group">
+                <label>
+                    @switch (operationType()) {
+                    @case ('deposit') { Amount to Deposit }
+                    @case ('withdraw') { Amount to Withdraw }
+                    @case ('set') { New Balance }
+                    }
+                </label>
+                <div class="input-wrapper">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" [(ngModel)]="amountInput" (input)="onInputChange()" placeholder="0.00"
+                        step="0.01" min="0" class="input-field" autofocus />
+                </div>
+            </div>
+
+            <!-- Preview -->
+            @if (amountInput > 0) {
+            <div class="preview-section">
+                <div class="preview-label">New Balance</div>
+                <div class="preview-value" [ngClass]="{
+                  'positive': newBalance() > currentBalance(),
+                  'negative': newBalance() < currentBalance()
+                }">
+                    \${{ newBalance() | number:'1.2-2' }}
+                    <span class="change">
+                        ({{ newBalance() > currentBalance() ? '+' : '' }}{{ (newBalance() - currentBalance()) |
+                        number:'1.2-2' }})
+                    </span>
+                </div>
+            </div>
+            }
+
+            @if (errorMessage()) {
+            <div class="error-message">
+                ⚠️ {{ errorMessage() }}
+            </div>
+            }
+
+            <!-- Quick Amount Buttons (for deposit/set) -->
+            @if (operationType() !== 'withdraw') {
+            <div class="quick-amounts">
+                <button class="quick-btn" (click)="setQuickAmount(100)">+$100</button>
+                <button class="quick-btn" (click)="setQuickAmount(500)">+$500</button>
+                <button class="quick-btn" (click)="setQuickAmount(1000)">+$1,000</button>
+                <button class="quick-btn" (click)="setQuickAmount(5000)">+$5,000</button>
+            </div>
+            }
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="close()">Cancel</button>
+            <button [class]="getConfirmButtonClass()" (click)="confirm()" [disabled]="!isValid()">
+                @switch (operationType()) {
+                @case ('deposit') { Deposit }
+                @case ('withdraw') { Withdraw }
+                @case ('set') { Set Balance }
+                }
+            </button>
+        </div>
+    </div>
+</div>
+}

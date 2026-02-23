@@ -1,1 +1,10 @@
-<p>navbar works!</p>
+<div class="navbar-container">
+    <p-menubar [model]="menuItems" styleClass="custom-menubar">
+        <ng-template pTemplate="start">
+            <div class="navbar-brand">
+                <i class="pi pi-bolt"></i>
+                <span class="brand-text">Crypto Platform</span>
+            </div>
+        </ng-template>
+    </p-menubar>
+</div>

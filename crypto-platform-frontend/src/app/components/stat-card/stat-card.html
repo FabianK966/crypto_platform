@@ -1,1 +1,12 @@
-<p>stat-card works!</p>
+<div class="stat-card">
+  <div class="stat-label">{{ label }}</div>
+  <div class="stat-value" [ngClass]="{
+        'positive': isPositive && value > 0,
+        'negative': isPositive && value < 0
+      }">
+    {{ prefix }}{{ value | number:'1.2-2' }}{{ suffix }}
+  </div>
+  @if (subValue !== undefined) {
+  <div class="stat-sub">{{ subValue }}</div>
+  }
+</div>

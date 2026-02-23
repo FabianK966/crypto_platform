@@ -1,1 +1,66 @@
-<p>trade-modal works!</p>
+@if (isOpen()) {
+<div class="modal-overlay" (click)="close()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>{{ tradeType() === 'buy' ? '🟢 Buy' : '🔴 Sell' }} {{ asset()?.symbol }}</h2>
+            <button class="close-btn" (click)="close()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Current Info -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Current Price</span>
+                    <span class="value">\${{ asset()?.currentPriceUsd | number:'1.2-2' }}</span>
+                </div>
+                @if (tradeType() === 'sell') {
+                <div class="info-item">
+                    <span class="label">Holdings</span>
+                    <span class="value">{{ asset()?.quantity | number:'1.0-8' }}</span>
+                </div>
+                }
+            </div>
+
+            <!-- Input Fields -->
+            <div class="input-group">
+                <label>Quantity</label>
+                <input type="number" [(ngModel)]="quantityInput" (input)="onInputChange()" placeholder="0.00000000"
+                    step="0.00000001" min="0" class="input-field" />
+            </div>
+
+            <div class="input-group">
+                <label>Price per Coin</label>
+                <input type="number" [(ngModel)]="priceInput" (input)="onInputChange()"
+                    [placeholder]="asset()?.currentPriceUsd?.toString() || '0.00'" step="0.01" min="0"
+                    class="input-field" />
+            </div>
+
+            <!-- Total Cost -->
+            <div class="total-section">
+                <div class="total-label">Total {{ tradeType() === 'buy' ? 'Cost' : 'Value' }}</div>
+                <div class="total-value">\${{ totalCost() | number:'1.2-2' }}</div>
+            </div>
+
+            <!-- Error Message -->
+            @if (errorMessage()) {
+            <div class="error-message">
+                ⚠️ {{ errorMessage() }}
+            </div>
+            }
+
+            <!-- Debug Info (temporary) -->
+            <div style="color: #666; font-size: 0.75rem; margin-top: 0.5rem;">
+                Debug: Q={{ quantityInput }} | P={{ priceInput }} | Total={{ totalCost() }} | Valid={{ canTrade() }}
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="close()">Cancel</button>
+            <button [class]="tradeType() === 'buy' ? 'btn-buy-confirm' : 'btn-sell-confirm'" (click)="confirmTrade()"
+                [disabled]="!canTrade()">
+                {{ tradeType() === 'buy' ? 'Buy' : 'Sell' }} {{ asset()?.symbol }}
+            </button>
+        </div>
+    </div>
+</div>
+}

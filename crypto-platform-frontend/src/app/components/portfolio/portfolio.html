@@ -1,1 +1,134 @@
-<p>portfolio works!</p>
+<div class="portfolio-container">
+    <!-- Balance Management Section -->
+    <div class="balance-section">
+        <div class="balance-header">
+            <h2>💰 Balance Management</h2>
+            <div class="balance-actions">
+                <button class="btn-deposit" (click)="openBalanceModal('deposit')">
+                    ➕ Deposit
+                </button>
+                <button class="btn-withdraw" (click)="openBalanceModal('withdraw')">
+                    ➖ Withdraw
+                </button>
+                <button class="btn-set-balance" (click)="openBalanceModal('set')">
+                    ⚙️ Set Balance
+                </button>
+            </div>
+        </div>
+
+        <div class="balance-stats-grid">
+            <app-stat-card label="Initial Balance (Cash)" [value]="initialBalance()" prefix="$"
+                subValue="Available to invest" />
+            <app-stat-card label="Total Asset Value" [value]="totalAssetValue()" prefix="$"
+                subValue="Current holdings" />
+            <app-stat-card label="Total Balance" [value]="totalBalance()" prefix="$" subValue="Cash + Assets" />
+        </div>
+    </div>
+
+    <!-- Portfolio Stats -->
+    <div class="stats-grid">
+        <app-stat-card label="Unrealized P&L" [value]="totalUnrealizedProfit()" [isPositive]="true" prefix="$" />
+        <app-stat-card label="Realized P&L" [value]="totalRealizedProfit()" [isPositive]="true" prefix="$" />
+        <app-stat-card label="Total P&L" [value]="totalUnrealizedProfit() + totalRealizedProfit()" [isPositive]="true"
+            prefix="$" subValue="Realized + Unrealized" />
+    </div>
+
+    <!-- Portfolio Table -->
+    <div class="portfolio-table">
+        <div class="table-header">
+            <h2>📊 My Assets</h2>
+            <div class="header-actions">
+                <button class="btn-add-new" (click)="openAddAssetModal()">
+                    ➕ Add Asset
+                </button>
+                <button class="btn-refresh" (click)="loadPortfolio()">
+                    🔄 Refresh
+                </button>
+            </div>
+        </div>
+
+        @if (loading()) {
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading portfolio...</p>
+        </div>
+        } @else if (error()) {
+        <div class="error">
+            ❌ {{ error() }}
+        </div>
+        } @else if (portfolio().length === 0) {
+        <div class="empty">
+            <div class="empty-icon">📊</div>
+            <h3>No Assets Yet</h3>
+            <p>Start building your crypto portfolio today</p>
+            <button class="btn-primary" (click)="openAddAssetModal()">
+                ➕ Add Your First Asset
+            </button>
+        </div>
+        } @else {
+        <table>
+            <thead>
+                <tr>
+                    <th>Asset</th>
+                    <th>Quantity</th>
+                    <th>Avg. Buy Price</th>
+                    <th>Current Price</th>
+                    <th>Current Value</th>
+                    <th>Unrealized P&L</th>
+                    <th>Realized P&L</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (asset of portfolio(); track asset.id) {
+                <tr>
+                    <td>
+                        <div class="asset-cell">
+                            <span class="symbol">{{ asset.symbol }}</span>
+                        </div>
+                    </td>
+                    <td>{{ asset.quantity | number:'1.0-8' }}</td>
+                    <td>\${{ asset.avgBuyPriceUsd | number:'1.2-2' }}</td>
+                    <td>\${{ asset.currentPriceUsd | number:'1.2-2' }}</td>
+                    <td>\${{ asset.currentValueUsd | number:'1.2-2' }}</td>
+                    <td [ngClass]="{
+                    'positive': asset.profitLossUsd > 0,
+                    'negative': asset.profitLossUsd < 0
+                  }">
+                        \${{ asset.profitLossUsd | number:'1.2-2' }}
+                        <span class="percent">
+                            ({{ asset.profitLossPercent | number:'1.2-2' }}%)
+                        </span>
+                    </td>
+                    <td [ngClass]="{
+                    'positive': asset.totalRealizedProfit > 0,
+                    'negative': asset.totalRealizedProfit < 0
+                  }">
+                        \${{ asset.totalRealizedProfit | number:'1.2-2' }}
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-buy" (click)="openBuyModal(asset)">Buy</button>
+                            <button class="btn-sell" (click)="openSellModal(asset)">Sell</button>
+                            <button class="btn-delete" (click)="deleteAsset(asset)">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        }
+    </div>
+
+    <!-- Trade Modal -->
+    <app-trade-modal [open]="isTradeModalOpen()" [type]="modalType()" [assetData]="selectedAsset()"
+        (closeModal)="closeTradeModal()" (trade)="executeTrade($event)" />
+
+    <!-- Add Asset Modal -->
+    <app-add-asset-modal [open]="isAddAssetModalOpen()" (closeModal)="closeAddAssetModal()"
+        (addAsset)="executeAddAsset($event)" />
+
+    <!-- Balance Modal -->
+    <app-balance-modal [open]="isBalanceModalOpen()" [type]="balanceOperationType()" [balance]="initialBalance()"
+        (closeModal)="closeBalanceModal()" (operation)="executeBalanceOperation($event)" />
+</div>

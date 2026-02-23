@@ -1,1 +1,63 @@
-<p>add-asset-modal works!</p>
+@if (isOpen()) {
+<div class="modal-overlay" (click)="close()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>➕ Add New Asset</h2>
+            <button class="close-btn" (click)="close()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <p class="description">
+                Start your portfolio by adding your first crypto asset
+            </p>
+
+            <!-- Symbol Input -->
+            <div class="input-group">
+                <label>Symbol (e.g., BTC, ETH, SOL)</label>
+                <input type="text" [(ngModel)]="symbolInput" (input)="onInputChange()" placeholder="BTC"
+                    class="input-field" style="text-transform: uppercase;" />
+            </div>
+
+            <!-- Quantity Input -->
+            <div class="input-group">
+                <label>Quantity</label>
+                <input type="number" [(ngModel)]="quantityInput" (input)="onInputChange()" placeholder="0.00000000"
+                    step="0.00000001" min="0" class="input-field" />
+            </div>
+
+            <!-- Price Input -->
+            <div class="input-group">
+                <label>Purchase Price (USD)</label>
+                <input type="number" [(ngModel)]="priceInput" (input)="onInputChange()" placeholder="0.00" step="0.01"
+                    min="0" class="input-field" />
+            </div>
+
+            <!-- Total Cost -->
+            <div class="total-section">
+                <div class="total-label">Total Investment</div>
+                <div class="total-value">\${{ totalCost() | number:'1.2-2' }}</div>
+            </div>
+
+            <!-- Error Message -->
+            @if (errorMessage()) {
+            <div class="error-message">
+                ⚠️ {{ errorMessage() }}
+            </div>
+            }
+
+            <!-- Debug Info -->
+            <div style="color: #666; font-size: 0.75rem; margin-top: 0.5rem;">
+                Debug: Symbol={{ symbolInput }} | Q={{ quantityInput }} | P={{ priceInput }} | Total={{ totalCost() }} |
+                Valid={{ canAdd() }}
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="close()">Cancel</button>
+            <button class="btn-add-confirm" (click)="confirmAdd()" [disabled]="!canAdd()">
+                Add {{ symbolInput || 'Asset' }}
+            </button>
+        </div>
+    </div>
+</div>
+}

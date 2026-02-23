@@ -1,0 +1,40 @@
+<!-- src/app/components/replay/components/replay-deposit-modal/replay-deposit-modal.component.html -->
+
+<div class="trade-panel trade-panel-deposit">
+  <div class="trade-panel-header trade-header-deposit">
+    <span>💰 Deposit Cash</span>
+    <button class="close-btn" (click)="close.emit()">✕</button>
+  </div>
+  <div class="trade-panel-body">
+    <div class="trade-info-row">
+      <span class="trade-label">Current Cash</span>
+      <span class="trade-value">$ {{ tradingService.replayCashBalance() | number:'1.2-2' }}</span>
+    </div>
+    <div class="trade-input-row">
+      <label>Deposit Amount</label>
+      <div class="input-wrapper">
+        <span class="currency-symbol">$</span>
+        <input type="number" [(ngModel)]="depositAmount" class="input-field deposit-input" placeholder="0.00" min="0" step="100" autofocus />
+      </div>
+    </div>
+    <div class="trade-quick-btns">
+      <button class="quick-btn" (click)="setQuickAmount(100)">+$100</button>
+      <button class="quick-btn" (click)="setQuickAmount(200)">+$200</button>
+      <button class="quick-btn" (click)="setQuickAmount(500)">+$500</button>
+      <button class="quick-btn" (click)="setQuickAmount(1000)">+$1K</button>
+    </div>
+    @if (depositAmount > 0) {
+      <div class="deposit-preview">
+        <div class="preview-label">New Cash Balance</div>
+        <div class="preview-value positive">
+          $ {{ (tradingService.replayCashBalance() + depositAmount) | number:'1.2-2' }}
+          <span class="change">(+{{ depositAmount | number:'1.2-2' }})</span>
+        </div>
+      </div>
+    }
+    <div class="trade-panel-actions">
+      <button class="btn-cancel" (click)="close.emit()">Cancel</button>
+      <button class="btn-confirm-deposit" (click)="confirmDeposit()" [disabled]="depositAmount <= 0">Deposit</button>
+    </div>
+  </div>
+</div>
