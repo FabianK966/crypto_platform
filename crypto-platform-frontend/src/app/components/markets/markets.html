@@ -44,7 +44,7 @@
                 </td>
                 <td>
                     @if (coin.price) {
-                    <span [ngStyle]="priceStyle">\${{ coin.price | number:'1.2-2' }}</span>
+                    <span [ngStyle]="priceStyle">${{ coin.price | number:'1.2-2' }}</span>
                     } @else {
                     <span [ngStyle]="loadingPriceStyle">Loading...</span>
                     }
