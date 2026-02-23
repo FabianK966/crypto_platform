@@ -1,347 +1,403 @@
+<!-- src/app/components/replay/replay.html -->
+
 <div class="replay-container">
 
   <!-- TOP: Portfolio Panel (nur sichtbar wenn geladen) -->
   @if (candlesLoaded()) {
-    <div class="portfolio-panel">
-      <div class="portfolio-header">
-        <div class="portfolio-title">
-          <h2>💼 Replay Portfolio</h2>
-          <span class="portfolio-symbol-badge">{{ selectedSymbol }}/USDT</span>
-        </div>
-        <div class="portfolio-header-actions">
-          <div class="balance-set-group">
-            <label>Starting Balance ($)</label>
-            <input
-              type="number"
-              [(ngModel)]="replayInitialBalanceInput"
-              class="input-field balance-input"
-              [disabled]="replayQuantity() > 0 || replayTradeHistory().length > 0 || replayDepositHistory().length > 0"
-              placeholder="e.g. 10000"
-            />
-          </div>
-          <button class="btn-set-balance"
-            (click)="setReplayBalance()"
-            [disabled]="replayQuantity() > 0 || replayTradeHistory().length > 0 || replayDepositHistory().length > 0">
-            ⚙️ Set Balance
-          </button>
-          <button class="btn-reset-portfolio" (click)="resetReplayPortfolio()">
-            🔄 Reset Portfolio
-          </button>
-        </div>
+  <div class="portfolio-panel">
+    <div class="portfolio-header">
+      <div class="portfolio-title">
+        <h2>💼 Replay Portfolio</h2>
+        <span class="portfolio-symbol-badge">{{ selectedSymbol }}/USDT</span>
       </div>
-
-      <!-- Stats -->
-      <div class="portfolio-stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Cash Balance</div>
-          <div class="stat-value">$ {{ replayCashBalance() | number:'1.2-2' }}</div>
-          <div class="stat-sub">Available to trade</div>
+      <div class="portfolio-header-actions">
+        <div class="balance-set-group">
+          <label>Starting Balance ($)</label>
+          <input type="number" [(ngModel)]="replayInitialBalanceInput" class="input-field balance-input"
+            [disabled]="hasLong() || hasShort() || replayTradeHistory().length > 0 || replayDepositHistory().length > 0"
+            placeholder="e.g. 10000" />
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Asset Value</div>
-          <div class="stat-value">$ {{ replayAssetValue() | number:'1.2-2' }}</div>
-          <div class="stat-sub">{{ replayQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Total Balance</div>
-          <div class="stat-value">$ {{ replayTotalBalance() | number:'1.2-2' }}</div>
-          <div class="stat-sub">Cash + Assets</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Unrealized P&amp;L</div>
-          <div class="stat-value" [ngClass]="replayUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
-            {{ replayUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ replayUnrealizedPnl() | number:'1.2-2' }}
-            @if (replayQuantity() > 0) {
-              <span class="pnl-percent">({{ replayUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
-            }
-          </div>
-          <div class="stat-sub">Open position</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Realized P&amp;L</div>
-          <div class="stat-value" [ngClass]="replayRealizedPnl() >= 0 ? 'positive' : 'negative'">
-            {{ replayRealizedPnl() >= 0 ? '+' : '' }}$ {{ replayRealizedPnl() | number:'1.2-2' }}
-          </div>
-          <div class="stat-sub">Closed trades</div>
-        </div>
-        <div class="stat-card highlight-card">
-          <div class="stat-label">Total P&amp;L</div>
-          <div class="stat-value" [ngClass]="(replayUnrealizedPnl() + replayRealizedPnl()) >= 0 ? 'positive' : 'negative'">
-            {{ (replayUnrealizedPnl() + replayRealizedPnl()) >= 0 ? '+' : '' }}$ {{ (replayUnrealizedPnl() + replayRealizedPnl()) | number:'1.2-2' }}
-          </div>
-          <div class="stat-sub">Unrealized + Realized</div>
-        </div>
+        <button class="btn-set-balance" (click)="setReplayBalance()"
+          [disabled]="hasLong() || hasShort() || replayTradeHistory().length > 0 || replayDepositHistory().length > 0">
+          ⚙️ Set Balance
+        </button>
+        <button class="btn-reset-portfolio" (click)="resetReplayPortfolio()">
+          🔄 Reset Portfolio
+        </button>
       </div>
+    </div>
 
-      <!-- Current Position -->
-      <div class="holdings-section">
-        <h3>📈 Current Position</h3>
+    <!-- Stats -->
+    <div class="portfolio-stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Cash Balance</div>
+        <div class="stat-value">$ {{ replayCashBalance() | number:'1.2-2' }}</div>
+        <div class="stat-sub">Available to trade</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Used Margin</div>
+        <div class="stat-value">{{ replayUsedMargin() | currency:'USD':'symbol':'1.2-2' }}</div>
+        <div class="stat-sub">Used margin to trade</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Free Margin</div>
+        <div class="stat-value">{{ (replayTotalBalance() - replayUsedMargin()) | currency:'USD':'symbol':'1.2-2' }}
+        </div>
+        <div class="stat-sub">Available Margin to trade</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Long Value</div>
+        <div class="stat-value">$ {{ longAssetValue() | number:'1.2-2' }}</div>
+        <div class="stat-sub">{{ replayLongQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Short Value</div>
+        <div class="stat-value">$ {{ shortAssetValue() | number:'1.2-2' }}</div>
+        <div class="stat-sub">{{ replayShortQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Balance</div>
+        <div class="stat-value">$ {{ replayTotalBalance() | number:'1.2-2' }}</div>
+        <div class="stat-sub">Cash + Assets</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unrealized P&amp;L</div>
+        <div class="stat-value" [ngClass]="replayUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
+          {{ replayUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ replayUnrealizedPnl() | number:'1.2-2' }}
+          <!-- Prozent nur anzeigen wenn nur eine Position offen ist -->
+          @if (hasLong() && !hasShort()) {
+          <span class="pnl-percent">({{ longUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
+          } @else if (hasShort() && !hasLong()) {
+          <span class="pnl-percent">({{ shortUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
+          }
+        </div>
+        <div class="stat-sub">Open positions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Realized P&amp;L</div>
+        <div class="stat-value" [ngClass]="replayRealizedPnl() >= 0 ? 'positive' : 'negative'">
+          {{ replayRealizedPnl() >= 0 ? '+' : '' }}$ {{ replayRealizedPnl() | number:'1.2-2' }}
+        </div>
+        <div class="stat-sub">Closed trades</div>
+      </div>
+      <div class="stat-card highlight-card">
+        <div class="stat-label">Total P&amp;L</div>
+        <div class="stat-value"
+          [ngClass]="(replayUnrealizedPnl() + replayRealizedPnl()) >= 0 ? 'positive' : 'negative'">
+          {{ (replayUnrealizedPnl() + replayRealizedPnl()) >= 0 ? '+' : '' }}$ {{ (replayUnrealizedPnl() +
+          replayRealizedPnl()) | number:'1.2-2' }}
+        </div>
+        <div class="stat-sub">Unrealized + Realized</div>
+      </div>
+    </div>
 
-        @if (replayQuantity() === 0) {
-          <div class="no-position">
-            No open position — use the buttons below to start trading at the current replay price
-          </div>
-        } @else {
-          <table class="holdings-table">
-            <thead>
-              <tr>
-                <th>Asset</th>
-                <th>Quantity</th>
-                <th>Avg. Buy Price</th>
-                <th>Current Price</th>
-                <th>Current Value</th>
-                <th>Unrealized P&amp;L</th>
-                <th>Realized P&amp;L</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="symbol-tag">{{ selectedSymbol }}</span></td>
-                <td>{{ replayQuantity() | number:'1.0-8' }}</td>
-                <td>$ {{ replayAvgBuyPrice() | number:'1.2-2' }}</td>
-                <td>$ {{ getCurrentPrice() | number:'1.2-2' }}</td>
-                <td>$ {{ replayAssetValue() | number:'1.2-2' }}</td>
-                <td [ngClass]="replayUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
-                  {{ replayUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ replayUnrealizedPnl() | number:'1.2-2' }}
-                  <span class="percent">({{ replayUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
-                </td>
-                <td [ngClass]="replayRealizedPnl() >= 0 ? 'positive' : 'negative'">
-                  {{ replayRealizedPnl() >= 0 ? '+' : '' }}$ {{ replayRealizedPnl() | number:'1.2-2' }}
-                </td>
-                <td>
-                  <div class="table-actions">
-                    <button class="btn-buy-small" (click)="openTradePanel('buy')" [disabled]="isPlaying()">Buy More</button>
-                    <button class="btn-sell-small" (click)="openTradePanel('sell')" [disabled]="isPlaying()">Sell</button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        }
+    <!-- Current Positions (Long und Short getrennt) -->
+    <div class="holdings-section">
+      <h3>📈 Current Positions</h3>
 
-        <!-- Trade Panel -->
-        @if (tradePanelOpen()) {
-          <div class="trade-panel" [ngClass]="tradePanelType() === 'buy' ? 'trade-panel-buy' : 'trade-panel-sell'">
-            <div class="trade-panel-header" [ngClass]="tradePanelType() === 'buy' ? 'trade-header-buy' : 'trade-header-sell'">
-              <span>{{ tradePanelType() === 'buy' ? '🟢 Buy' : '🔴 Sell' }} {{ selectedSymbol }}</span>
-              <button class="close-btn" (click)="closeTradePanel()">✕</button>
-            </div>
-            <div class="trade-panel-body">
-              <div class="trade-info-row">
-                <span class="trade-label">Current Price</span>
-                <span class="trade-value">$ {{ getCurrentPrice() | number:'1.2-2' }}</span>
-              </div>
-              @if (tradePanelType() === 'buy') {
-                <div class="trade-info-row">
-                  <span class="trade-label">Available Cash</span>
-                  <span class="trade-value">$ {{ replayCashBalance() | number:'1.2-2' }}</span>
-                </div>
-              } @else {
-                <div class="trade-info-row">
-                  <span class="trade-label">Available to Sell</span>
-                  <span class="trade-value">{{ replayQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</span>
-                </div>
-              }
-              <div class="trade-input-row">
-                <label>Quantity</label>
-                <input
-                  type="number"
-                  [(ngModel)]="tradeQuantityInput"
-                  class="input-field trade-qty-input"
-                  placeholder="0.00"
-                  min="0"
-                  step="0.001"
-                />
-              </div>
-              <div class="trade-quick-btns">
-                @if (tradePanelType() === 'buy') {
-                  <button class="quick-btn" (click)="setTradePercent(10)">10%</button>
-                  <button class="quick-btn" (click)="setTradePercent(25)">25%</button>
-                  <button class="quick-btn" (click)="setTradePercent(50)">50%</button>
-                  <button class="quick-btn" (click)="setTradePercent(75)">75%</button>
-                  <button class="quick-btn" (click)="setTradePercent(100)">MAX</button>
-                } @else {
-                  <button class="quick-btn" (click)="setSellPercent(10)">10%</button>
-                  <button class="quick-btn" (click)="setSellPercent(25)">25%</button>
-                  <button class="quick-btn" (click)="setSellPercent(50)">50%</button>
-                  <button class="quick-btn" (click)="setSellPercent(75)">75%</button>
-                  <button class="quick-btn" (click)="setSellPercent(100)">ALL</button>
-                }
-              </div>
-              <div class="trade-total-row">
-                <span>Total</span>
-                <span>$ {{ tradeQuantityInput * getCurrentPrice() | number:'1.2-2' }}</span>
-              </div>
-              <div class="trade-panel-actions">
-                <button class="btn-cancel" (click)="closeTradePanel()">Cancel</button>
-                <button
-                  [ngClass]="tradePanelType() === 'buy' ? 'btn-confirm-buy' : 'btn-confirm-sell'"
-                  (click)="confirmTrade()"
-                  [disabled]="tradeQuantityInput <= 0"
-                >
-                  Confirm {{ tradePanelType() === 'buy' ? 'Buy' : 'Sell' }}
+      @if (!hasLong() && !hasShort()) {
+      <div class="no-position">
+        No open positions — use the buttons below to start trading
+      </div>
+      }
+
+      <!-- Long Position -->
+      @if (hasLong()) {
+      <table class="holdings-table">
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Quantity</th>
+            <th>Avg. Entry Price</th>
+            <th>Current Price</th>
+            <th>Current Value</th>
+            <th>Unrealized P&amp;L</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="position-badge long-badge">LONG</span>
+            </td>
+            <td class="long-qty">{{ replayLongQuantity() | number:'1.0-8' }}</td>
+            <td>$ {{ replayLongAvgPrice() | number:'1.2-2' }}</td>
+            <td>$ {{ getCurrentPrice() | number:'1.2-2' }}</td>
+            <td>$ {{ longAssetValue() | number:'1.2-2' }}</td>
+            <td [ngClass]="longUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
+              {{ longUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ longUnrealizedPnl() | number:'1.2-2' }}
+              <span class="percent">({{ longUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-buy-small" (click)="openTradePanel('buy', 'long')" [disabled]="isTradeDisabled()">
+                  Buy More
+                </button>
+                <button class="btn-sell-small" (click)="openTradePanel('sell', 'long')" [disabled]="isTradeDisabled()">
+                  Sell
                 </button>
               </div>
-            </div>
-          </div>
-        }
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      }
 
-        <!-- Deposit Panel -->
-        @if (depositPanelOpen()) {
-          <div class="trade-panel trade-panel-deposit">
-            <div class="trade-panel-header trade-header-deposit">
-              <span>💰 Deposit Cash</span>
-              <button class="close-btn" (click)="closeDepositPanel()">✕</button>
-            </div>
-            <div class="trade-panel-body">
-              <div class="trade-info-row">
-                <span class="trade-label">Current Cash Balance</span>
-                <span class="trade-value">$ {{ replayCashBalance() | number:'1.2-2' }}</span>
-              </div>
-              <div class="trade-input-row">
-                <label>Deposit Amount</label>
-                <div class="input-wrapper">
-                  <span class="currency-symbol">$</span>
-                  <input
-                    type="number"
-                    [(ngModel)]="depositAmountInput"
-                    class="input-field trade-qty-input deposit-input"
-                    placeholder="0.00"
-                    min="0"
-                    step="100"
-                    autofocus
-                  />
-                </div>
-              </div>
-              <div class="trade-quick-btns">
-                <button class="quick-btn" (click)="setDepositQuickAmount(100)">+$100</button>
-                <button class="quick-btn" (click)="setDepositQuickAmount(200)">+$200</button>
-                <button class="quick-btn" (click)="setDepositQuickAmount(500)">+$500</button>
-                <button class="quick-btn" (click)="setDepositQuickAmount(1000)">+$1K</button>
-              </div>
-              @if (depositAmountInput > 0) {
-                <div class="deposit-preview">
-                  <div class="preview-label">New Cash Balance</div>
-                  <div class="preview-value positive">
-                    $ {{ (replayCashBalance() + depositAmountInput) | number:'1.2-2' }}
-                    <span class="change">(+{{ depositAmountInput | number:'1.2-2' }})</span>
-                  </div>
-                </div>
-              }
-              <div class="deposit-timestamp">
-                <i class="pi pi-clock"></i>
-                <span>Deposit at: {{ getCurrentDate() || 'Start of replay' }}</span>
-              </div>
-              <div class="trade-panel-actions">
-                <button class="btn-cancel" (click)="closeDepositPanel()">Cancel</button>
-                <button
-                  class="btn-confirm-deposit"
-                  (click)="confirmDeposit()"
-                  [disabled]="depositAmountInput <= 0"
-                >
-                  Deposit
+      <!-- Short Position -->
+      @if (hasShort()) {
+      <table class="holdings-table">
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Quantity</th>
+            <th>Avg. Entry Price</th>
+            <th>Current Price</th>
+            <th>Current Value</th>
+            <th>Unrealized P&amp;L</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="position-badge short-badge">SHORT</span>
+            </td>
+            <td class="short-qty">{{ replayShortQuantity() | number:'1.0-8' }}</td>
+            <td>$ {{ replayShortAvgPrice() | number:'1.2-2' }}</td>
+            <td>$ {{ getCurrentPrice() | number:'1.2-2' }}</td>
+            <td>$ {{ shortAssetValue() | number:'1.2-2' }}</td>
+            <td [ngClass]="shortUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
+              {{ shortUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ shortUnrealizedPnl() | number:'1.2-2' }}
+              <span class="percent">({{ shortUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-buy-small" (click)="openTradePanel('buy', 'short')" [disabled]="isTradeDisabled()">
+                  Cover
+                </button>
+                <button class="btn-sell-small" (click)="openTradePanel('sell', 'short')" [disabled]="isTradeDisabled()">
+                  Short More
                 </button>
               </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      }
+
+      <!-- Trade Panel -->
+      @if (tradePanelOpen()) {
+      <div class="trade-panel" [ngClass]="tradePanelType() === 'buy' ? 'trade-panel-buy' : 'trade-panel-sell'">
+        <div class="trade-panel-header"
+          [ngClass]="tradePanelType() === 'buy' ? 'trade-header-buy' : 'trade-header-sell'">
+          <span>
+            @if (tradePanelType() === 'buy' && tradePanelPositionType() === 'long') { 🟢 Buy Long }
+            @else if (tradePanelType() === 'sell' && tradePanelPositionType() === 'long') { 🔴 Sell Long }
+            @else if (tradePanelType() === 'sell' && tradePanelPositionType() === 'short') { 🔴 Short More }
+            @else if (tradePanelType() === 'buy' && tradePanelPositionType() === 'short') { 🟢 Cover Short }
+            @else { Trade }
+          </span>
+          <button class="close-btn" (click)="closeTradePanel()">✕</button>
+        </div>
+        <div class="trade-panel-body">
+          <div class="trade-info-row">
+            <span class="trade-label">Current Price</span>
+            <span class="trade-value">$ {{ getCurrentPrice() | number:'1.2-2' }}</span>
+          </div>
+
+          @if (tradePanelType() === 'buy' && tradePanelPositionType() === 'long') {
+          <div class="trade-info-row">
+            <span class="trade-label">Available Cash</span>
+            <span class="trade-value">$ {{ replayCashBalance() | number:'1.2-2' }}</span>
+          </div>
+          } @else if (tradePanelType() === 'sell' && tradePanelPositionType() === 'long') {
+          <div class="trade-info-row">
+            <span class="trade-label">Long Quantity</span>
+            <span class="trade-value">{{ replayLongQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</span>
+          </div>
+          } @else if (tradePanelType() === 'sell' && tradePanelPositionType() === 'short') {
+          <div class="trade-info-row">
+            <span class="trade-label">Available Cash</span>
+            <span class="trade-value">$ {{ replayCashBalance() | number:'1.2-2' }}</span>
+          </div>
+          } @else if (tradePanelType() === 'buy' && tradePanelPositionType() === 'short') {
+          <div class="trade-info-row">
+            <span class="trade-label">Short Quantity</span>
+            <span class="trade-value">{{ replayShortQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</span>
+          </div>
+          }
+
+          <div class="trade-input-row">
+            <label>Quantity</label>
+            <input type="number" [(ngModel)]="tradeQuantityInput" class="input-field trade-qty-input" placeholder="0.00"
+              min="0" step="0.001" />
+          </div>
+          <div class="trade-quick-btns">
+            <button class="quick-btn" (click)="setTradePercent(10)">10%</button>
+            <button class="quick-btn" (click)="setTradePercent(25)">25%</button>
+            <button class="quick-btn" (click)="setTradePercent(50)">50%</button>
+            <button class="quick-btn" (click)="setTradePercent(75)">75%</button>
+            <button class="quick-btn" (click)="setTradePercent(100)">100%</button>
+          </div>
+          <div class="trade-total-row">
+            <span>Total</span>
+            <span>$ {{ tradeQuantityInput * getCurrentPrice() | number:'1.2-2' }}</span>
+          </div>
+          <div class="trade-panel-actions">
+            <button class="btn-cancel" (click)="closeTradePanel()">Cancel</button>
+            <button [ngClass]="tradePanelType() === 'buy' ? 'btn-confirm-buy' : 'btn-confirm-sell'"
+              (click)="confirmTrade()" [disabled]="tradeQuantityInput <= 0">
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Deposit Panel -->
+      @if (depositPanelOpen()) {
+      <div class="trade-panel trade-panel-deposit">
+        <div class="trade-panel-header trade-header-deposit">
+          <span>💰 Deposit Cash</span>
+          <button class="close-btn" (click)="closeDepositPanel()">✕</button>
+        </div>
+        <div class="trade-panel-body">
+          <div class="trade-info-row">
+            <span class="trade-label">Current Cash Balance</span>
+            <span class="trade-value">$ {{ replayCashBalance() | number:'1.2-2' }}</span>
+          </div>
+          <div class="trade-input-row">
+            <label>Deposit Amount</label>
+            <div class="input-wrapper">
+              <span class="currency-symbol">$</span>
+              <input type="number" [(ngModel)]="depositAmountInput" class="input-field trade-qty-input deposit-input"
+                placeholder="0.00" min="0" step="100" autofocus />
             </div>
           </div>
-        }
-
-        <!-- Action Buttons -->
-        @if (replayQuantity() === 0 && !tradePanelOpen() && !depositPanelOpen()) {
-          <div class="quick-trade-bar">
-            <button class="btn-buy-large"
-              (click)="openTradePanel('buy')"
-              [disabled]="replayCashBalance() <= 0 || getCurrentPrice() <= 0 || isPlaying()">
-              🟢 Buy {{ selectedSymbol }}
-            </button>
-            <button class="btn-deposit-large"
-              (click)="openDepositPanel()"
-              [disabled]="isPlaying()">
-              💰 Deposit Cash
+          <div class="trade-quick-btns">
+            <button class="quick-btn" (click)="setDepositQuickAmount(100)">+$100</button>
+            <button class="quick-btn" (click)="setDepositQuickAmount(200)">+$200</button>
+            <button class="quick-btn" (click)="setDepositQuickAmount(500)">+$500</button>
+            <button class="quick-btn" (click)="setDepositQuickAmount(1000)">+$1K</button>
+          </div>
+          @if (depositAmountInput > 0) {
+          <div class="deposit-preview">
+            <div class="preview-label">New Cash Balance</div>
+            <div class="preview-value positive">
+              $ {{ (replayCashBalance() + depositAmountInput) | number:'1.2-2' }}
+              <span class="change">(+{{ depositAmountInput | number:'1.2-2' }})</span>
+            </div>
+          </div>
+          }
+          <div class="deposit-timestamp">
+            <i class="pi pi-clock"></i>
+            <span>Deposit at: {{ getCurrentDate() || 'Start of replay' }}</span>
+          </div>
+          <div class="trade-panel-actions">
+            <button class="btn-cancel" (click)="closeDepositPanel()">Cancel</button>
+            <button class="btn-confirm-deposit" (click)="confirmDeposit()" [disabled]="depositAmountInput <= 0">
+              Deposit
             </button>
           </div>
-        } @else if (!tradePanelOpen() && !depositPanelOpen()) {
-          <div class="quick-trade-bar">
-            <button class="btn-deposit-large"
-              (click)="openDepositPanel()"
-              [disabled]="isPlaying()">
-              💰 Deposit Cash
-            </button>
-          </div>
-        }
+        </div>
       </div>
+      }
+
+      <!-- Action Buttons (wenn kein Panel offen) -->
+      @if (!tradePanelOpen() && !depositPanelOpen()) {
+      <div class="quick-trade-bar">
+        <button class="btn-buy-large" (click)="openTradePanel('buy', 'long')"
+          [disabled]="replayCashBalance() <= 0 || getCurrentPrice() <= 0 || isPlaying()">
+          🟢 Buy Long
+        </button>
+        <button class="btn-short-large" (click)="openTradePanel('sell', 'short')"
+          [disabled]="replayCashBalance() <= 0 || getCurrentPrice() <= 0 || isPlaying()">
+          🔴 Short
+        </button>
+        <button class="btn-deposit-large" (click)="openDepositPanel()" [disabled]="isPlaying()">
+          💰 Deposit Cash
+        </button>
+      </div>
+      }
 
       <!-- History Grid: Trade History + Deposit History -->
       <div class="history-grid">
         <!-- Trade History -->
         @if (replayTradeHistory().length > 0) {
-          <div class="trade-history-section">
-            <h3>📋 Trade History</h3>
-            <div class="history-scroll">
-              <table class="history-table">
-                <thead>
-                  <tr>
-                    <th>Type</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (trade of replayTradeHistory(); track $index) {
-                    <tr>
-                      <td>
-                        <span class="trade-type-badge"
-                          [ngClass]="trade.type === 'buy' ? 'trade-badge-buy' : 'trade-badge-sell'">
-                          {{ trade.type === 'buy' ? '🟢 BUY' : '🔴 SELL' }}
-                        </span>
-                      </td>
-                      <td>{{ trade.quantity | number:'1.0-8' }}</td>
-                      <td>$ {{ trade.price | number:'1.2-2' }}</td>
-                      <td>$ {{ trade.total | number:'1.2-2' }}</td>
-                      <td class="timestamp-cell">{{ trade.timestamp }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+        <div class="trade-history-section">
+          <h3>📋 Trade History</h3>
+          <div class="history-scroll">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Pos</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (trade of replayTradeHistory(); track $index) {
+                <tr>
+                  <td>
+                    <span class="trade-type-badge"
+                      [ngClass]="trade.type === 'buy' ? 'trade-badge-buy' : 'trade-badge-sell'">
+                      {{ trade.type === 'buy' ? '🟢 BUY' : '🔴 SELL' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="position-badge"
+                      [ngClass]="trade.positionType === 'long' ? 'long-badge' : 'short-badge'">
+                      {{ trade.positionType | uppercase }}
+                    </span>
+                  </td>
+                  <td>{{ trade.quantity | number:'1.0-8' }}</td>
+                  <td>$ {{ trade.price | number:'1.2-2' }}</td>
+                  <td>$ {{ trade.total | number:'1.2-2' }}</td>
+                  <td class="timestamp-cell">{{ trade.timestamp }}</td>
+                </tr>
+                }
+              </tbody>
+            </table>
           </div>
+        </div>
         }
 
         <!-- Deposit History -->
         @if (replayDepositHistory().length > 0) {
-          <div class="deposit-history-section">
-            <h3>💵 Deposit History</h3>
-            <div class="history-scroll">
-              <table class="history-table">
-                <thead>
-                  <tr>
-                    <th>Amount</th>
-                    <th>New Balance</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (deposit of replayDepositHistory(); track $index) {
-                    <tr>
-                      <td>
-                        <span class="deposit-amount positive">
-                          +$ {{ deposit.amount | number:'1.2-2' }}
-                        </span>
-                      </td>
-                      <td>$ {{ deposit.newBalance | number:'1.2-2' }}</td>
-                      <td class="timestamp-cell">{{ deposit.timestamp }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+        <div class="deposit-history-section">
+          <h3>💵 Deposit History</h3>
+          <div class="history-scroll">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Amount</th>
+                  <th>New Balance</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (deposit of replayDepositHistory(); track $index) {
+                <tr>
+                  <td>
+                    <span class="deposit-amount positive">
+                      +$ {{ deposit.amount | number:'1.2-2' }}
+                    </span>
+                  </td>
+                  <td>$ {{ deposit.newBalance | number:'1.2-2' }}</td>
+                  <td class="timestamp-cell">{{ deposit.timestamp }}</td>
+                </tr>
+                }
+              </tbody>
+            </table>
           </div>
+        </div>
         }
       </div>
     </div>
+  </div>
   }
 
   <!-- MAIN ROW: Chart (links) + Config Sidebar (rechts) -->
@@ -353,11 +409,11 @@
         <h3>{{ selectedSymbol }}/USDT - {{ getIntervalLabel() }}</h3>
         <div class="chart-info">
           @if (currentCandleIndex() > 0) {
-            <span>Candle {{ currentCandleIndex() }} / {{ totalCandles() }}</span>
-            <span class="separator">•</span>
-            <span>{{ getCurrentDate() }}</span>
-            <span class="separator">•</span>
-            <span class="current-price-badge">$ {{ getCurrentPrice() | number:'1.2-2' }}</span>
+          <span>Candle {{ currentCandleIndex() }} / {{ totalCandles() }}</span>
+          <span class="separator">•</span>
+          <span>{{ getCurrentDate() }}</span>
+          <span class="separator">•</span>
+          <span class="current-price-badge">$ {{ getCurrentPrice() | number:'1.2-2' }}</span>
           }
         </div>
       </div>
@@ -365,36 +421,28 @@
       <div #chartContainer class="chart-container"></div>
 
       @if (candlesLoaded()) {
-        <div class="replay-controls">
-          <p-button icon="pi pi-step-backward" (onClick)="reset()" [outlined]="true" severity="secondary" />
-          <p-button icon="pi pi-backward" (onClick)="stepBackward()" [disabled]="currentCandleIndex() <= 1" [outlined]="true" severity="secondary" />
-          <p-button
-            [icon]="isPlaying() ? 'pi pi-pause' : 'pi pi-play'"
-            (onClick)="togglePlay()"
-            [label]="isPlaying() ? 'Pause' : 'Play'"
-            severity="success"
-          />
-          <p-button icon="pi pi-forward" (onClick)="stepForward()" [disabled]="currentCandleIndex() >= totalCandles()" [outlined]="true" severity="secondary" />
-          <p-button icon="pi pi-step-forward" (onClick)="skipToEnd()" [outlined]="true" severity="secondary" />
+      <div class="replay-controls">
+        <p-button icon="pi pi-step-backward" (onClick)="reset()" [outlined]="true" severity="secondary" />
+        <p-button icon="pi pi-backward" (onClick)="stepBackward()" [disabled]="currentCandleIndex() <= 1"
+          [outlined]="true" severity="secondary" />
+        <p-button [icon]="isPlaying() ? 'pi pi-pause' : 'pi pi-play'" (onClick)="togglePlay()"
+          [label]="isPlaying() ? 'Pause' : 'Play'" severity="success" />
+        <p-button icon="pi pi-forward" (onClick)="stepForward()" [disabled]="currentCandleIndex() >= totalCandles()"
+          [outlined]="true" severity="secondary" />
+        <p-button icon="pi pi-step-forward" (onClick)="skipToEnd()" [outlined]="true" severity="secondary" />
 
-          <div class="speed-control">
-            <label>Speed</label>
-            <p-select
-              [options]="speedOptions"
-              [(ngModel)]="playbackSpeed"
-              optionLabel="label"
-              optionValue="value"
-              [style]="{ width: '100px' }"
-              appendTo="body"
-            />
-          </div>
+        <div class="speed-control">
+          <label>Speed</label>
+          <p-select [options]="speedOptions" [(ngModel)]="playbackSpeed" optionLabel="label" optionValue="value"
+            [style]="{ width: '100px' }" appendTo="body" />
+        </div>
 
-          <div class="progress-bar-container">
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="(currentCandleIndex() / totalCandles()) * 100"></div>
-            </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="(currentCandleIndex() / totalCandles()) * 100"></div>
           </div>
         </div>
+      </div>
       }
     </div>
 
@@ -411,28 +459,14 @@
         <div class="sidebar-fields">
           <div class="input-group">
             <label>Symbol</label>
-            <p-select
-              [options]="symbolOptions()"
-              [(ngModel)]="selectedSymbol"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select Symbol"
-              [style]="{ width: '100%' }"
-              appendTo="body"
-            />
+            <p-select [options]="symbolOptions()" [(ngModel)]="selectedSymbol" optionLabel="label" optionValue="value"
+              placeholder="Select Symbol" [style]="{ width: '100%' }" appendTo="body" />
           </div>
 
           <div class="input-group">
             <label>Timeframe</label>
-            <p-select
-              [options]="availableIntervals()"
-              [(ngModel)]="selectedInterval"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select Timeframe"
-              [style]="{ width: '100%' }"
-              appendTo="body"
-            />
+            <p-select [options]="availableIntervals()" [(ngModel)]="selectedInterval" optionLabel="label"
+              optionValue="value" placeholder="Select Timeframe" [style]="{ width: '100%' }" appendTo="body" />
           </div>
 
           <div class="input-group">
@@ -444,25 +478,36 @@
             <label>End Date</label>
             <input type="date" [(ngModel)]="endDate" [min]="startDate" [max]="today" class="input-field" />
           </div>
+          <div class="input-group">
+            <label>Leverage</label>
+            <p-select [options]="leverageOptions" [(ngModel)]="selectedLeverage" placeholder="Select Leverage"
+              [style]="{ width: '100%' }" appendTo="body" />
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Indicators</label>
+          <div class="ema-toggles">
+            <button class="ema-toggle-btn" [ngClass]="{'active': showEma50()}" (click)="toggleEma50()">
+              EMA 50
+            </button>
+            <button class="ema-toggle-btn" [ngClass]="{'active': showEma200()}" (click)="toggleEma200()">
+              EMA 200
+            </button>
+          </div>
         </div>
 
-        <p-button
-          label="Load Data"
-          icon="pi pi-refresh"
-          [loading]="loading()"
-          (onClick)="loadReplayData()"
-          styleClass="load-btn-full"
-        />
+        <p-button label="Load Data" icon="pi pi-refresh" [loading]="loading()" (onClick)="loadReplayData()"
+          styleClass="load-btn-full" />
 
         @if (candlesLoaded()) {
-          <div class="candle-info">✅ {{ totalCandles() }} candles loaded</div>
+        <div class="candle-info">✅ {{ totalCandles() }} candles loaded</div>
         }
 
         @if (error()) {
-          <div class="error-message">
-            <i class="pi pi-exclamation-triangle"></i>
-            {{ error() }}
-          </div>
+        <div class="error-message">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ error() }}
+        </div>
         }
       </div>
     </div>

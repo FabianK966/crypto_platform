@@ -349,7 +349,7 @@
 /* Stats Grid */
 .portfolio-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1rem;
 }
 
@@ -361,6 +361,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  font-size: 0.7rem;
 }
 
 .highlight-card {
@@ -410,6 +411,13 @@
   flex-direction: column;
   gap: 1rem;
 }
+.holdings-table {
+  margin-bottom: 1rem;
+}
+
+.holdings-table:last-of-type {
+  margin-bottom: 0;
+}
 
 .holdings-section h3 {
   font-size: 1.1rem;
@@ -425,6 +433,11 @@
   border-radius: 8px;
   border: 1px dashed rgba(255, 255, 255, 0.07);
   text-align: center;
+}
+
+/* Wenn zwei Tabellen direkt hintereinander, etwas Abstand */
+.holdings-section table + table {
+  margin-top: 1.5rem;
 }
 
 .holdings-table,
@@ -471,31 +484,36 @@
   font-size: 0.9rem;
 }
 
+/* Verbesserte Lesbarkeit der PnL-Prozente in den Zeilen */
 .percent {
-  font-size: 0.8rem;
-  opacity: 0.75;
+  font-size: 0.75rem;
+  opacity: 0.8;
   margin-left: 0.25rem;
 }
+
 
 .timestamp-cell {
   font-size: 0.8rem;
   color: #777;
 }
 
+/* Aktionsbuttons in den Tabellen – sicherstellen, dass sie nicht zu breit werden */
 .table-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .btn-buy-small {
   background: rgba(38, 166, 154, 0.1);
   border: 1px solid #26a69a;
   color: #26a69a;
-  padding: 0.35rem 0.7rem;
+  padding: 0.3rem 0.5rem;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
+   min-width: 70px;
 }
 
 .btn-buy-small:hover:not([disabled]) {
@@ -848,6 +866,12 @@
   gap: 1.5rem;
 }
 
+/* History-Tabelle um Spalte "Pos" erweitert */
+.history-table th:nth-child(2),
+.history-table td:nth-child(2) {
+  min-width: 60px;
+}
+
 .trade-history-section,
 .deposit-history-section {
   display: flex;
@@ -891,6 +915,94 @@
   font-size: 0.95rem;
 }
 
+/* ===== SHORT / LONG POSITION STYLING ===== */
+.position-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.long-badge {
+  background: rgba(38, 166, 154, 0.15);
+  color: #26a69a;
+  border: 1px solid rgba(38, 166, 154, 0.4);
+}
+
+.short-badge {
+  background: rgba(239, 83, 80, 0.15);
+  color: #ef5350;
+  border: 1px solid rgba(239, 83, 80, 0.4);
+}
+
+/* Long/Short Quantity Farben */
+.long-qty {
+  color: #26a69a;
+  font-weight: 600;
+}
+
+.short-qty {
+  color: #ef5350;
+  font-weight: 600;
+}
+
+/* Bessere Unterscheidung in der Tabelle */
+.holdings-table .short-qty {
+  font-weight: 700;
+}
+
+.holdings-table tr:hover {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+/* Trade Panel Button Text Anpassung (optional, aber schön) */
+.btn-buy-small {
+  min-width: 110px;
+}
+
+.btn-sell-small {
+  min-width: 110px;
+}
+
+/* ===== SHORT BUTTON ===== */
+.btn-short-large {
+  background: linear-gradient(135deg, #ef5350 0%, #d32f2f 100%);
+  border: none;
+  color: #fff;
+  padding: 0.75rem 1.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(239, 83, 80, 0.3);
+}
+
+.btn-short-large:hover:not([disabled]) {
+  box-shadow: 0 4px 12px rgba(239, 83, 80, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-short-large[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Quick-Trade-Bar mit drei Buttons */
+.quick-trade-bar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.btn-buy-large, .btn-short-large, .btn-deposit-large {
+  flex: 1 1 auto;
+  min-width: 140px;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1524px) {
   .main-row {
@@ -919,6 +1031,35 @@
   .sidebar-fields {
     display: contents;
   }
+}
+
+.ema-toggles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.ema-toggle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #999;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ema-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.ema-toggle-btn.active {
+  background: rgba(41, 98, 255, 0.2);
+  border-color: #2962ff;
+  color: #2962ff;
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {
@@ -995,3 +1136,4 @@
   width: 100% !important;
   justify-content: center;
 }
+
