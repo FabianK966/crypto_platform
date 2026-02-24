@@ -1,5 +1,4 @@
-/* src/app/components/replay/components/replay-history/replay-history.component.css */
-
+/* Stile für die Historie-Tabellen */
 .history-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -21,6 +20,7 @@
   margin: 0;
 }
 
+/* Scrollbarer Bereich für die Tabelle */
 .history-scroll {
   max-height: 350px;
   overflow-y: auto;
@@ -28,6 +28,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Tabellenstile */
 .history-table {
   width: 100%;
   border-collapse: collapse;
@@ -56,6 +57,7 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
+/* Badges für Trade-Typ */
 .trade-type-badge {
   font-size: 0.8rem;
   font-weight: 600;
@@ -73,6 +75,7 @@
   color: #ef5350;
 }
 
+/* Position-Badge (Long/Short) */
 .position-badge {
   padding: 0.2rem 0.5rem;
   border-radius: 20px;
@@ -93,6 +96,7 @@
   border: 1px solid rgba(239, 83, 80, 0.4);
 }
 
+/* Einzahlungsbetrag */
 .deposit-amount {
   font-weight: 700;
   font-size: 0.95rem;
@@ -102,11 +106,13 @@
   color: #26a69a;
 }
 
+/* Zeitstempel-Spalte */
 .timestamp-cell {
   font-size: 0.8rem;
   color: #777;
 }
 
+/* Responsive Anpassungen */
 @media (max-width: 768px) {
   .history-grid {
     grid-template-columns: 1fr;

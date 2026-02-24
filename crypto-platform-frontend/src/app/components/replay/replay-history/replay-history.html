@@ -1,6 +1,6 @@
-<!-- src/app/components/replay/components/replay-history/replay-history.component.html -->
-
+<!-- Historie der Trades und Einzahlungen -->
 <div class="history-grid">
+  <!-- Trade-Historie, falls vorhanden -->
   @if (tradingService.replayTradeHistory().length > 0) {
     <div class="trade-history-section">
       <h3>📋 Trade History</h3>
@@ -41,6 +41,7 @@
     </div>
   }
 
+  <!-- Einzahlungshistorie, falls vorhanden -->
   @if (tradingService.replayDepositHistory().length > 0) {
     <div class="deposit-history-section">
       <h3>💵 Deposit History</h3>

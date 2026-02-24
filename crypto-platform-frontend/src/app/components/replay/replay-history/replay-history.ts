@@ -1,4 +1,4 @@
-// src/app/components/replay/components/replay-history/replay-history.component.ts
+// Zeigt die Trade- und Einzahlungshistorie in zwei Tabellen an.
 
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -12,5 +12,5 @@ import { ReplayTradingService } from '../services/replay-trading.service';
   styleUrl: './replay-history.css'
 })
 export class ReplayHistoryComponent {
-  @Input() tradingService!: ReplayTradingService;
+  @Input() tradingService!: ReplayTradingService;   // Service mit Historien-Signalen
 }

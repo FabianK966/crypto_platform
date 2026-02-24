@@ -1,74 +1,76 @@
-<!-- src/app/components/replay/replay.component.html -->
-
+<!-- Hauptlayout des Replay-Moduls -->
 <div class="replay-container">
+  <!-- Portfolio-Komponente (nur sichtbar, wenn Daten geladen) -->
   @if (candlesLoaded()) {
-    <app-replay-portfolio
-      [selectedSymbol]="selectedSymbol"
-      [currentPrice]="getCurrentPrice()"
-      [isPlaying]="isPlaying()"
-      [tradingService]="tradingService"
-    />
+  <app-replay-portfolio [selectedSymbol]="selectedSymbol" [currentPrice]="getCurrentPrice()" [isPlaying]="isPlaying()"
+    [tradingService]="tradingService" />
   }
 
   <div class="main-row">
+    <!-- Linke Spalte: Chart und Steuerung -->
     <div class="chart-section">
       <div class="chart-header">
         <h3>{{ selectedSymbol }}/USDT - {{ getIntervalLabel() }}</h3>
+        <!-- RSI-Anzeige mit Warnung bei überkauft/überverkauft -->
+        <div class="rsi-indicator"
+          [ngClass]="{'overbought': (currentRSI() ?? 0) > 70, 'oversold': (currentRSI() ?? 0) < 30}">
+          RSI (14): {{ currentRSI()?.toFixed(2) ?? '--' }}
+          <span class="rsi-warning" *ngIf="(currentRSI() ?? 0) > 70">⚠️ Überkauft</span>
+          <span class="rsi-warning" *ngIf="(currentRSI() ?? 0) < 30">⚠️ Überverkauft</span>
+        </div>
+        <!-- Info über aktuelle Kerze -->
         <div class="chart-info">
           @if (currentCandleIndex() > 0) {
-            <span>Candle {{ currentCandleIndex() }} / {{ totalCandles() }}</span>
-            <span class="separator">•</span>
-            <span>{{ getCurrentDate() }}</span>
-            <span class="separator">•</span>
-            <span class="current-price-badge">$ {{ getCurrentPrice() | number:'1.2-2' }}</span>
+          <span>Candle {{ currentCandleIndex() }} / {{ totalCandles() }}</span>
+          <span class="separator">•</span>
+          <span>{{ getCurrentDate() }}</span>
+          <span class="separator">•</span>
+          <span class="current-price-badge">$ {{ getCurrentPrice() | number:'1.2-2' }}</span>
           }
         </div>
       </div>
 
+      <!-- Hauptchart-Container -->
       <div #chartContainer class="chart-container"></div>
+      <!-- RSI-Chart-Container -->
+      <div #rsiChartContainer class="rsi-chart-container"></div>
 
+      <!-- Steuerungselemente (nur wenn Daten geladen) -->
       @if (candlesLoaded()) {
-        <div class="replay-controls">
-          <p-button icon="pi pi-step-backward" (onClick)="reset()" [outlined]="true" severity="secondary" />
-          <p-button icon="pi pi-backward" (onClick)="stepBackward()" [disabled]="currentCandleIndex() <= 1" [outlined]="true" severity="secondary" />
-          <p-button [icon]="isPlaying() ? 'pi pi-pause' : 'pi pi-play'" (onClick)="togglePlay()" [label]="isPlaying() ? 'Pause' : 'Play'" severity="success" />
-          <p-button icon="pi pi-forward" (onClick)="stepForward()" [disabled]="currentCandleIndex() >= totalCandles()" [outlined]="true" severity="secondary" />
-          <p-button icon="pi pi-step-forward" (onClick)="skipToEnd()" [outlined]="true" severity="secondary" />
+      <div class="replay-controls">
+        <p-button icon="pi pi-step-backward" (onClick)="reset()" [outlined]="true" severity="secondary" />
+        <p-button icon="pi pi-backward" (onClick)="stepBackward()" [disabled]="currentCandleIndex() <= 1"
+          [outlined]="true" severity="secondary" />
+        <p-button [icon]="isPlaying() ? 'pi pi-pause' : 'pi pi-play'" (onClick)="togglePlay()"
+          [label]="isPlaying() ? 'Pause' : 'Play'" severity="success" />
+        <p-button icon="pi pi-forward" (onClick)="stepForward()" [disabled]="currentCandleIndex() >= totalCandles()"
+          [outlined]="true" severity="secondary" />
+        <p-button icon="pi pi-step-forward" (onClick)="skipToEnd()" [outlined]="true" severity="secondary" />
 
-          <div class="speed-control">
-            <label>Speed</label>
-            <p-select [options]="speedOptions" [(ngModel)]="playbackSpeed" optionLabel="label" optionValue="value" [style]="{ width: '100px' }" appendTo="body" />
-          </div>
+        <!-- Geschwindigkeitsauswahl -->
+        <div class="speed-control">
+          <label>Speed</label>
+          <p-select [options]="speedOptions" [(ngModel)]="playbackSpeed" optionLabel="label" optionValue="value"
+            [style]="{ width: '100px' }" appendTo="body" />
+        </div>
 
-          <div class="progress-bar-container">
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="(currentCandleIndex() / totalCandles()) * 100"></div>
-            </div>
+        <!-- Fortschrittsbalken -->
+        <div class="progress-bar-container">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="(currentCandleIndex() / totalCandles()) * 100"></div>
           </div>
         </div>
+      </div>
       }
     </div>
 
-    <app-replay-config-sidebar
-      [availableSymbols]="availableSymbols()"
-      [availableIntervals]="availableIntervals()"
-      [selectedSymbol]="selectedSymbol"
-      [selectedInterval]="selectedInterval"
-      [startDate]="startDate"
-      [endDate]="endDate"
-      [today]="today"
-      [selectedLeverage]="tradingService.selectedLeverage()"
-      [showEma50]="showEma50()"
-      [showEma200]="showEma200()"
-      [loading]="loading()"
-      [error]="error()"
-      [candlesLoaded]="candlesLoaded()"
-      [totalCandles]="totalCandles()"
-      [isPlaying]="isPlaying()"
-      (configChange)="onConfigChange($event)"
-      (loadData)="loadReplayData()"
-      (toggleEma50)="toggleEma50()"
-      (toggleEma200)="toggleEma200()"
-    />
+    <!-- Rechte Spalte: Konfigurations-Sidebar -->
+    <app-replay-config-sidebar [availableSymbols]="availableSymbols()" [availableIntervals]="availableIntervals()"
+      [selectedSymbol]="selectedSymbol" [selectedInterval]="selectedInterval" [startDate]="startDate"
+      [endDate]="endDate" [today]="today" [selectedLeverage]="tradingService.selectedLeverage()"
+      [showEma50]="showEma50()" [showEma200]="showEma200()" [loading]="loading()" [error]="error()"
+      [candlesLoaded]="candlesLoaded()" [totalCandles]="totalCandles()" [isPlaying]="isPlaying()"
+      [showRSI]="showRSI()" (configChange)="onConfigChange($event)" (loadData)="loadReplayData()"
+      (toggleEma50)="toggleEma50()" (toggleEma200)="toggleEma200()" (toggleRSI)="toggleRSI()" />
   </div>
 </div>

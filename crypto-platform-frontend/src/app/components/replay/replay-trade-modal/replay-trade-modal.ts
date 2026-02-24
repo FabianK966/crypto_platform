@@ -1,4 +1,5 @@
-// src/app/components/replay/components/replay-trade-modal/replay-trade-modal.component.ts
+// Modal für die Ausführung eines Trades (Kauf/Verkauf von Long/Short).
+// Wird von ReplayPortfolio geöffnet.
 
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -13,15 +14,16 @@ import { ReplayTradingService } from '../services/replay-trading.service';
   styleUrl: './replay-trade-modal.css'
 })
 export class ReplayTradeModalComponent {
-  @Input() type!: 'buy' | 'sell';
-  @Input() positionType!: 'long' | 'short';
-  @Input() currentPrice!: number;
-  @Input() tradingService!: ReplayTradingService;
-  @Input() selectedSymbol!: string;
-  @Output() close = new EventEmitter<void>();
+  @Input() type!: 'buy' | 'sell';                 // Art des Trades
+  @Input() positionType!: 'long' | 'short';        // Betroffene Position
+  @Input() currentPrice!: number;                  // Aktueller Preis (von der Hauptkomponente)
+  @Input() tradingService!: ReplayTradingService;  // Service-Referenz
+  @Input() selectedSymbol!: string;                 // Symbol für Anzeige
+  @Output() close = new EventEmitter<void>();       // Schließen des Modals
 
-  quantityInput = 0;
+  quantityInput = 0;                                 // Vom Benutzer eingegebene Menge
 
+  // Liefert den passenden Titel je nach Typ und Position
   getTitle(): string {
     if (this.type === 'buy' && this.positionType === 'long') return '🟢 Buy Long';
     if (this.type === 'sell' && this.positionType === 'long') return '🔴 Sell Long';
@@ -30,6 +32,7 @@ export class ReplayTradeModalComponent {
     return 'Trade';
   }
 
+  // Liefert den anzuzeigenden verfügbaren Betrag (Cash oder Positionsgröße)
   getAvailableAmount(): string {
     if (this.type === 'buy' && this.positionType === 'long') {
       return `$ ${this.tradingService.replayCashBalance().toFixed(2)}`;
@@ -46,25 +49,31 @@ export class ReplayTradeModalComponent {
     return '';
   }
 
+  // Setzt die Menge auf einen bestimmten Prozentsatz des Maximums
   setPercent(percent: number) {
     const leverage = this.tradingService.selectedLeverage();
 
     if ((this.type === 'buy' && this.positionType === 'long') || (this.type === 'sell' && this.positionType === 'short')) {
+      // Bei Kauf Long oder Short More: Maximal mögliche Menge basierend auf freier Margin und Hebel
       const maxQty = (this.tradingService.freeMargin() * leverage) / this.currentPrice;
-      this.quantityInput = Math.floor(maxQty * (percent / 100) * 100000) / 100000;
+      this.quantityInput = Math.floor(maxQty * (percent / 100) * 100000) / 100000; // Auf 5 Nachkommastellen runden
     } else if (this.type === 'sell' && this.positionType === 'long') {
+      // Verkauf Long: Maximal vorhandene Long-Menge
       this.quantityInput = Math.floor(this.tradingService.replayLongQuantity() * (percent / 100) * 100000) / 100000;
     } else if (this.type === 'buy' && this.positionType === 'short') {
+      // Cover Short: Maximal vorhandene Short-Menge
       this.quantityInput = Math.floor(this.tradingService.replayShortQuantity() * (percent / 100) * 100000) / 100000;
     }
   }
 
+  // Führt den Trade aus, wenn der Benutzer bestätigt
   confirmTrade() {
     const qty = Number(this.quantityInput);
     if (qty <= 0 || this.currentPrice <= 0) return;
 
     let success = false;
 
+    // Je nach Kombination die entsprechende Methode im TradingService aufrufen
     if (this.type === 'buy' && this.positionType === 'long') {
       success = this.tradingService.increaseLong(qty, this.currentPrice);
       if (!success) alert('Insufficient cash for margin');
@@ -80,7 +89,7 @@ export class ReplayTradeModalComponent {
     }
 
     if (success) {
-      this.close.emit();
+      this.close.emit(); // Modal schließen bei Erfolg
     }
   }
 }

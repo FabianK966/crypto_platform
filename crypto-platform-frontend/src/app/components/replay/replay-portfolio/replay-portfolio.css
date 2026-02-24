@@ -1,5 +1,4 @@
-/* src/app/components/replay/components/replay-portfolio/replay-portfolio.component.css */
-
+/* Hauptstil für das Portfolio-Panel */
 .portfolio-panel {
   background: rgba(20, 20, 20, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -11,6 +10,7 @@
   gap: 1.5rem;
 }
 
+/* Kopfzeile mit Titel und Aktionen */
 .portfolio-header {
   display: flex;
   justify-content: space-between;
@@ -41,6 +41,7 @@
   font-weight: 600;
 }
 
+/* Aktionen: Startguthaben setzen, Reset */
 .portfolio-header-actions {
   display: flex;
   align-items: flex-end;
@@ -103,6 +104,7 @@
   background: rgba(255, 193, 7, 0.2);
 }
 
+/* Statistik-Kacheln (Grid) */
 .portfolio-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -150,6 +152,7 @@
   color: #ef5350 !important;
 }
 
+/* Bereich für aktuelle Positionen */
 .holdings-section {
   display: flex;
   flex-direction: column;
@@ -172,6 +175,7 @@
   text-align: center;
 }
 
+/* Tabelle für Positionen */
 .holdings-table {
   width: 100%;
   border-collapse: collapse;
@@ -197,6 +201,7 @@
   font-size: 0.9rem;
 }
 
+/* Badges für Positionstyp */
 .position-badge {
   padding: 0.2rem 0.5rem;
   border-radius: 20px;
@@ -233,6 +238,7 @@
   margin-left: 0.25rem;
 }
 
+/* Aktions-Buttons in der Tabelle */
 .table-actions {
   display: flex;
   gap: 0.4rem;
@@ -272,6 +278,7 @@
   cursor: not-allowed;
 }
 
+/* Schnell-Trade-Leiste unter den Tabellen */
 .quick-trade-bar {
   display: flex;
   gap: 1rem;

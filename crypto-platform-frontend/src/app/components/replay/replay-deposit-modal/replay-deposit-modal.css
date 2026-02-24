@@ -1,5 +1,4 @@
-/* src/app/components/replay/components/replay-deposit-modal/replay-deposit-modal.component.css */
-
+/* Modal für Einzahlungen – Design angelehnt an Trade-Modal */
 .trade-panel {
   border-radius: 10px;
   overflow: hidden;
@@ -105,6 +104,7 @@
   border-color: #2962ff;
 }
 
+/* Schnellauswahl-Buttons */
 .trade-quick-btns {
   display: flex;
   gap: 0.5rem;
@@ -127,6 +127,7 @@
   color: #fff;
 }
 
+/* Vorschau der neuen Bilanz */
 .deposit-preview {
   padding: 0.875rem;
   background: rgba(38, 166, 154, 0.08);
@@ -159,6 +160,7 @@
   margin-left: 0.5rem;
 }
 
+/* Aktions-Buttons */
 .trade-panel-actions {
   display: flex;
   gap: 0.75rem;

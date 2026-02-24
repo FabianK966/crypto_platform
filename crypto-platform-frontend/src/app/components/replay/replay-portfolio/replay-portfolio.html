@@ -1,12 +1,13 @@
-<!-- src/app/components/replay/components/replay-portfolio/replay-portfolio.component.html -->
-
+<!-- Portfolio-Ansicht -->
 <div class="portfolio-panel">
+  <!-- Kopfzeile -->
   <div class="portfolio-header">
     <div class="portfolio-title">
       <h2>💼 Replay Portfolio</h2>
       <span class="portfolio-symbol-badge">{{ selectedSymbol }}/USDT</span>
     </div>
     <div class="portfolio-header-actions">
+      <!-- Eingabefeld für Startguthaben (deaktiviert, wenn bereits Positionen/Historie vorhanden) -->
       <div class="balance-set-group">
         <label>Starting Balance ($)</label>
         <input type="number" [(ngModel)]="initialBalanceInput" class="input-field balance-input"
@@ -23,7 +24,7 @@
     </div>
   </div>
 
-  <!-- Stats Grid -->
+  <!-- Statistik-Grid -->
   <div class="portfolio-stats-grid">
     <div class="stat-card">
       <div class="stat-label">Cash Balance</div>
@@ -78,14 +79,16 @@
     </div>
   </div>
 
-  <!-- Current Positions -->
+  <!-- Aktuelle Positionen -->
   <div class="holdings-section">
     <h3>📈 Current Positions</h3>
 
+    <!-- Keine Positionen -->
     @if (!tradingService.hasLong() && !tradingService.hasShort()) {
       <div class="no-position">No open positions — use the buttons below to start trading</div>
     }
 
+    <!-- Long-Position vorhanden -->
     @if (tradingService.hasLong()) {
       <table class="holdings-table">
         <thead>
@@ -121,6 +124,7 @@
       </table>
     }
 
+    <!-- Short-Position vorhanden -->
     @if (tradingService.hasShort()) {
       <table class="holdings-table">
         <thead>
@@ -156,6 +160,7 @@
       </table>
     }
 
+    <!-- Trade-Modal (wenn geöffnet) -->
     @if (tradeModalOpen) {
       <app-replay-trade-modal
         [type]="tradeModalType"
@@ -167,6 +172,7 @@
       />
     }
 
+    <!-- Deposit-Modal (wenn geöffnet) -->
     @if (depositModalOpen) {
       <app-replay-deposit-modal
         [tradingService]="tradingService"
@@ -174,6 +180,7 @@
       />
     }
 
+    <!-- Schnell-Trade-Buttons, wenn keine Modals offen sind -->
     @if (!tradeModalOpen && !depositModalOpen) {
       <div class="quick-trade-bar">
         <button class="btn-buy-large" (click)="openTradeModal('buy', 'long')" [disabled]="isTradeDisabled()">🟢 Buy Long</button>
@@ -182,6 +189,7 @@
       </div>
     }
 
+    <!-- Historie-Komponente -->
     <app-replay-history [tradingService]="tradingService" />
   </div>
 </div>

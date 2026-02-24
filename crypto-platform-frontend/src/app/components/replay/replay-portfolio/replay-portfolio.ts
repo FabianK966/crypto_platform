@@ -1,6 +1,7 @@
-// src/app/components/replay/components/replay-portfolio/replay-portfolio.component.ts
+// Zeigt das Portfolio an: Cash, Margin, Positionen, PnL, und bietet Buttons zum Handeln.
+// Enthält auch die Trade- und Deposit-Modals sowie die History.
 
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReplayTradingService } from '../services/replay-trading.service';
 import { ReplayTradeModalComponent } from '../replay-trade-modal/replay-trade-modal';
@@ -11,22 +12,23 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-replay-portfolio',
   standalone: true,
-  imports: [CommonModule, ReplayTradeModalComponent,FormsModule, ReplayDepositModalComponent, ReplayHistoryComponent],
+  imports: [CommonModule, ReplayTradeModalComponent, FormsModule, ReplayDepositModalComponent, ReplayHistoryComponent],
   templateUrl: './replay-portfolio.html',
   styleUrl: './replay-portfolio.css'
 })
 export class ReplayPortfolioComponent {
-  @Input() selectedSymbol!: string;
-  @Input() currentPrice!: number;
-  @Input() isPlaying!: boolean;
-  @Input() tradingService!: ReplayTradingService;
+  @Input() selectedSymbol!: string;               // Aktuelles Symbol
+  @Input() currentPrice!: number;                  // Aktueller Preis (von Hauptkomponente)
+  @Input() isPlaying!: boolean;                     // Läuft Wiedergabe?
+  @Input() tradingService!: ReplayTradingService;   // TradingService
 
-  initialBalanceInput = 10000;
-  tradeModalOpen = false;
-  tradeModalType: 'buy' | 'sell' = 'buy';
-  tradeModalPosition: 'long' | 'short' = 'long';
-  depositModalOpen = false;
+  initialBalanceInput = 10000;                       // Feld für Startguthaben
+  tradeModalOpen = false;                            // Ist Trade-Modal sichtbar?
+  tradeModalType: 'buy' | 'sell' = 'buy';             // Typ für Modal
+  tradeModalPosition: 'long' | 'short' = 'long';      // Position für Modal
+  depositModalOpen = false;                            // Ist Deposit-Modal sichtbar?
 
+  // Setzt das Startguthaben im Service (nur wenn keine offenen Positionen/Historie)
   setBalance() {
     const amount = Number(this.initialBalanceInput);
     if (amount > 0) {
@@ -34,10 +36,12 @@ export class ReplayPortfolioComponent {
     }
   }
 
+  // Setzt das gesamte Portfolio zurück
   resetPortfolio() {
     this.tradingService.resetPortfolio();
   }
 
+  // Öffnet das Trade-Modal mit den übergebenen Parametern
   openTradeModal(type: 'buy' | 'sell', position: 'long' | 'short') {
     this.tradeModalType = type;
     this.tradeModalPosition = position;
@@ -56,6 +60,7 @@ export class ReplayPortfolioComponent {
     this.depositModalOpen = false;
   }
 
+  // Prüft, ob Trading-Buttons deaktiviert sein sollen (während Wiedergabe oder kein Preis)
   isTradeDisabled(): boolean {
     return this.isPlaying || this.currentPrice <= 0;
   }

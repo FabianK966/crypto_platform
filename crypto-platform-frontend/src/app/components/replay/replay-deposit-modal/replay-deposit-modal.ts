@@ -1,4 +1,4 @@
-// src/app/components/replay/components/replay-deposit-modal/replay-deposit-modal.component.ts
+// Modal für Einzahlungen (Deposit). Wird von ReplayPortfolio geöffnet.
 
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -16,12 +16,14 @@ export class ReplayDepositModalComponent {
   @Input() tradingService!: ReplayTradingService;
   @Output() close = new EventEmitter<void>();
 
-  depositAmount = 0;
+  depositAmount = 0;   // Vom Benutzer eingegebener Betrag
 
+  // Setzt einen Schnellbetrag
   setQuickAmount(amount: number) {
     this.depositAmount = amount;
   }
 
+  // Führt die Einzahlung aus
   confirmDeposit() {
     const amount = Number(this.depositAmount);
     if (amount <= 0) {

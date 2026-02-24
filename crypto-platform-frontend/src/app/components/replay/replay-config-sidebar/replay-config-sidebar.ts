@@ -1,4 +1,5 @@
-// src/app/components/replay/components/replay-config-sidebar/replay-config-sidebar.component.ts
+// Sidebar zur Konfiguration des Backtests: Symbol, Intervall, Datum, Hebel, Indikatoren.
+// Sendet Änderungen an die Hauptkomponente.
 
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -15,6 +16,7 @@ import { IntervalOption } from '../../../models/replay.model';
   styleUrl: './replay-config-sidebar.css'
 })
 export class ReplayConfigSidebarComponent {
+  // Alle Eingaben von der Elternkomponente
   @Input() availableSymbols: string[] = [];
   @Input() availableIntervals: IntervalOption[] = [];
   @Input() selectedSymbol!: string;
@@ -30,7 +32,9 @@ export class ReplayConfigSidebarComponent {
   @Input() candlesLoaded!: boolean;
   @Input() totalCandles!: number;
   @Input() isPlaying!: boolean;
+  @Input() showRSI!: boolean;
 
+  // Events, die an die Elternkomponente gesendet werden
   @Output() configChange = new EventEmitter<{
     symbol: string;
     interval: string;
@@ -41,9 +45,11 @@ export class ReplayConfigSidebarComponent {
   @Output() loadData = new EventEmitter<void>();
   @Output() toggleEma50 = new EventEmitter<void>();
   @Output() toggleEma200 = new EventEmitter<void>();
+  @Output() toggleRSI = new EventEmitter<void>();
 
-  leverageOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  leverageOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];   // Verfügbare Hebel
 
+  // Lokale Kopien der Werte für zwei-Wege-Bindung (ngModel)
   localSymbol = '';
   localInterval = '';
   localStartDate = '';
@@ -51,6 +57,7 @@ export class ReplayConfigSidebarComponent {
   localLeverage = 1;
 
   ngOnInit() {
+    // Initialisierung mit den Werten von @Input()
     this.localSymbol = this.selectedSymbol;
     this.localInterval = this.selectedInterval;
     this.localStartDate = this.startDate;
@@ -58,25 +65,12 @@ export class ReplayConfigSidebarComponent {
     this.localLeverage = this.selectedLeverage;
   }
 
-  onSymbolChange() {
-    this.emitConfigChange();
-  }
-
-  onIntervalChange() {
-    this.emitConfigChange();
-  }
-
-  onStartDateChange() {
-    this.emitConfigChange();
-  }
-
-  onEndDateChange() {
-    this.emitConfigChange();
-  }
-
-  onLeverageChange() {
-    this.emitConfigChange();
-  }
+  // Wenn sich eines der Felder ändert, wird ein configChange-Event ausgelöst
+  onSymbolChange() { this.emitConfigChange(); }
+  onIntervalChange() { this.emitConfigChange(); }
+  onStartDateChange() { this.emitConfigChange(); }
+  onEndDateChange() { this.emitConfigChange(); }
+  onLeverageChange() { this.emitConfigChange(); }
 
   private emitConfigChange() {
     this.configChange.emit({
@@ -88,6 +82,7 @@ export class ReplayConfigSidebarComponent {
     });
   }
 
+  // Wandelt das Array von Strings in das von PrimeNG Select erwartete Format um
   get symbolOptions() {
     return this.availableSymbols.map(s => ({ label: s, value: s }));
   }

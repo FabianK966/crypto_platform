@@ -1,5 +1,4 @@
-/* src/app/components/replay/components/replay-trade-modal/replay-trade-modal.component.css */
-
+/* Modal für Trades – ähnliches Design wie Deposit-Modal, aber mit unterschiedlichen Farben */
 .trade-panel {
   border-radius: 10px;
   overflow: hidden;
