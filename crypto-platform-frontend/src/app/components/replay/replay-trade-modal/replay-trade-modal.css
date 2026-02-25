@@ -182,3 +182,39 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* Zusätzlicher Stil für die Gebührenzeile */
+.trade-fee-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #ffc107; /* Gelb für Gebühren */
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* Stil für die geschätzte PnL-Zeile */
+.realized-pnl-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #fff;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.realized-pnl-row span:last-child {
+  font-weight: 600;
+}
+
+.realized-pnl-row .positive {
+  color: #26a69a;
+}
+
+.realized-pnl-row .negative {
+  color: #ef5350;
+}

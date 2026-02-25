@@ -47,7 +47,7 @@ export class ReplayConfigSidebarComponent {
   @Output() toggleEma200 = new EventEmitter<void>();
   @Output() toggleRSI = new EventEmitter<void>();
 
-  leverageOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];   // Verfügbare Hebel
+  leverageOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 25, 30, 50, 75, 100];   // Verfügbare Hebel
 
   // Lokale Kopien der Werte für zwei-Wege-Bindung (ngModel)
   localSymbol = '';

@@ -1,4 +1,6 @@
+<!-- src/app/components/replay/components/replay-trade-modal/replay-trade-modal.component.html -->
 <!-- Modal für Trades (Kauf/Verkauf) -->
+
 <div class="trade-panel" [ngClass]="type === 'buy' ? 'trade-panel-buy' : 'trade-panel-sell'">
   <div class="trade-panel-header" [ngClass]="type === 'buy' ? 'trade-header-buy' : 'trade-header-sell'">
     <span>{{ getTitle() }}</span>
@@ -31,13 +33,27 @@
       <button class="quick-btn" (click)="setPercent(25)">25%</button>
       <button class="quick-btn" (click)="setPercent(50)">50%</button>
       <button class="quick-btn" (click)="setPercent(75)">75%</button>
-      <button class="quick-btn" (click)="setPercent(100)">100%</button>
+      <button class="quick-btn" (click)="setPercent(95)">95%</button>
     </div>
 
     <!-- Gesamtwert der Transaktion -->
     <div class="trade-total-row">
       <span>Total</span>
       <span>$ {{ quantityInput * currentPrice | number:'1.2-2' }}</span>
+    </div>
+
+    <!-- Geschätzte Gebühr -->
+    <div class="trade-fee-row">
+      <span>Estimated Fee</span>
+      <span>$ {{ getEstimatedFee() | number:'1.2-2' }}</span>
+    </div>
+
+    <!-- Geschätzte realisierte PnL  -->
+    <div class="realized-pnl-row" *ngIf="type === 'sell' && positionType === 'long' || type === 'buy' && positionType === 'short'">
+      <span>Estimated PNL</span>
+      <span [ngClass]="{'positive': getEstimatedPnl() >= 0, 'negative': getEstimatedPnl() < 0}">
+        {{ getEstimatedPnl() >= 0 ? '+' : '' }}$ {{ getEstimatedPnl() | number:'1.2-2' }}
+      </span>
     </div>
 
     <!-- Aktionen: Abbrechen oder Bestätigen -->

@@ -1,4 +1,6 @@
-<!-- Portfolio-Ansicht -->
+<!-- src/app/components/replay/components/replay-portfolio/replay-portfolio.component.html -->
+<!-- Portfolio-Ansicht mit Statistik, Positionen und Schnell-Trade-Buttons -->
+
 <div class="portfolio-panel">
   <!-- Kopfzeile -->
   <div class="portfolio-header">
@@ -69,6 +71,12 @@
         {{ tradingService.replayRealizedPnl() >= 0 ? '+' : '' }}$ {{ tradingService.replayRealizedPnl() | number:'1.2-2' }}
       </div>
       <div class="stat-sub">Closed trades</div>
+    </div>
+    <!-- Neue Karte: Total Fees -->
+    <div class="stat-card">
+      <div class="stat-label">Total Fees</div>
+      <div class="stat-value">$ {{ tradingService.totalFees() | number:'1.2-2' }}</div>
+      <div class="stat-sub">Paid in transactions</div>
     </div>
     <div class="stat-card highlight-card">
       <div class="stat-label">Total P&L</div>

@@ -6,9 +6,10 @@ import { Injectable, signal, computed } from '@angular/core';
 
 // Schnittstelle für einen einzelnen Trade
 export interface ReplayTrade {
-  type: 'buy' | 'sell';            // Kauf oder Verkauf
+  type: 'buy' | 'sell';             // Kauf oder Verkauf
   quantity: number;                 // Menge in Coins
   price: number;                    // Ausführungspreis
+  fee: number;                      // Berechnete Gebühr für diesen Trade
   timestamp: string;                // Zeitstempel
   total: number;                    // Gesamtwert (quantity * price)
   positionType: 'long' | 'short';   // Zu welcher Position gehört der Trade
@@ -24,8 +25,8 @@ export interface ReplayDeposit {
 @Injectable()
 export class ReplayTradingService {
   // --- Kernzustände (Signale) ---
-  replayCashBalance = signal(10000);                 // Verfügbares Cash
-  replayLongQuantity = signal(0);                     // Anzahl Coins in Long-Position
+  replayCashBalance = signal(10000);                   // Verfügbares Cash
+  replayLongQuantity = signal(0);                      // Anzahl Coins in Long-Position
   replayLongAvgPrice = signal(0);                      // Durchschnittlicher Einstiegspreis Long
   replayLongDebt = signal(0);                          // Geliehener Betrag (bei Hebel)
   replayShortQuantity = signal(0);                     // Anzahl Coins in Short-Position (positiv)
@@ -33,11 +34,17 @@ export class ReplayTradingService {
   replayRealizedPnl = signal(0);                       // Realisierter Gewinn/Verlust
   replayTradeHistory = signal<ReplayTrade[]>([]);      // Historie aller Trades
   replayDepositHistory = signal<ReplayDeposit[]>([]);  // Historie aller Einzahlungen
-  replayUsedMargin = signal(0);                         // Derzeit genutzte Margin
+  replayUsedMargin = signal(0);                        // Derzeit genutzte Margin
+  totalFees = signal(0);                               // Kumulierte Gebühren
+  liquidationTriggered = signal(false);                // Signal für Liquidation
 
-  private replayInitialBalance = 10000;                 // Ursprüngliches Startguthaben (für Reset)
-  selectedLeverage = signal(1);                          // Vom Benutzer gewählter Hebel
-  private maintenanceMarginFactor = 0.05;                // Faktor für Wartungsmargin (5%)
+
+  private replayInitialBalance = 10000;                // Ursprüngliches Startguthaben (für Reset)
+  selectedLeverage = signal(1);                        // Vom Benutzer gewählter Hebel
+  private maintenanceMarginFactor = 0.05;              // Faktor für Wartungsmargin (5%)
+
+  // Basisgebühr in Prozent bei 1x Hebel (0.05% = 0.0005)
+  private readonly BASE_FEE_RATE = 0.0005;             // 0.05%
 
   // --- Computed Werte (automatische Berechnungen) ---
   hasLong = computed(() => this.replayLongQuantity() > 0);
@@ -108,6 +115,8 @@ export class ReplayTradingService {
     this.replayTradeHistory.set([]);
     this.replayDepositHistory.set([]);
     this.replayUsedMargin.set(0);
+    this.totalFees.set(0);
+    this.liquidationTriggered.set(false);
   }
 
   // Einzahlung tätigen
@@ -120,13 +129,27 @@ export class ReplayTradingService {
     ]);
   }
 
+  // Berechnet die Gebühr für einen Transaktionswert basierend auf dem aktuellen Hebel.
+  // Gebühr = Wert * (BASE_FEE_RATE * Hebel)
+  private calculateFee(transactionValue: number): number {
+    const feeRate = this.BASE_FEE_RATE;
+    return transactionValue * feeRate;
+  }
+
+  // Öffentliche Methode für das Trade-Modal, um die Gebühr für einen bestimmten Wert zu ermitteln.
+  calculateFeeForValue(transactionValue: number): number {
+    return this.calculateFee(transactionValue);
+  }
+
   // --- Long-Position erhöhen (Kauf) ---
   increaseLong(qty: number, price: number): boolean {
     const totalCost = qty * price;
     const margin = totalCost / this.selectedLeverage();   // Eigenkapitalanteil
     const loan = totalCost - margin;                       // Geliehener Betrag
+    const fee = this.calculateFee(totalCost); // Gebühr auf gesamten Kaufwert
 
-    if (margin > this.replayCashBalance()) return false;   // Nicht genug Cash
+
+    if (margin + fee > this.replayCashBalance()) return false;   // Nicht genug Cash
 
     const currentQty = this.replayLongQuantity();
     const newQty = currentQty + qty;
@@ -138,11 +161,12 @@ export class ReplayTradingService {
     this.replayLongQuantity.set(newQty);
     this.replayLongAvgPrice.set(newAvg);
     this.replayLongDebt.update(d => d + loan);
-    this.replayCashBalance.update(b => b - margin);        // Cash wird um Margin reduziert
+    this.replayCashBalance.update(b => b - margin - fee);        // Cash wird um Margin reduziert
+    this.totalFees.update(f => f + fee);                            // Gebühren kumulieren
 
     // Trade zur Historie hinzufügen
     this.replayTradeHistory.update(h => [{
-      type: 'buy', quantity: qty, price, total: totalCost,
+      type: 'buy', quantity: qty, price, fee, total: totalCost,
       timestamp: this.currentTimestamp(), positionType: 'long'
     }, ...h]);
 
@@ -161,16 +185,19 @@ export class ReplayTradingService {
     const repaidDebt = currentDebt * proportion;            // Entsprechender Anteil der Schulden wird getilgt
     const proceeds = qty * price;                            // Erlös aus Verkauf
     const realizedPnl = proceeds - qty * currentAvg;        // Realisierter Gewinn/Verlust
+    const fee = this.calculateFee(proceeds); // Gebühr auf Verkaufserlös
+
 
     this.replayLongQuantity.set(currentQty - qty);
     this.replayLongAvgPrice.set(currentQty - qty > 0 ? currentAvg : 0);
     this.replayLongDebt.set(currentDebt - repaidDebt);
-    // Cash erhöht sich um Erlös abzüglich getilgter Schulden
-    this.replayCashBalance.update(b => b + (proceeds - repaidDebt));
+    // Cash erhöht sich um Erlös abzüglich getilgter Schulden + fees
+    this.replayCashBalance.update(b => b + (proceeds - repaidDebt) - fee);
     this.replayRealizedPnl.update(p => p + realizedPnl);
+    this.totalFees.update(f => f + fee);
 
     this.replayTradeHistory.update(h => [{
-      type: 'sell', quantity: qty, price, total: proceeds,
+      type: 'sell', quantity: qty, price, fee, total: proceeds,
       timestamp: this.currentTimestamp(), positionType: 'long'
     }, ...h]);
 
@@ -182,12 +209,13 @@ export class ReplayTradingService {
   increaseShort(qty: number, price: number): boolean {
     const totalProceeds = qty * price;                       // Erlös aus Leerverkauf
     const requiredMargin = totalProceeds / this.selectedLeverage();
+    const fee = this.calculateFee(totalProceeds);
     // Berechne aktuelle Gesamt-Margin (Long + Short)
     const currentLongMargin = (this.replayLongQuantity() * this.replayLongAvgPrice()) / this.selectedLeverage();
     const currentShortMargin = (this.replayShortQuantity() * this.replayShortAvgPrice()) / this.selectedLeverage();
     const newTotalMargin = currentLongMargin + currentShortMargin + requiredMargin;
 
-    if (newTotalMargin > this.replayTotalBalance()) return false; // Nicht genug Equity
+    if (newTotalMargin > this.replayTotalBalance() - fee) return false; // Nicht genug Equity
 
     const currentQty = this.replayShortQuantity();
     const newQty = currentQty + qty;
@@ -197,10 +225,11 @@ export class ReplayTradingService {
 
     this.replayShortQuantity.set(newQty);
     this.replayShortAvgPrice.set(newAvg);
-    this.replayCashBalance.update(b => b + totalProceeds);   // Cash erhöht sich um Erlös
+    this.replayCashBalance.update(b => b + totalProceeds - fee);   // Cash erhöht sich um Erlös minus Gebühren
+    this.totalFees.update(f => f + fee);
 
     this.replayTradeHistory.update(h => [{
-      type: 'sell', quantity: qty, price, total: totalProceeds,
+      type: 'sell', quantity: qty, price, fee, total: totalProceeds,
       timestamp: this.currentTimestamp(), positionType: 'short'
     }, ...h]);
 
@@ -216,14 +245,16 @@ export class ReplayTradingService {
     const currentAvg = this.replayShortAvgPrice();
     const costToCover = qty * price;                         // Kosten für Rückkauf
     const realizedPnl = (currentAvg - price) * qty;          // Realisierter PnL (bei Short: Einstieg - Ausstieg)
+    const fee = this.calculateFee(costToCover);              // Gebühr auf Rückkaufwert
 
     this.replayShortQuantity.set(currentQty - qty);
     this.replayShortAvgPrice.set(currentQty - qty > 0 ? currentAvg : 0);
-    this.replayCashBalance.update(b => b - costToCover);     // Cash wird um Rückkaufkosten reduziert
+    this.replayCashBalance.update(b => b - costToCover - fee);     // Cash wird um Rückkaufkosten minus Gebühren reduziert
     this.replayRealizedPnl.update(p => p + realizedPnl);
+    this.totalFees.update(f => f + fee);
 
     this.replayTradeHistory.update(h => [{
-      type: 'buy', quantity: qty, price, total: costToCover,
+      type: 'buy', quantity: qty, price, fee, total: costToCover,
       timestamp: this.currentTimestamp(), positionType: 'short'
     }, ...h]);
 
@@ -251,13 +282,15 @@ export class ReplayTradingService {
         const qty = this.replayLongQuantity();
         const proceeds = qty * price;
         const realizedPnl = proceeds - qty * this.replayLongAvgPrice();
+        const fee = this.calculateFee(proceeds);
         this.replayRealizedPnl.update(p => p + realizedPnl);
-        this.replayCashBalance.update(b => b + (proceeds - this.replayLongDebt()));
+        this.replayCashBalance.update(b => b + (proceeds - this.replayLongDebt() - fee));
         this.replayLongQuantity.set(0);
         this.replayLongAvgPrice.set(0);
+        this.totalFees.update(f => f + fee);
         this.replayLongDebt.set(0);
         this.replayTradeHistory.update(h => [{
-          type: 'sell', quantity: qty, price, total: proceeds,
+          type: 'sell', quantity: qty, price, fee, total: proceeds,
           timestamp: this.currentTimestamp(), positionType: 'long'
         }, ...h]);
       }
@@ -266,18 +299,21 @@ export class ReplayTradingService {
       if (this.hasShort()) {
         const qty = this.replayShortQuantity();
         const costToCover = qty * price;
+        const fee = this.calculateFee(costToCover);
         const realizedPnl = qty * this.replayShortAvgPrice() - costToCover;
         this.replayRealizedPnl.update(p => p + realizedPnl);
-        this.replayCashBalance.update(b => b - costToCover);
+        this.replayCashBalance.update(b => b - costToCover - fee);
         this.replayShortQuantity.set(0);
         this.replayShortAvgPrice.set(0);
+        this.totalFees.update(f => f + fee);
         this.replayTradeHistory.update(h => [{
-          type: 'buy', quantity: qty, price, total: costToCover,
+          type: 'buy', quantity: qty, price, fee, total: costToCover,
           timestamp: this.currentTimestamp(), positionType: 'short'
         }, ...h]);
       }
 
       this.replayUsedMargin.set(0);
+      this.liquidationTriggered.set(true); // Signal setzen
       return true; // Liquidation erfolgt
     }
     return false; // Keine Liquidation

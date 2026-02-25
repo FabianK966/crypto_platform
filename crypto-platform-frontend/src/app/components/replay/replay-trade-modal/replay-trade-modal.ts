@@ -66,6 +66,35 @@ export class ReplayTradeModalComponent {
     }
   }
 
+  // Berechnet die geschätzte Gebühr für die aktuelle Eingabe
+  getEstimatedFee(): number {
+    if (this.quantityInput <= 0 || this.currentPrice <= 0) return 0;
+    const transactionValue = this.quantityInput * this.currentPrice;
+    return this.tradingService.calculateFeeForValue(transactionValue);
+  }
+
+  // Berechnet die geschätzte realisierte PnL für die aktuelle Eingabe (nur für Verkauf/Deckung)
+  getEstimatedPnl(): number {
+    if (this.quantityInput <= 0 || this.currentPrice <= 0) return 0;
+
+    // Bei Verkauf einer Long-Position
+    if (this.type === 'sell' && this.positionType === 'long') {
+      const avgPrice = this.tradingService.replayLongAvgPrice();
+      const qty = Math.min(this.quantityInput, this.tradingService.replayLongQuantity());
+      return (this.currentPrice - avgPrice) * qty;
+    }
+
+    // Bei Rückkauf einer Short-Position (Cover)
+    if (this.type === 'buy' && this.positionType === 'short') {
+      const avgPrice = this.tradingService.replayShortAvgPrice();
+      const qty = Math.min(this.quantityInput, this.tradingService.replayShortQuantity());
+      return (avgPrice - this.currentPrice) * qty;
+    }
+
+    // Bei anderen Aktionen (Kauf, Short More) gibt es keinen realisierten PnL
+    return 0;
+  }
+
   // Führt den Trade aus, wenn der Benutzer bestätigt
   confirmTrade() {
     const qty = Number(this.quantityInput);
