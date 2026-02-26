@@ -1,0 +1,120 @@
+/* Stile für die Historie-Tabellen */
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.trade-history-section,
+.deposit-history-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.trade-history-section h3,
+.deposit-history-section h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Scrollbarer Bereich für die Tabelle */
+.history-scroll {
+  max-height: 350px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Tabellenstile */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th,
+.history-table td {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.history-table th {
+  color: #666;
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.history-table td {
+  color: #ddd;
+  font-size: 0.9rem;
+}
+
+.history-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Badges für Trade-Typ */
+.trade-type-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.trade-badge-buy {
+  background: rgba(38, 166, 154, 0.15);
+  color: #26a69a;
+}
+
+.trade-badge-sell {
+  background: rgba(239, 83, 80, 0.15);
+  color: #ef5350;
+}
+
+/* Position-Badge (Long/Short) */
+.position-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.long-badge {
+  background: rgba(38, 166, 154, 0.15);
+  color: #26a69a;
+  border: 1px solid rgba(38, 166, 154, 0.4);
+}
+
+.short-badge {
+  background: rgba(239, 83, 80, 0.15);
+  color: #ef5350;
+  border: 1px solid rgba(239, 83, 80, 0.4);
+}
+
+/* Einzahlungsbetrag */
+.deposit-amount {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.positive {
+  color: #26a69a;
+}
+
+/* Zeitstempel-Spalte */
+.timestamp-cell {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+  .history-grid {
+    grid-template-columns: 1fr;
+  }
+}

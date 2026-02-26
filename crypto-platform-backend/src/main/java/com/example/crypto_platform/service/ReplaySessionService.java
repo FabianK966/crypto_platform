@@ -36,8 +36,10 @@ public class ReplaySessionService {
         // Historien als JSON serialisieren
         String tradeHistoryJson = toJson(dto.getTradeHistory());
         String depositHistoryJson = toJson(dto.getDepositHistory());
-
         int tradeCount = dto.getTradeHistory() != null ? dto.getTradeHistory().size() : 0;
+        // Typ sicherstellen – Fallback auf "manual"
+        String type = (dto.getSessionType() != null && !dto.getSessionType().isBlank())
+                ? dto.getSessionType() : "manual";
 
         ReplaySession session = ReplaySession.builder()
                 .id(UUID.randomUUID().toString())           // IMMER neue UUID

@@ -9,10 +9,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * JPA-Entity für eine gespeicherte Replay/Backtesting-Session.
- * Vollständig unabhängig von den übrigen Tabellen (account, transactions, etc.).
- */
 @Entity
 @Table(name = "replay_session")
 @Data
@@ -27,6 +23,10 @@ public class ReplaySession {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    /** "manual" oder "strategy" */
+    @Column(name = "session_type", length = 20, nullable = false)
+    private String sessionType;
 
     // ----- Konfiguration -----
     @Column(name = "symbol", length = 20, nullable = false)

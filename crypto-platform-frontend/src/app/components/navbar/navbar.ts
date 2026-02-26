@@ -33,8 +33,12 @@ export class NavbarComponent {
       routerLink: '/markets'
     },
     {
-      label: 'Replay',
+      label: 'ReplayManuell',
       routerLink: '/replay'
+    },
+    {
+      label: 'ReplayStrategy',
+      routerLink: '/replay_copy'
     }
   ];
 

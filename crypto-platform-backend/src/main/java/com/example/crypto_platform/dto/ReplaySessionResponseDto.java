@@ -19,6 +19,7 @@ public class ReplaySessionResponseDto {
 
     private String id;
     private LocalDateTime createdAt;
+    private String sessionType;
 
     private String symbol;
     private String intervalValue;

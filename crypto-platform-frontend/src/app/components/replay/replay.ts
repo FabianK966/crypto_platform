@@ -186,6 +186,7 @@ export class ReplayComponent implements OnInit, OnDestroy {
 
     const payload: ReplaySaveRequest = {
         // Konfiguration
+        sessionType: 'manual',
         symbol: this.selectedSymbol,
         intervalValue: this.selectedInterval,
         startTime: new Date(this.startDate).getTime(),
@@ -213,7 +214,8 @@ export class ReplayComponent implements OnInit, OnDestroy {
         // Historien
         tradeHistory: ts.replayTradeHistory(),
         depositHistory: ts.replayDepositHistory(),
-        startBalance: 0
+        startBalance: 0,
+        
     };
 
     this.replayService.saveSession(payload).subscribe({

@@ -28,35 +28,27 @@ export interface IntervalOption {
   label: string;
 }
 
-// ── NEU: Payload für "Session speichern" ────────────────────────────
+// ── Payload für "Session speichern" ────────────────────────────
 export interface ReplaySaveRequest {
-  // Konfiguration
+  sessionType: 'manual' | 'strategy';
   symbol: string;
   intervalValue: string;
   startTime: number;
   endTime: number;
   leverage: number;
-
-  // Portfolio-Snapshot
   initialBalance: number;
   startBalance: number;
   finalCashBalance: number;
   totalBalance: number;
   realizedPnl: number;
   totalFees: number;
-
-  // Offene Positionen
   longQuantity: number;
   longAvgPrice: number;
   longDebt: number;
   shortQuantity: number;
   shortAvgPrice: number;
-
-  // Fortschritt
   currentCandle: number;
   totalCandles: number;
-
-  // Historien
   tradeHistory: any[];
   depositHistory: any[];
 }
@@ -65,6 +57,7 @@ export interface ReplaySaveRequest {
 export interface ReplaySessionResponse {
   id: string;
   createdAt: string;
+  sessionType: string;
   symbol: string;
   intervalValue: string;
   startTime: number;
@@ -83,4 +76,13 @@ export interface ReplaySessionResponse {
   currentCandle: number;
   totalCandles: number;
   tradeCount: number;
+}
+
+export interface StrategyConfig {
+  rsiBuyThreshold: number;
+  rsiSellThreshold: number;
+  buyPortfolioPercent: number;
+  closePositionPercent: number;
+  cooldownCandles: number;
+  autoShortEnabled: boolean;
 }

@@ -1,0 +1,176 @@
+<!-- Strategy Replay Template -->
+<div class="replay-container">
+
+  <!-- Portfolio (nur sichtbar wenn Daten geladen) -->
+  @if (candlesLoaded()) {
+  <app-replay-portfolio [selectedSymbol]="selectedSymbol" [currentPrice]="getCurrentPrice()" [isPlaying]="isPlaying()"
+    [tradingService]="tradingService" />
+  }
+
+  <div class="main-row">
+
+    <!-- ── Linke Spalte: Chart + Controls ────────────────── -->
+    <div class="chart-section">
+
+      <div class="chart-header">
+        <h3>{{ selectedSymbol }}/USDT - {{ getIntervalLabel() }} <span class="strategy-badge">⚡ AUTO</span></h3>
+
+        <!-- RSI-Anzeige -->
+        <div class="rsi-indicator" [ngClass]="{'overbought': (currentRSI() ?? 0) > strategyConfig.rsiSellThreshold,
+                      'oversold':   (currentRSI() ?? 0) < strategyConfig.rsiBuyThreshold && (currentRSI() ?? 99) > 0}">
+          RSI (14): {{ currentRSI()?.toFixed(2) ?? '--' }}
+          <span class="rsi-warning" *ngIf="(currentRSI() ?? 0) > strategyConfig.rsiSellThreshold">⚠️ Overbought → Sell
+            Signal</span>
+          <span class="rsi-warning"
+            *ngIf="(currentRSI() ?? 99) < strategyConfig.rsiBuyThreshold && (currentRSI() ?? 99) > 0">⚠️ Oversold → Buy
+            Signal</span>
+        </div>
+
+        <!-- Strategie-Status Bar -->
+        @if (candlesLoaded()) {
+        <div class="strategy-status-bar">
+          <div class="stat-chip">
+            <span class="stat-label">Auto-Trades</span>
+            <span class="stat-value">{{ strategyTradeCount() }}</span>
+          </div>
+          <div class="stat-chip cooldown" [class.active]="cooldownRemaining() > 0">
+            <span class="stat-label">Cooldown</span>
+            <span class="stat-value">
+              @if (cooldownRemaining() > 0) { {{ cooldownRemaining() }} Kerzen }
+              @else { Bereit ✓ }
+            </span>
+            <div class="cooldown-bar">
+              <div class="cooldown-fill" [style.width.%]="cooldownProgress()"></div>
+            </div>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-label">Schwellen</span>
+            <span class="stat-value">
+              <span class="oversold-text">{{ strategyConfig.rsiBuyThreshold }}</span>
+              /
+              <span class="overbought-text">{{ strategyConfig.rsiSellThreshold }}</span>
+            </span>
+          </div>
+        </div>
+        }
+
+        <!-- Speichern / Sessions -->
+        <div class="save-session-wrapper" *ngIf="candlesLoaded()">
+          <button class="btn-save-session" (click)="saveSession()" [disabled]="isSaving() || !candlesLoaded()"
+            [class.saving]="isSaving()">
+            <span *ngIf="!isSaving()">💾 Session speichern</span>
+            <span *ngIf="isSaving()">⏳ Wird gespeichert…</span>
+          </button>
+          <div class="save-success-banner" *ngIf="saveSuccess()">
+            ✅ Session gespeichert!
+            <span class="session-id" *ngIf="savedSessionId()">ID: {{ savedSessionId() }}</span>
+          </div>
+        </div>
+        <button class="btn-sessions" (click)="showSessionsModal.set(true)">📋 Sessions</button>
+
+        <!-- Candle-Info -->
+        <div class="chart-info">
+          @if (currentCandleIndex() > 0) {
+          <span>Candle {{ currentCandleIndex() }} / {{ totalCandles() }}</span>
+          <span class="separator">•</span>
+          <span>{{ getCurrentDate() }}</span>
+          <span class="separator">•</span>
+          <span class="current-price-badge">$ {{ getCurrentPrice() | number:'1.2-2' }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div #chartContainer class="chart-container"></div>
+      <div #rsiChartContainer class="rsi-chart-container"></div>
+
+      <!-- Steuerung -->
+      @if (candlesLoaded()) {
+      <div class="replay-controls">
+        <p-button icon="pi pi-step-backward" (onClick)="reset()" [outlined]="true" severity="secondary" />
+        <p-button icon="pi pi-backward" (onClick)="stepBackward()" [disabled]="currentCandleIndex() <= 1"
+          [outlined]="true" severity="secondary" />
+        <p-button [icon]="isPlaying() ? 'pi pi-pause' : 'pi pi-play'" (onClick)="togglePlay()"
+          [label]="isPlaying() ? 'Pause' : 'Play ⚡'" severity="success" />
+        <p-button icon="pi pi-forward" (onClick)="stepForward()" [disabled]="currentCandleIndex() >= totalCandles()"
+          [outlined]="true" severity="secondary" />
+        <p-button icon="pi pi-step-forward" (onClick)="skipToEnd()" [outlined]="true" severity="secondary" />
+
+        <div class="speed-control">
+          <label>Speed</label>
+          <p-select [options]="speedOptions" [(ngModel)]="playbackSpeed" optionLabel="label" optionValue="value"
+            [style]="{ width: '110px' }" appendTo="body" />
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="(currentCandleIndex() / totalCandles()) * 100"></div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- ── Strategie-Log ──────────────────────────────── -->
+      @if (strategyLog().length > 0) {
+      <div class="strategy-log-section">
+        <div class="log-header" (click)="toggleStrategyLog()">
+          <span>📋 Strategie-Log ({{ strategyLog().length }} Trades)</span>
+          <span>{{ showStrategyLog() ? '▲' : '▼' }}</span>
+        </div>
+        @if (showStrategyLog()) {
+        <div class="log-table-wrap">
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>Kerze</th>
+                <th>Aktion</th>
+                <th>Preis</th>
+                <th>Menge</th>
+                <th>RSI</th>
+                <th>Grund</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let entry of strategyLog()"
+                [class.buy-row]="entry.action.includes('BUY') || entry.action.includes('COVER')"
+                [class.sell-row]="entry.action.includes('SELL') || entry.action.includes('SHORT')">
+                <td class="mono">{{ entry.candle }}</td>
+                <td class="action-cell">
+                  <span class="action-badge"
+                    [class.action-buy]="entry.action.includes('BUY') || entry.action.includes('COVER')"
+                    [class.action-sell]="entry.action.includes('SELL') || entry.action.includes('SHORT')">
+                    {{ entry.action }}
+                  </span>
+                </td>
+                <td class="mono">$ {{ entry.price | number:'1.2-2' }}</td>
+                <td class="mono">{{ entry.qty | number:'1.4-6' }}</td>
+                <td class="mono" [class.oversold-text]="entry.rsi < strategyConfig.rsiBuyThreshold"
+                  [class.overbought-text]="entry.rsi > strategyConfig.rsiSellThreshold">
+                  {{ entry.rsi | number:'1.1-1' }}
+                </td>
+                <td class="reason-cell">{{ entry.reason }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        }
+      </div>
+      }
+
+    </div>
+
+    <!-- ── Rechte Spalte: Strategy-Sidebar ───────────────── -->
+    <app-replay-strategy-config-sidebar [availableSymbols]="availableSymbols()"
+      [availableIntervals]="availableIntervals()" [selectedSymbol]="selectedSymbol"
+      [selectedInterval]="selectedInterval" [startDate]="startDate" [endDate]="endDate" [today]="today"
+      [selectedLeverage]="tradingService.selectedLeverage()" [showEma50]="showEma50()" [showEma200]="showEma200()"
+      [loading]="loading()" [error]="error()" [candlesLoaded]="candlesLoaded()" [totalCandles]="totalCandles()"
+      [isPlaying]="isPlaying()" [showRSI]="showRSI()" [strategyConfig]="strategyConfig"
+      (configChange)="onConfigChange($event)" (loadData)="loadReplayData()" (toggleEma50)="toggleEma50()"
+      (toggleEma200)="toggleEma200()" (toggleRSI)="toggleRSI()" (strategyChange)="onStrategyChange($event)" />
+  </div>
+
+  <!-- Sessions Modal -->
+  <app-replay-sessions-modal [visible]="showSessionsModal()" (close)="showSessionsModal.set(false)" />
+
+</div>

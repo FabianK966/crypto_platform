@@ -1,0 +1,203 @@
+<!-- src/app/components/replay/components/replay-portfolio/replay-portfolio.component.html -->
+<!-- Portfolio-Ansicht mit Statistik, Positionen und Schnell-Trade-Buttons -->
+
+<div class="portfolio-panel">
+  <!-- Kopfzeile -->
+  <div class="portfolio-header">
+    <div class="portfolio-title">
+      <h2>💼 Replay Portfolio</h2>
+      <span class="portfolio-symbol-badge">{{ selectedSymbol }}/USDT</span>
+    </div>
+    <div class="portfolio-header-actions">
+      <!-- Eingabefeld für Startguthaben (deaktiviert, wenn bereits Positionen/Historie vorhanden) -->
+      <div class="balance-set-group">
+        <label>Starting Balance ($)</label>
+        <input type="number" [(ngModel)]="initialBalanceInput" class="input-field balance-input"
+          [disabled]="tradingService.hasLong() || tradingService.hasShort() || tradingService.replayTradeHistory().length > 0"
+          placeholder="e.g. 10000" />
+      </div>
+      <button class="btn-set-balance" (click)="setBalance()"
+        [disabled]="tradingService.hasLong() || tradingService.hasShort() || tradingService.replayTradeHistory().length > 0">
+        ⚙️ Set Balance
+      </button>
+      <button class="btn-reset-portfolio" (click)="resetPortfolio()">
+        🔄 Reset Portfolio
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistik-Grid -->
+  <div class="portfolio-stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Cash Balance</div>
+      <div class="stat-value">$ {{ tradingService.replayCashBalance() | number:'1.2-2' }}</div>
+      <div class="stat-sub">Available to trade</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Used Margin</div>
+      <div class="stat-value">$ {{ tradingService.replayUsedMargin() | number:'1.2-2' }}</div>
+      <div class="stat-sub">Margin in use</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Free Margin</div>
+      <div class="stat-value">$ {{ tradingService.freeMargin() | number:'1.2-2' }}</div>
+      <div class="stat-sub">Available margin</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Long Value</div>
+      <div class="stat-value">$ {{ tradingService.longAssetValue() | number:'1.2-2' }}</div>
+      <div class="stat-sub">{{ tradingService.replayLongQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Short Value</div>
+      <div class="stat-value">$ {{ tradingService.shortAssetValue() | number:'1.2-2' }}</div>
+      <div class="stat-sub">{{ tradingService.replayShortQuantity() | number:'1.0-8' }} {{ selectedSymbol }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Balance</div>
+      <div class="stat-value">$ {{ tradingService.replayTotalBalance() | number:'1.2-2' }}</div>
+      <div class="stat-sub">Equity</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Unrealized P&L</div>
+      <div class="stat-value" [ngClass]="tradingService.replayUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
+        {{ tradingService.replayUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ tradingService.replayUnrealizedPnl() | number:'1.2-2' }}
+      </div>
+      <div class="stat-sub">Open positions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Realized P&L</div>
+      <div class="stat-value" [ngClass]="tradingService.replayRealizedPnl() >= 0 ? 'positive' : 'negative'">
+        {{ tradingService.replayRealizedPnl() >= 0 ? '+' : '' }}$ {{ tradingService.replayRealizedPnl() | number:'1.2-2' }}
+      </div>
+      <div class="stat-sub">Closed trades</div>
+    </div>
+    <!-- Neue Karte: Total Fees -->
+    <div class="stat-card">
+      <div class="stat-label">Total Fees</div>
+      <div class="stat-value">$ {{ tradingService.totalFees() | number:'1.2-2' }}</div>
+      <div class="stat-sub">Paid in transactions</div>
+    </div>
+    <div class="stat-card highlight-card">
+      <div class="stat-label">Total P&L</div>
+      <div class="stat-value" [ngClass]="(tradingService.replayUnrealizedPnl() + tradingService.replayRealizedPnl()) >= 0 ? 'positive' : 'negative'">
+        {{ (tradingService.replayUnrealizedPnl() + tradingService.replayRealizedPnl()) >= 0 ? '+' : '' }}$ {{ (tradingService.replayUnrealizedPnl() + tradingService.replayRealizedPnl()) | number:'1.2-2' }}
+      </div>
+      <div class="stat-sub">Unrealized + Realized</div>
+    </div>
+  </div>
+
+  <!-- Aktuelle Positionen -->
+  <div class="holdings-section">
+    <h3>📈 Current Positions</h3>
+
+    <!-- Keine Positionen -->
+    @if (!tradingService.hasLong() && !tradingService.hasShort()) {
+      <div class="no-position">No open positions — use the buttons below to start trading</div>
+    }
+
+    <!-- Long-Position vorhanden -->
+    @if (tradingService.hasLong()) {
+      <table class="holdings-table">
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Quantity</th>
+            <th>Avg. Entry</th>
+            <th>Current</th>
+            <th>Value</th>
+            <th>Unrealized P&L</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="position-badge long-badge">LONG</span></td>
+            <td class="long-qty">{{ tradingService.replayLongQuantity() | number:'1.0-8' }}</td>
+            <td>$ {{ tradingService.replayLongAvgPrice() | number:'1.2-2' }}</td>
+            <td>$ {{ currentPrice | number:'1.2-2' }}</td>
+            <td>$ {{ tradingService.longAssetValue() | number:'1.2-2' }}</td>
+            <td [ngClass]="tradingService.longUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
+              {{ tradingService.longUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ tradingService.longUnrealizedPnl() | number:'1.2-2' }}
+              <span class="percent">({{ tradingService.longUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-buy-small" (click)="openTradeModal('buy', 'long')" [disabled]="isTradeDisabled()">Buy More</button>
+                <button class="btn-sell-small" (click)="openTradeModal('sell', 'long')" [disabled]="isTradeDisabled()">Sell</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    }
+
+    <!-- Short-Position vorhanden -->
+    @if (tradingService.hasShort()) {
+      <table class="holdings-table">
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Quantity</th>
+            <th>Avg. Entry</th>
+            <th>Current</th>
+            <th>Value</th>
+            <th>Unrealized P&L</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="position-badge short-badge">SHORT</span></td>
+            <td class="short-qty">{{ tradingService.replayShortQuantity() | number:'1.0-8' }}</td>
+            <td>$ {{ tradingService.replayShortAvgPrice() | number:'1.2-2' }}</td>
+            <td>$ {{ currentPrice | number:'1.2-2' }}</td>
+            <td>$ {{ tradingService.shortAssetValue() | number:'1.2-2' }}</td>
+            <td [ngClass]="tradingService.shortUnrealizedPnl() >= 0 ? 'positive' : 'negative'">
+              {{ tradingService.shortUnrealizedPnl() >= 0 ? '+' : '' }}$ {{ tradingService.shortUnrealizedPnl() | number:'1.2-2' }}
+              <span class="percent">({{ tradingService.shortUnrealizedPnlPercent() | number:'1.2-2' }}%)</span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-buy-small" (click)="openTradeModal('buy', 'short')" [disabled]="isTradeDisabled()">Cover</button>
+                <button class="btn-sell-small" (click)="openTradeModal('sell', 'short')" [disabled]="isTradeDisabled()">Short More</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    }
+
+    <!-- Trade-Modal (wenn geöffnet) -->
+    @if (tradeModalOpen) {
+      <app-replay-trade-modal
+        [type]="tradeModalType"
+        [positionType]="tradeModalPosition"
+        [currentPrice]="currentPrice"
+        [tradingService]="tradingService"
+        [selectedSymbol]="selectedSymbol"
+        (close)="closeTradeModal()"
+      />
+    }
+
+    <!-- Deposit-Modal (wenn geöffnet) -->
+    @if (depositModalOpen) {
+      <app-replay-deposit-modal
+        [tradingService]="tradingService"
+        (close)="closeDepositModal()"
+      />
+    }
+
+    <!-- Schnell-Trade-Buttons, wenn keine Modals offen sind -->
+    @if (!tradeModalOpen && !depositModalOpen) {
+      <div class="quick-trade-bar">
+        <button class="btn-buy-large" (click)="openTradeModal('buy', 'long')" [disabled]="isTradeDisabled()">🟢 Buy Long</button>
+        <button class="btn-short-large" (click)="openTradeModal('sell', 'short')" [disabled]="isTradeDisabled()">🔴 Short</button>
+        <button class="btn-deposit-large" (click)="openDepositModal()" [disabled]="isPlaying">💰 Deposit</button>
+      </div>
+    }
+
+    <!-- Historie-Komponente -->
+    <app-replay-history [tradingService]="tradingService" />
+  </div>
+</div>

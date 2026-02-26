@@ -1,0 +1,220 @@
+/* Modal für Trades – ähnliches Design wie Deposit-Modal, aber mit unterschiedlichen Farben */
+.trade-panel {
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 420px;
+  margin-top: 0.5rem;
+}
+
+.trade-panel-buy {
+  border: 1px solid rgba(38, 166, 154, 0.4);
+  background: rgba(15, 15, 15, 0.9);
+}
+
+.trade-panel-sell {
+  border: 1px solid rgba(239, 83, 80, 0.4);
+  background: rgba(15, 15, 15, 0.9);
+}
+
+.trade-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.25rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.trade-header-buy {
+  background: rgba(38, 166, 154, 0.1);
+}
+
+.trade-header-sell {
+  background: rgba(239, 83, 80, 0.1);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+}
+
+.close-btn:hover {
+  color: #fff;
+}
+
+.trade-panel-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.trade-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.trade-label {
+  color: #777;
+}
+
+.trade-value {
+  color: #fff;
+  font-weight: 600;
+}
+
+.trade-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.trade-input-row label {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.input-field {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.65rem 0.875rem;
+  color: #fff;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #2962ff;
+}
+
+.trade-quick-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quick-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #bbb;
+  padding: 0.4rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.quick-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.trade-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.trade-panel-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-cancel {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #999;
+  padding: 0.65rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.btn-confirm-buy {
+  flex: 2;
+  background: linear-gradient(135deg, #26a69a 0%, #1e8e7e 100%);
+  border: none;
+  color: #fff;
+  padding: 0.65rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(38, 166, 154, 0.3);
+}
+
+.btn-confirm-buy:hover:not([disabled]) {
+  box-shadow: 0 4px 12px rgba(38, 166, 154, 0.4);
+}
+
+.btn-confirm-sell {
+  flex: 2;
+  background: linear-gradient(135deg, #ef5350 0%, #c62828 100%);
+  border: none;
+  color: #fff;
+  padding: 0.65rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(239, 83, 80, 0.3);
+}
+
+.btn-confirm-sell:hover:not([disabled]) {
+  box-shadow: 0 4px 12px rgba(239, 83, 80, 0.4);
+}
+
+.btn-confirm-buy[disabled], .btn-confirm-sell[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Zusätzlicher Stil für die Gebührenzeile */
+.trade-fee-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #ffc107; /* Gelb für Gebühren */
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* Stil für die geschätzte PnL-Zeile */
+.realized-pnl-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #fff;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.realized-pnl-row span:last-child {
+  font-weight: 600;
+}
+
+.realized-pnl-row .positive {
+  color: #26a69a;
+}
+
+.realized-pnl-row .negative {
+  color: #ef5350;
+}

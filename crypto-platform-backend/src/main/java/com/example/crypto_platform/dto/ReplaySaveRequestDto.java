@@ -17,6 +17,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class ReplaySaveRequestDto {
 
+    // ----- Typ -----
+    private String sessionType;
+
     // ----- Konfiguration -----
     private String symbol;
     private String intervalValue;

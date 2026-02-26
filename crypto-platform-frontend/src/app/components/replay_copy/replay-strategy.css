@@ -1,0 +1,304 @@
+/* Strategy Replay CSS – basiert auf replay.css, ergänzt um Strategie-Elemente */
+
+.replay-container {
+  padding: 2rem;
+  max-width: 1800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.main-row {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .main-row { grid-template-columns: 1fr; }
+}
+
+.chart-section {
+  background: rgba(20, 20, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  min-width: 0;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chart-header h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.strategy-badge {
+  font-size: 0.7rem;
+  background: rgba(156, 39, 176, 0.2);
+  border: 1px solid rgba(156, 39, 176, 0.5);
+  color: #ce93d8;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.chart-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #999;
+  font-size: 0.875rem;
+}
+
+.separator { color: #666; }
+
+.current-price-badge {
+  color: #f0b90b;
+  font-weight: 600;
+  background: rgba(240, 185, 11, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(240, 185, 11, 0.3);
+}
+
+.chart-container     { width: 100%; height: 600px; background: #0a0a0a; border-radius: 8px; }
+.rsi-chart-container { height: 150px; margin-top: 10px; }
+
+/* RSI Indikator */
+.rsi-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.rsi-indicator.overbought { color: #ef5350; background: rgba(239,83,80,0.1); }
+.rsi-indicator.oversold   { color: #26a69a; background: rgba(38,166,154,0.1); }
+.rsi-warning { margin-left: auto; font-weight: 600; font-size: 0.75rem; }
+
+/* ── Strategie-Status-Bar ─────────────────────────────── */
+.strategy-status-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.stat-chip {
+  background: #111;
+  border: 1px solid #1e1e1e;
+  border-radius: 8px;
+  padding: 5px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 80px;
+}
+
+.stat-chip.cooldown { border-color: #2a1a2e; }
+.stat-chip.cooldown.active { border-color: rgba(156,39,176,0.4); }
+
+.stat-label {
+  font-size: 0.62rem;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: monospace;
+}
+
+.stat-value {
+  font-size: 0.82rem;
+  font-family: monospace;
+  color: #ccc;
+  font-weight: 600;
+}
+
+.cooldown-bar {
+  height: 3px;
+  background: #1e1e1e;
+  border-radius: 2px;
+  margin-top: 3px;
+  overflow: hidden;
+}
+
+.cooldown-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9c27b0, #ce93d8);
+  border-radius: 2px;
+  transition: width 0.2s;
+}
+
+.oversold-text   { color: #26a69a; }
+.overbought-text { color: #ef5350; }
+
+/* Steuerung */
+.replay-controls {
+  margin-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+.speed-control label { color: #999; font-size: 0.875rem; }
+
+.progress-bar-container { width: 100%; margin-top: 0.75rem; }
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9c27b0 0%, #26a69a 100%);
+  transition: width 0.3s ease;
+}
+
+/* Session-Buttons */
+.save-session-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-save-session {
+  background: #1a3a5a;
+  color: #fff;
+  border: 1px solid #2e6ca1;
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+.btn-save-session:hover:not(:disabled) { background: #2e6ca1; }
+.btn-save-session:disabled, .btn-save-session.saving { opacity: 0.6; cursor: not-allowed; }
+
+.btn-sessions {
+  background: transparent;
+  border: 1px solid #2a2a2a;
+  color: #888;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: all 0.2s;
+}
+.btn-sessions:hover { border-color: #9c27b0; color: #ce93d8; }
+
+.save-success-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1e8449;
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.session-id { font-family: monospace; font-size: 0.7rem; opacity: 0.85; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Strategie-Log ──────────────────────────────────────── */
+.strategy-log-section {
+  margin-top: 1.5rem;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #111;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #aaa;
+  transition: background 0.15s;
+}
+.log-header:hover { background: #151515; }
+
+.log-table-wrap {
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a transparent;
+}
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.log-table th {
+  background: #0d0d0d;
+  color: #444;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  text-align: left;
+  font-family: monospace;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.log-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid #111;
+  color: #888;
+}
+
+.log-table tr.buy-row  td { background: rgba(38,166,154,0.03); }
+.log-table tr.sell-row td { background: rgba(239,83,80,0.03); }
+
+.mono { font-family: 'Courier New', monospace; }
+
+.action-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.action-buy  { background: rgba(38,166,154,0.15); color: #26a69a; border: 1px solid rgba(38,166,154,0.3); }
+.action-sell { background: rgba(239,83,80,0.15);  color: #ef5350; border: 1px solid rgba(239,83,80,0.3); }
+
+.reason-cell { color: #555; font-size: 0.72rem; }
