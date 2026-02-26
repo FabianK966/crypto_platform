@@ -1,0 +1,457 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Replay Sessions Modal — Dark Trading Terminal Aesthetic
+   Passend zum bestehenden Chart-Theme (#0a0a0a, #26a69a, #ef5350)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Overlay ─────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  overflow-y: auto;
+  animation: overlayIn 0.18s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Panel ────────────────────────────────────────────────────────── */
+.modal-panel {
+  width: 100%;
+  max-width: 860px;
+  background: #0d0d0d;
+  border: 1px solid #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px #1a1a1a;
+  animation: panelIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(-16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #1a1a1a;
+  background: linear-gradient(135deg, #111 0%, #0d0d0d 100%);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-icon {
+  font-size: 1.6rem;
+  color: #26a69a;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px rgba(38, 166, 154, 0.5));
+}
+
+.modal-title {
+  font-family: 'Courier New', 'Courier', monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #e8e8e8;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 2px 0;
+}
+
+.modal-subtitle {
+  font-size: 0.75rem;
+  color: #555;
+  margin: 0;
+  font-family: monospace;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-refresh {
+  background: transparent;
+  border: 1px solid #2a2a2a;
+  color: #666;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.btn-refresh:hover { color: #26a69a; border-color: #26a69a; }
+.btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-refresh span.spinning {
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.btn-close {
+  background: transparent;
+  border: 1px solid #2a2a2a;
+  color: #555;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.btn-close:hover { color: #ef5350; border-color: #ef5350; background: rgba(239, 83, 80, 0.08); }
+
+/* ── Body ─────────────────────────────────────────────────────────── */
+.modal-body {
+  padding: 16px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a transparent;
+}
+
+.modal-body::-webkit-scrollbar { width: 5px; }
+.modal-body::-webkit-scrollbar-track { background: transparent; }
+.modal-body::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+
+/* ── State-Anzeigen ───────────────────────────────────────────────── */
+.state-loading, .state-error, .state-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 12px;
+  color: #444;
+  text-align: center;
+}
+
+.pulse-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.pulse-dots span {
+  width: 8px; height: 8px;
+  background: #26a69a;
+  border-radius: 50%;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.pulse-dots span:nth-child(2) { animation-delay: 0.2s; }
+.pulse-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.85); }
+  40%           { opacity: 1;   transform: scale(1); }
+}
+
+.error-icon { font-size: 2rem; color: #ef5350; }
+
+.btn-retry {
+  margin-top: 8px;
+  padding: 6px 16px;
+  background: transparent;
+  border: 1px solid #ef5350;
+  color: #ef5350;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+}
+
+.btn-retry:hover { background: rgba(239, 83, 80, 0.1); }
+
+.empty-icon { font-size: 3rem; color: #222; }
+.empty-hint { font-size: 0.8rem; color: #333; }
+
+/* ── Session Cards ────────────────────────────────────────────────── */
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.session-card {
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  background: #111;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.session-card:hover { border-color: #2a2a2a; }
+.session-card.expanded { border-color: #1e3a38; }
+.session-card.deleting { opacity: 0.5; pointer-events: none; }
+
+/* ── Session-Header (klickbar) ────────────────────────────────────── */
+.session-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  gap: 12px;
+  flex-wrap: wrap;
+  transition: background 0.15s;
+}
+
+.session-header:hover { background: rgba(255, 255, 255, 0.02); }
+
+.session-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.session-symbol {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e0e0e0;
+  letter-spacing: 0.05em;
+}
+
+.badge {
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.session-interval { background: #1a1a2e; color: #7986cb; border: 1px solid #2a2a4e; }
+.session-leverage  { background: #1e2a1a; color: #66bb6a; border: 1px solid #2a4a2a; }
+
+.session-date {
+  font-size: 0.72rem;
+  color: #444;
+  font-family: monospace;
+}
+
+.session-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Fortschrittsbalken */
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progress-bar {
+  width: 80px;
+  height: 4px;
+  background: #1e1e1e;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1e3a38, #26a69a);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.progress-label {
+  font-size: 0.68rem;
+  color: #555;
+  font-family: monospace;
+  min-width: 30px;
+}
+
+/* PnL Chip */
+.pnl-chip {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pnl-chip.positive { background: rgba(38, 166, 154, 0.1); color: #26a69a; border: 1px solid rgba(38, 166, 154, 0.25); }
+.pnl-chip.negative { background: rgba(239, 83, 80, 0.1);  color: #ef5350; border: 1px solid rgba(239, 83, 80, 0.25); }
+.pnl-chip.neutral  { background: rgba(100, 100, 100, 0.1); color: #666;    border: 1px solid #2a2a2a; }
+
+.pnl-arrow { font-size: 0.65rem; }
+
+.trade-count {
+  font-size: 0.7rem;
+  color: #444;
+  font-family: monospace;
+}
+
+.pos-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+.pos-badge.long  { background: rgba(38, 166, 154, 0.15); color: #26a69a; border: 1px solid rgba(38, 166, 154, 0.3); }
+.pos-badge.short { background: rgba(239, 83, 80, 0.15);  color: #ef5350; border: 1px solid rgba(239, 83, 80, 0.3); }
+
+.session-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-delete {
+  background: transparent;
+  border: 1px solid #1e1e1e;
+  color: #333;
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover { color: #ef5350; border-color: #ef5350; background: rgba(239, 83, 80, 0.08); }
+
+.expand-arrow {
+  color: #333;
+  font-size: 0.65rem;
+  transition: color 0.2s;
+}
+
+.session-card.expanded .expand-arrow { color: #26a69a; }
+
+/* ── Session-Details (aufgeklappt) ────────────────────────────────── */
+.session-details {
+  border-top: 1px solid #161616;
+  padding: 16px;
+  background: #0d0d0d;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: detailsIn 0.18s ease;
+}
+
+@keyframes detailsIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.detail-id {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #0a0a0a;
+  border: 1px solid #161616;
+  border-radius: 6px;
+}
+
+.id-value {
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  color: #444;
+  letter-spacing: 0.05em;
+  word-break: break-all;
+}
+
+.detail-section {
+  border: 1px solid #161616;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.section-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+  padding: 8px 14px;
+  background: #0a0a0a;
+  border-bottom: 1px solid #161616;
+  font-family: monospace;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1px;
+  background: #161616;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: #111;
+}
+
+.detail-label {
+  font-size: 0.65rem;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: monospace;
+}
+
+.detail-value {
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.detail-value.mono {
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+}
+
+/* PnL-Farben in Details */
+.detail-value.positive { color: #26a69a; }
+.detail-value.negative { color: #ef5350; }
+.detail-value.neutral  { color: #666; }
+
+.no-positions {
+  padding: 12px 14px;
+  font-size: 0.78rem;
+  color: #333;
+  margin: 0;
+  font-family: monospace;
+}

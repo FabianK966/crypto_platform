@@ -8,10 +8,10 @@ import {
   TransactionResponseDto,
   AccountDto
 } from '../../models/portfolio.model';
-import { StatCardComponent } from '../stat-card/stat-card';
-import { TradeModalComponent } from '../trade-modal/trade-modal';
-import { AddAssetModalComponent } from '../add-asset-modal/add-asset-modal';
-import { BalanceModalComponent, BalanceOperationType } from '../balance-modal/balance-modal';
+import { StatCardComponent } from './stat-card/stat-card';
+import { TradeModalComponent } from './trade-modal/trade-modal';
+import { AddAssetModalComponent } from './add-asset-modal/add-asset-modal';
+import { BalanceModalComponent, BalanceOperationType } from './balance-modal/balance-modal';
 import { switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 

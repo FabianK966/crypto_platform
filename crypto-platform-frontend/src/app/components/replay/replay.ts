@@ -9,20 +9,22 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReplayService } from '../../services/replay.service';
-import { CandleData, ReplayConfig, IntervalOption } from '../../models/replay.model';
+import { CandleData, ReplayConfig, IntervalOption, ReplaySaveRequest } from '../../models/replay.model';
 import { createChart, IChartApi, IPriceLine, ISeriesApi, LineStyle, Time } from 'lightweight-charts';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { ReplayTradingService } from './services/replay-trading.service';
 import { ReplayPortfolioComponent } from './replay-portfolio/replay-portfolio';
 import { ReplayConfigSidebarComponent } from './replay-config-sidebar/replay-config-sidebar';
+import { ReplaySessionsModalComponent } from './replay-sessions-modal/replay-sessions-modal';
 
 @Component({
   selector: 'app-replay',
   standalone: true,
   imports: [
     CommonModule, FormsModule, SelectModule, ButtonModule,
-    ReplayPortfolioComponent, ReplayConfigSidebarComponent
+    ReplayPortfolioComponent, ReplayConfigSidebarComponent,
+    ReplaySessionsModalComponent,  
   ],
   templateUrl: './replay.html',
   styleUrl: './replay.css',
@@ -38,8 +40,8 @@ export class ReplayComponent implements OnInit, OnDestroy {
   // RSI-spezifische Eigenschaften
   private rsiChart: IChartApi | null = null;
   private rsiSeries: ISeriesApi<'Line'> | null = null;
-  private rsiThreshold70Line: IPriceLine | null = null;
-  private rsiThreshold30Line: IPriceLine | null = null;
+  private rsiThreshold69Line: IPriceLine | null = null;
+  private rsiThreshold31Line: IPriceLine | null = null;
   showRSI = signal(true);
   currentRSI = signal<number | null>(null);
   private readonly RSI_PERIOD = 14;
@@ -85,17 +87,21 @@ export class ReplayComponent implements OnInit, OnDestroy {
   playbackSpeed = 1;
   private playbackInterval: any = null;
 
+  // ── NEU: Session-Speichern-Zustand ───────────────────────────────
+  isSaving = signal(false);
+  saveSuccess = signal(false);
+  savedSessionId = signal<string | null>(null);
+  showSessionsModal = signal(false);   // NEU: Modal-Sichtbarkeit
+
   constructor() {
     effect(() => {
       document.body.style.overflowY = this.candlesLoaded() ? 'auto' : 'hidden';
     });
 
-    // NEU: Effekt für Liquidation
     effect(() => {
       if (this.tradingService.liquidationTriggered()) {
         this.stopPlayback();
         alert('⚠️ Liquidation! All positions closed.');
-        // Signal zurücksetzen, damit es für zukünftige Liquidationen wieder ausgelöst werden kann
         this.tradingService.liquidationTriggered.set(false);
       }
     });
@@ -136,6 +142,9 @@ export class ReplayComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set(null);
     this.stopPlayback();
+    // Altes Save-Feedback zurücksetzen wenn neue Daten geladen werden
+    this.saveSuccess.set(false);
+    this.savedSessionId.set(null);
 
     const config: ReplayConfig = {
       symbol: this.selectedSymbol,
@@ -152,6 +161,7 @@ export class ReplayComponent implements OnInit, OnDestroy {
         this.currentCandleIndex.set(0);
         this.loading.set(false);
         this.tradingService.resetPortfolio();
+        this.tradingService.replayStartBalance = this.tradingService.replayInitialBalance;
         setTimeout(() => this.initializeChart(), 100);
       },
       error: (err) => {
@@ -160,6 +170,70 @@ export class ReplayComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  // ── NEU: Session in DB speichern ──────────────────────────────────
+  /**
+   * Sammelt den gesamten aktuellen Zustand und sendet ihn ans Backend.
+   * Das Backend vergibt eine neue UUID – jeder Klick erzeugt einen eigenen Eintrag.
+   */
+  saveSession() {
+    if (!this.candlesLoaded() || this.isSaving()) return;
+
+    this.isSaving.set(true);
+    this.saveSuccess.set(false);
+
+    const ts = this.tradingService;
+
+    const payload: ReplaySaveRequest = {
+        // Konfiguration
+        symbol: this.selectedSymbol,
+        intervalValue: this.selectedInterval,
+        startTime: new Date(this.startDate).getTime(),
+        endTime: new Date(this.endDate).getTime(),
+        leverage: ts.selectedLeverage(),
+
+        // Portfolio-Snapshot (rohe Zahlen aus den Signalen)
+        initialBalance: ts.replayStartBalance,
+        finalCashBalance: ts.replayCashBalance(),
+        totalBalance: ts.replayTotalBalance(),
+        realizedPnl: ts.replayRealizedPnl(),
+        totalFees: ts.totalFees(),
+
+        // Positionen
+        longQuantity: ts.replayLongQuantity(),
+        longAvgPrice: ts.replayLongAvgPrice(),
+        longDebt: ts.replayLongDebt(),
+        shortQuantity: ts.replayShortQuantity(),
+        shortAvgPrice: ts.replayShortAvgPrice(),
+
+        // Fortschritt
+        currentCandle: this.currentCandleIndex(),
+        totalCandles: this.totalCandles(),
+
+        // Historien
+        tradeHistory: ts.replayTradeHistory(),
+        depositHistory: ts.replayDepositHistory(),
+        startBalance: 0
+    };
+
+    this.replayService.saveSession(payload).subscribe({
+      next: (response) => {
+        this.isSaving.set(false);
+        this.saveSuccess.set(true);
+        this.savedSessionId.set(response.id);
+        console.log('✅ Session gespeichert:', response.id);
+        // Erfolgsmeldung nach 4 Sekunden ausblenden
+        setTimeout(() => this.saveSuccess.set(false), 4000);
+      },
+      error: (err) => {
+        this.isSaving.set(false);
+        console.error('❌ Fehler beim Speichern:', err);
+        this.error.set('Fehler beim Speichern der Session');
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────
 
   initializeChart() {
     if (this.chart) this.chart.remove();
@@ -214,21 +288,13 @@ export class ReplayComponent implements OnInit, OnDestroy {
       lastValueVisible: true,
     });
 
-    this.rsiThreshold70Line = this.rsiSeries.createPriceLine({
-      price: 70,
-      color: '#ef5350',
-      lineWidth: 1,
-      lineStyle: 2,
-      axisLabelVisible: true,
-      title: 'Overbought (70)',
+    this.rsiThreshold69Line = this.rsiSeries.createPriceLine({
+      price: 69, color: '#ef5350', lineWidth: 1, lineStyle: 2,
+      axisLabelVisible: true, title: 'Overbought (69)',
     });
-    this.rsiThreshold30Line = this.rsiSeries.createPriceLine({
-      price: 30,
-      color: '#26a69a',
-      lineWidth: 1,
-      lineStyle: 2,
-      axisLabelVisible: true,
-      title: 'Oversold (30)',
+    this.rsiThreshold31Line = this.rsiSeries.createPriceLine({
+      price: 31, color: '#26a69a', lineWidth: 1, lineStyle: 2,
+      axisLabelVisible: true, title: 'Oversold (31)',
     });
 
     this.chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
@@ -292,7 +358,7 @@ export class ReplayComponent implements OnInit, OnDestroy {
       this.currentCandleIndex.update(i => i + 1);
       this.updateChart();
       this.updateTradingService();
-      this.tradingService.checkLiquidation(); // Signal wird bei Bedarf gesetzt
+      this.tradingService.checkLiquidation();
     }
   }
 
@@ -456,31 +522,23 @@ export class ReplayComponent implements OnInit, OnDestroy {
     if (this.rsiChart) {
       if (this.showRSI()) {
         this.rsiSeries = this.rsiChart.addLineSeries({
-          color: '#9c27b0',
-          lineWidth: 2,
+          color: '#9c27b0', lineWidth: 2,
           title: `RSI (${this.RSI_PERIOD})`,
-          priceLineVisible: false,
-          lastValueVisible: true,
+          priceLineVisible: false, lastValueVisible: true,
         });
-        this.rsiThreshold70Line = this.rsiSeries.createPriceLine({
-          price: 70,
-          color: '#ef5350',
-          lineStyle: 2,
-          axisLabelVisible: true,
-          title: 'Overbought (70)',
+        this.rsiThreshold69Line = this.rsiSeries.createPriceLine({
+          price: 69, color: '#ef5350', lineStyle: 2,
+          axisLabelVisible: true, title: 'Overbought (69)',
         });
-        this.rsiThreshold30Line = this.rsiSeries.createPriceLine({
-          price: 30,
-          color: '#26a69a',
-          lineStyle: 2,
-          axisLabelVisible: true,
-          title: 'Oversold (30)',
+        this.rsiThreshold31Line = this.rsiSeries.createPriceLine({
+          price: 31, color: '#26a69a', lineStyle: 2,
+          axisLabelVisible: true, title: 'Oversold (31)',
         });
       } else if (this.rsiSeries) {
         this.rsiChart.removeSeries(this.rsiSeries);
         this.rsiSeries = null;
-        this.rsiThreshold70Line = null;
-        this.rsiThreshold30Line = null;
+        this.rsiThreshold69Line = null;
+        this.rsiThreshold31Line = null;
       }
       this.updateChart();
     }

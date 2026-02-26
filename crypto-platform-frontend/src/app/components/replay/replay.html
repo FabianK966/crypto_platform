@@ -18,6 +18,23 @@
           <span class="rsi-warning" *ngIf="(currentRSI() ?? 0) > 70">⚠️ Überkauft</span>
           <span class="rsi-warning" *ngIf="(currentRSI() ?? 0) < 30">⚠️ Überverkauft</span>
         </div>
+        <div class="save-session-wrapper" *ngIf="candlesLoaded()">
+          <!-- Button -->
+          <button class="btn-save-session" (click)="saveSession()" [disabled]="isSaving() || !candlesLoaded()"
+            [class.saving]="isSaving()" title="Aktuelle Session in der Datenbank speichern">
+
+            <span *ngIf="!isSaving()">💾 Session speichern</span>
+            <span *ngIf="isSaving()">⏳ Wird gespeichert…</span>
+          </button>
+          <!-- Erfolgs-Banner (blendet sich nach 4 s automatisch aus) -->
+          <div class="save-success-banner" *ngIf="saveSuccess()">
+            ✅ Session gespeichert!
+            <span class="session-id" *ngIf="savedSessionId()">ID: {{ savedSessionId() }}</span>
+          </div>
+        </div>
+        <button (click)="showSessionsModal.set(true)">
+          📋 Sessions anzeigen
+        </button>
         <!-- Info über aktuelle Kerze -->
         <div class="chart-info">
           @if (currentCandleIndex() > 0) {
@@ -63,14 +80,16 @@
       </div>
       }
     </div>
-
+    
     <!-- Rechte Spalte: Konfigurations-Sidebar -->
     <app-replay-config-sidebar [availableSymbols]="availableSymbols()" [availableIntervals]="availableIntervals()"
       [selectedSymbol]="selectedSymbol" [selectedInterval]="selectedInterval" [startDate]="startDate"
       [endDate]="endDate" [today]="today" [selectedLeverage]="tradingService.selectedLeverage()"
       [showEma50]="showEma50()" [showEma200]="showEma200()" [loading]="loading()" [error]="error()"
-      [candlesLoaded]="candlesLoaded()" [totalCandles]="totalCandles()" [isPlaying]="isPlaying()"
-      [showRSI]="showRSI()" (configChange)="onConfigChange($event)" (loadData)="loadReplayData()"
-      (toggleEma50)="toggleEma50()" (toggleEma200)="toggleEma200()" (toggleRSI)="toggleRSI()" />
+      [candlesLoaded]="candlesLoaded()" [totalCandles]="totalCandles()" [isPlaying]="isPlaying()" [showRSI]="showRSI()"
+      (configChange)="onConfigChange($event)" (loadData)="loadReplayData()" (toggleEma50)="toggleEma50()"
+      (toggleEma200)="toggleEma200()" (toggleRSI)="toggleRSI()" />
   </div>
+  <app-replay-sessions-modal [visible]="showSessionsModal()" (close)="showSessionsModal.set(false)">
+    </app-replay-sessions-modal>
 </div>

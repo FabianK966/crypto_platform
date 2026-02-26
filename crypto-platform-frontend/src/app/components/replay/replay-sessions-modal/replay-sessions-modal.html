@@ -1,0 +1,210 @@
+<!-- Overlay -->
+<div class="modal-overlay" *ngIf="visible" (click)="onOverlayClick($event)">
+  <div class="modal-panel">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-left">
+        <span class="header-icon">◈</span>
+        <div>
+          <h2 class="modal-title">Backtest Sessions</h2>
+          <p class="modal-subtitle">{{ sessions().length }} gespeicherte Session{{ sessions().length !== 1 ? 'en' : '' }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-refresh" (click)="loadSessions()" [disabled]="loading()" title="Aktualisieren">
+          <span [class.spinning]="loading()">↻</span>
+        </button>
+        <button class="btn-close" (click)="close.emit()">✕</button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+
+      <!-- Loading -->
+      <div class="state-loading" *ngIf="loading()">
+        <div class="pulse-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Sessions werden geladen…</p>
+      </div>
+
+      <!-- Error -->
+      <div class="state-error" *ngIf="error() && !loading()">
+        <span class="error-icon">⚠</span>
+        {{ error() }}
+        <button class="btn-retry" (click)="loadSessions()">Erneut versuchen</button>
+      </div>
+
+      <!-- Empty -->
+      <div class="state-empty" *ngIf="!loading() && !error() && sessions().length === 0">
+        <div class="empty-icon">◎</div>
+        <p>Noch keine Sessions gespeichert.</p>
+        <p class="empty-hint">Drücke "Session speichern" während eines Backtests.</p>
+      </div>
+
+      <!-- Session-Liste -->
+      <div class="sessions-list" *ngIf="!loading() && sessions().length > 0">
+
+        <div
+          class="session-card"
+          *ngFor="let s of sessions()"
+          [class.expanded]="expandedSessionId() === s.id"
+          [class.deleting]="deletingId() === s.id">
+
+          <!-- Session-Header (immer sichtbar, klickbar zum Aufklappen) -->
+          <div class="session-header" (click)="toggleExpand(s.id)">
+
+            <div class="session-meta">
+              <span class="session-symbol">{{ s.symbol }}</span>
+              <span class="session-interval badge">{{ s.intervalValue }}</span>
+              <span class="session-leverage badge leverage">{{ s.leverage }}x</span>
+              <span class="session-date">{{ formatDate(s.createdAt) }}</span>
+            </div>
+
+            <div class="session-stats">
+              <!-- Fortschrittsbalken -->
+              <div class="progress-wrap" title="{{ s.currentCandle }}/{{ s.totalCandles }} Candles">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="progressPercent(s)"></div>
+                </div>
+                <span class="progress-label">{{ progressPercent(s) }}%</span>
+              </div>
+
+              <!-- Gesamt-PnL -->
+              <div class="pnl-chip" [ngClass]="pnlClass(totalPnlPercent(s))">
+                <span class="pnl-arrow">{{ totalPnlPercent(s) >= 0 ? '▲' : '▼' }}</span>
+                {{ totalPnlPercent(s) | number:'1.2-2' }}%
+              </div>
+
+              <!-- Trade-Count -->
+              <span class="trade-count">{{ s.tradeCount }} Trades</span>
+
+              <!-- Offene Positionen Badges -->
+              <span class="pos-badge long" *ngIf="hasOpenLong(s)">LONG</span>
+              <span class="pos-badge short" *ngIf="hasOpenShort(s)">SHORT</span>
+            </div>
+
+            <div class="session-actions">
+              <button
+                class="btn-delete"
+                (click)="deleteSession(s.id, $event)"
+                [disabled]="deletingId() === s.id"
+                title="Session löschen">
+                {{ deletingId() === s.id ? '…' : '🗑' }}
+              </button>
+              <span class="expand-arrow">{{ expandedSessionId() === s.id ? '▲' : '▼' }}</span>
+            </div>
+
+          </div>
+
+          <!-- Session-Details (aufgeklappt) -->
+          <div class="session-details" *ngIf="expandedSessionId() === s.id">
+
+            <!-- ID -->
+            <div class="detail-id">
+              <span class="detail-label">Session ID</span>
+              <span class="id-value">{{ s.id }}</span>
+            </div>
+
+            <!-- Zeitraum -->
+            <div class="detail-section">
+              <h4 class="section-title">⏱ Zeitraum</h4>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <span class="detail-label">Von</span>
+                  <span class="detail-value">{{ formatTimestamp(s.startTime) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Bis</span>
+                  <span class="detail-value">{{ formatTimestamp(s.endTime) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Candle</span>
+                  <span class="detail-value">{{ s.currentCandle }} / {{ s.totalCandles }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Fortschritt</span>
+                  <span class="detail-value">{{ progressPercent(s) }}%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Portfolio -->
+            <div class="detail-section">
+              <h4 class="section-title">💰 Portfolio</h4>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <span class="detail-label">Startkapital</span>
+                  <span class="detail-value mono">$ {{ formatMoney(s.initialBalance) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Cash Balance</span>
+                  <span class="detail-value mono">$ {{ formatMoney(s.finalCashBalance) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Gesamtkapital</span>
+                  <span class="detail-value mono" [ngClass]="pnlClass(+s.totalBalance - +s.initialBalance)">
+                    $ {{ formatMoney(s.totalBalance) }}
+                  </span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Realisierter PnL</span>
+                  <span class="detail-value mono" [ngClass]="pnlClass(s.realizedPnl)">
+                    {{ +s.realizedPnl >= 0 ? '+' : '' }}$ {{ formatMoney(s.realizedPnl) }}
+                  </span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Gebühren gesamt</span>
+                  <span class="detail-value mono negative">- $ {{ formatMoney(s.totalFees) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Performance</span>
+                  <span class="detail-value mono" [ngClass]="pnlClass(totalPnlPercent(s))">
+                    {{ totalPnlPercent(s) >= 0 ? '+' : '' }}{{ totalPnlPercent(s) | number:'1.2-2' }}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Offene Positionen -->
+            <div class="detail-section" *ngIf="hasOpenLong(s) || hasOpenShort(s)">
+              <h4 class="section-title">📊 Offene Positionen beim Speichern</h4>
+              <div class="detail-grid">
+                <ng-container *ngIf="hasOpenLong(s)">
+                  <div class="detail-item">
+                    <span class="detail-label">Long Menge</span>
+                    <span class="detail-value mono positive">{{ formatCrypto(s.longQuantity) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Long Ø-Preis</span>
+                    <span class="detail-value mono">$ {{ formatMoney(s.longAvgPrice) }}</span>
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="hasOpenShort(s)">
+                  <div class="detail-item">
+                    <span class="detail-label">Short Menge</span>
+                    <span class="detail-value mono negative">{{ formatCrypto(s.shortQuantity) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Short Ø-Preis</span>
+                    <span class="detail-value mono">$ {{ formatMoney(s.shortAvgPrice) }}</span>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+
+            <!-- Keine offenen Positionen -->
+            <div class="detail-section" *ngIf="!hasOpenLong(s) && !hasOpenShort(s)">
+              <h4 class="section-title">📊 Positionen</h4>
+              <p class="no-positions">Keine offenen Positionen beim Speichern.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

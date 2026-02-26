@@ -2,10 +2,14 @@ package com.example.crypto_platform.controller;
 
 import com.example.crypto_platform.dto.CandleDto;
 import com.example.crypto_platform.dto.ReplayConfigDto;
+import com.example.crypto_platform.dto.ReplaySaveRequestDto;
+import com.example.crypto_platform.dto.ReplaySessionResponseDto;
 import com.example.crypto_platform.service.HistoricalDataService;
+import com.example.crypto_platform.service.ReplaySessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,16 +21,15 @@ import java.util.Map;
 public class ReplayController {
 
     private final HistoricalDataService historicalDataService;
+    private final ReplaySessionService replaySessionService;   // NEU
 
-    /**
-     * Holt historische Kerzendaten für Replay
-     */
+    // ================================================================
+    //  Bestehende Endpoints (unverändert)
+    // ================================================================
+
     @PostMapping("/candles")
     public ResponseEntity<?> getReplayCandles(@RequestBody ReplayConfigDto config) {
         try {
-            /**
-             * Validierung
-             */
             if (config.getSymbol() == null || config.getSymbol().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Symbol is required"));
             }
@@ -37,14 +40,8 @@ public class ReplayController {
                 ));
             }
 
-            /**
-             * Trading Pair formatieren (Symbol + USDT)
-             */
             String symbol = config.getSymbol().toUpperCase().replace("USDT", "") + "USDT";
 
-            /**
-             * Daten holen
-             */
             List<CandleDto> candles = historicalDataService.getHistoricalCandles(
                     symbol,
                     config.getInterval(),
@@ -60,9 +57,6 @@ public class ReplayController {
                 ));
             }
 
-            /**
-             * Response mit Metadata
-             */
             Map<String, Object> response = new HashMap<>();
             response.put("candles", candles);
             response.put("count", candles.size());
@@ -71,7 +65,8 @@ public class ReplayController {
             response.put("startTime", config.getStartTime());
             response.put("endTime", config.getEndTime());
 
-            System.out.println("Sending " + candles.size() + " candles for " + symbol + " (" + config.getInterval() + ")");
+            System.out.println("Sending " + candles.size() + " candles for " + symbol
+                    + " (" + config.getInterval() + ")");
 
             return ResponseEntity.ok(response);
 
@@ -84,9 +79,6 @@ public class ReplayController {
         }
     }
 
-    /**
-     * Gibt verfügbare Symbole zurück
-     */
     @GetMapping("/symbols")
     public ResponseEntity<List<String>> getAvailableSymbols() {
         List<String> symbols = List.of(
@@ -96,9 +88,6 @@ public class ReplayController {
         return ResponseEntity.ok(symbols);
     }
 
-    /**
-     * Gibt verfügbare Timeframes zurück
-     */
     @GetMapping("/intervals")
     public ResponseEntity<List<Map<String, String>>> getAvailableIntervals() {
         List<Map<String, String>> intervals = List.of(
@@ -113,9 +102,6 @@ public class ReplayController {
         return ResponseEntity.ok(intervals);
     }
 
-    /**
-     * Health Check
-     */
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
         return ResponseEntity.ok(Map.of(
@@ -123,5 +109,63 @@ public class ReplayController {
                 "service", "replay-backtesting",
                 "dataSource", "Binance Public API"
         ));
+    }
+
+    // ================================================================
+    //  NEU: Session speichern / laden / löschen
+    // ================================================================
+
+    /**
+     * Speichert den aktuellen Replay-Zustand als neue Session.
+     * Jeder Aufruf erzeugt eine neue UUID – unabhängig davon ob Symbol/Datum gleich sind.
+     * POST /api/replay/sessions
+     */
+    @PostMapping("/sessions")
+    public ResponseEntity<?> saveSession(@RequestBody ReplaySaveRequestDto request) {
+        try {
+            ReplaySessionResponseDto saved = replaySessionService.saveSession(request);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            System.err.println("Error saving replay session: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "Failed to save session: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Alle gespeicherten Sessions abrufen (neueste zuerst).
+     * GET /api/replay/sessions
+     */
+    @GetMapping("/sessions")
+    public ResponseEntity<List<ReplaySessionResponseDto>> getAllSessions() {
+        return ResponseEntity.ok(replaySessionService.getAllSessions());
+    }
+
+    /**
+     * Eine Session per ID abrufen.
+     * GET /api/replay/sessions/{id}
+     */
+    @GetMapping("/sessions/{id}")
+    public ResponseEntity<?> getSessionById(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(replaySessionService.getSessionById(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Eine Session löschen.
+     * DELETE /api/replay/sessions/{id}
+     */
+    @DeleteMapping("/sessions/{id}")
+    public ResponseEntity<?> deleteSession(@PathVariable String id) {
+        try {
+            replaySessionService.deleteSession(id);
+            return ResponseEntity.ok(Map.of("message", "Session deleted", "id", id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

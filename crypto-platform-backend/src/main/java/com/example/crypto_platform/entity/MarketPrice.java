@@ -5,13 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 
 @Entity
-@Table(name = "market_price",
-        indexes = {
-                @Index(name = "idx_symbol_price_priceChangePercent",
-                        columnList = "symbol,price,priceChangePercent")
-        })
+@Table(name = "market_price")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,8 +19,8 @@ public class MarketPrice {
     private Long id;
     @Column
     private String symbol;
-    @Column
-    private Double price;
+    @Column(precision = 18, scale = 4)
+    private BigDecimal price;
     @Column
     private Double priceChangePercent;
 }

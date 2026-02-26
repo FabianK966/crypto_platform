@@ -37,9 +37,8 @@ export class ReplayTradingService {
   replayUsedMargin = signal(0);                        // Derzeit genutzte Margin
   totalFees = signal(0);                               // Kumulierte Gebühren
   liquidationTriggered = signal(false);                // Signal für Liquidation
-
-
-  private replayInitialBalance = 10000;                // Ursprüngliches Startguthaben (für Reset)
+  replayInitialBalance = 10000;                         // Ursprüngliches Startguthaben (für Reset)
+  replayStartBalance = 10000;                          // wird nur beim allerersten Start gesetzt, nie mehr geändert
   selectedLeverage = signal(1);                        // Vom Benutzer gewählter Hebel
   private maintenanceMarginFactor = 0.05;              // Faktor für Wartungsmargin (5%)
 
@@ -100,12 +99,14 @@ export class ReplayTradingService {
   // Setzt das Startguthaben neu (nur erlaubt, wenn keine offenen Positionen)
   setInitialBalance(amount: number) {
     this.replayInitialBalance = amount;
+    this.replayStartBalance = amount;
     this.replayCashBalance.set(amount);
   }
 
   // Setzt das gesamte Portfolio auf den Anfangszustand zurück
   resetPortfolio() {
     this.replayCashBalance.set(this.replayInitialBalance);
+    this.replayStartBalance = this.replayInitialBalance;
     this.replayLongQuantity.set(0);
     this.replayLongAvgPrice.set(0);
     this.replayLongDebt.set(0);
