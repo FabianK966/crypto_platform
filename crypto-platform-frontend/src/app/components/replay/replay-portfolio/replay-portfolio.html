@@ -189,7 +189,7 @@
     }
 
     <!-- Schnell-Trade-Buttons, wenn keine Modals offen sind -->
-    @if (!tradeModalOpen && !depositModalOpen) {
+    @if (!tradeModalOpen && !depositModalOpen && showTradeButtons) {
       <div class="quick-trade-bar">
         <button class="btn-buy-large" (click)="openTradeModal('buy', 'long')" [disabled]="isTradeDisabled()">🟢 Buy Long</button>
         <button class="btn-short-large" (click)="openTradeModal('sell', 'short')" [disabled]="isTradeDisabled()">🔴 Short</button>

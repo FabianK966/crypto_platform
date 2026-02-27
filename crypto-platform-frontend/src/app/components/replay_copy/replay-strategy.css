@@ -2,7 +2,7 @@
 
 .replay-container {
   padding: 2rem;
-  max-width: 1800px;
+  max-width: 1900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -11,13 +11,15 @@
 
 .main-row {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 800px;
   gap: 1.5rem;
   align-items: start;
 }
 
-@media (max-width: 1100px) {
-  .main-row { grid-template-columns: 1fr; }
+@media (max-width: 400px) {
+  .main-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .chart-section {
@@ -66,7 +68,9 @@
   font-size: 0.875rem;
 }
 
-.separator { color: #666; }
+.separator {
+  color: #666;
+}
 
 .current-price-badge {
   color: #f0b90b;
@@ -77,8 +81,17 @@
   border: 1px solid rgba(240, 185, 11, 0.3);
 }
 
-.chart-container     { width: 100%; height: 600px; background: #0a0a0a; border-radius: 8px; }
-.rsi-chart-container { height: 150px; margin-top: 10px; }
+.chart-container {
+  width: 100%;
+  height: 600px;
+  background: #0a0a0a;
+  border-radius: 8px;
+}
+
+.rsi-chart-container {
+  height: 150px;
+  margin-top: 10px;
+}
 
 /* RSI Indikator */
 .rsi-indicator {
@@ -86,13 +99,26 @@
   align-items: center;
   gap: 10px;
   padding: 6px 12px;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   font-size: 0.85rem;
 }
-.rsi-indicator.overbought { color: #ef5350; background: rgba(239,83,80,0.1); }
-.rsi-indicator.oversold   { color: #26a69a; background: rgba(38,166,154,0.1); }
-.rsi-warning { margin-left: auto; font-weight: 600; font-size: 0.75rem; }
+
+.rsi-indicator.overbought {
+  color: #ef5350;
+  background: rgba(239, 83, 80, 0.1);
+}
+
+.rsi-indicator.oversold {
+  color: #26a69a;
+  background: rgba(38, 166, 154, 0.1);
+}
+
+.rsi-warning {
+  margin-left: auto;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
 
 /* ── Strategie-Status-Bar ─────────────────────────────── */
 .strategy-status-bar {
@@ -113,8 +139,13 @@
   min-width: 80px;
 }
 
-.stat-chip.cooldown { border-color: #2a1a2e; }
-.stat-chip.cooldown.active { border-color: rgba(156,39,176,0.4); }
+.stat-chip.cooldown {
+  border-color: #2a1a2e;
+}
+
+.stat-chip.cooldown.active {
+  border-color: rgba(156, 39, 176, 0.4);
+}
 
 .stat-label {
   font-size: 0.62rem;
@@ -146,8 +177,13 @@
   transition: width 0.2s;
 }
 
-.oversold-text   { color: #26a69a; }
-.overbought-text { color: #ef5350; }
+.oversold-text {
+  color: #26a69a;
+}
+
+.overbought-text {
+  color: #ef5350;
+}
 
 /* Steuerung */
 .replay-controls {
@@ -164,16 +200,25 @@
   gap: 0.5rem;
   margin-left: auto;
 }
-.speed-control label { color: #999; font-size: 0.875rem; }
 
-.progress-bar-container { width: 100%; margin-top: 0.75rem; }
+.speed-control label {
+  color: #999;
+  font-size: 0.875rem;
+}
+
+.progress-bar-container {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
 .progress-bar {
   width: 100%;
   height: 6px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   overflow: hidden;
 }
+
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #9c27b0 0%, #26a69a 100%);
@@ -197,8 +242,16 @@
   font-size: 0.85rem;
   transition: background 0.2s;
 }
-.btn-save-session:hover:not(:disabled) { background: #2e6ca1; }
-.btn-save-session:disabled, .btn-save-session.saving { opacity: 0.6; cursor: not-allowed; }
+
+.btn-save-session:hover:not(:disabled) {
+  background: #2e6ca1;
+}
+
+.btn-save-session:disabled,
+.btn-save-session.saving {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .btn-sessions {
   background: transparent;
@@ -210,7 +263,11 @@
   font-size: 0.82rem;
   transition: all 0.2s;
 }
-.btn-sessions:hover { border-color: #9c27b0; color: #ce93d8; }
+
+.btn-sessions:hover {
+  border-color: #9c27b0;
+  color: #ce93d8;
+}
 
 .save-success-banner {
   display: flex;
@@ -224,11 +281,22 @@
   animation: fadeIn 0.3s ease;
 }
 
-.session-id { font-family: monospace; font-size: 0.7rem; opacity: 0.85; }
+.session-id {
+  font-family: monospace;
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Strategie-Log ──────────────────────────────────────── */
@@ -250,13 +318,21 @@
   color: #aaa;
   transition: background 0.15s;
 }
-.log-header:hover { background: #151515; }
+
+.log-header:hover {
+  background: #151515;
+}
 
 .log-table-wrap {
   max-height: 280px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #2a2a2a transparent;
+}
+
+.log-table tr.rescue-row td {
+  background: rgba(255, 193, 7, 0.06);
+  border-left: 2px solid rgba(255, 193, 7, 0.4);
 }
 
 .log-table {
@@ -285,10 +361,17 @@
   color: #888;
 }
 
-.log-table tr.buy-row  td { background: rgba(38,166,154,0.03); }
-.log-table tr.sell-row td { background: rgba(239,83,80,0.03); }
+.log-table tr.buy-row td {
+  background: rgba(38, 166, 154, 0.03);
+}
 
-.mono { font-family: 'Courier New', monospace; }
+.log-table tr.sell-row td {
+  background: rgba(239, 83, 80, 0.03);
+}
+
+.mono {
+  font-family: 'Courier New', monospace;
+}
 
 .action-badge {
   font-size: 0.65rem;
@@ -298,7 +381,20 @@
   border-radius: 3px;
   letter-spacing: 0.04em;
 }
-.action-buy  { background: rgba(38,166,154,0.15); color: #26a69a; border: 1px solid rgba(38,166,154,0.3); }
-.action-sell { background: rgba(239,83,80,0.15);  color: #ef5350; border: 1px solid rgba(239,83,80,0.3); }
 
-.reason-cell { color: #555; font-size: 0.72rem; }
+.action-buy {
+  background: rgba(38, 166, 154, 0.15);
+  color: #26a69a;
+  border: 1px solid rgba(38, 166, 154, 0.3);
+}
+
+.action-sell {
+  background: rgba(239, 83, 80, 0.15);
+  color: #ef5350;
+  border: 1px solid rgba(239, 83, 80, 0.3);
+}
+
+.reason-cell {
+  color: #555;
+  font-size: 0.72rem;
+}

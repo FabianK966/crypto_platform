@@ -15,138 +15,294 @@
 
       <div class="input-group">
         <label>Symbol</label>
-        <p-select [options]="symbolOptions" [(ngModel)]="localSymbol"
-          (onChange)="onSymbolChange()" [disabled]="isPlaying"
-          optionLabel="label" optionValue="value"
-          styleClass="input-field" appendTo="body" />
+        <p-select [options]="symbolOptions" [(ngModel)]="localSymbol" (onChange)="onSymbolChange()"
+          [disabled]="isPlaying" optionLabel="label" optionValue="value" styleClass="input-field" appendTo="body" />
       </div>
 
       <div class="input-group">
         <label>Interval</label>
-        <p-select [options]="availableIntervals" [(ngModel)]="localInterval"
-          (onChange)="onIntervalChange()" [disabled]="isPlaying"
-          optionLabel="label" optionValue="value"
-          styleClass="input-field" appendTo="body" />
+        <p-select [options]="availableIntervals" [(ngModel)]="localInterval" (onChange)="onIntervalChange()"
+          [disabled]="isPlaying" optionLabel="label" optionValue="value" styleClass="input-field" appendTo="body" />
       </div>
 
       <div class="input-group">
         <label>Start</label>
-        <input type="date" class="input-field" [(ngModel)]="localStartDate"
-          (ngModelChange)="onStartDateChange()" [max]="localEndDate" [disabled]="isPlaying" />
+        <input type="date" class="input-field" [(ngModel)]="localStartDate" (ngModelChange)="onStartDateChange()"
+          [max]="localEndDate" [disabled]="isPlaying" />
       </div>
 
       <div class="input-group">
         <label>End</label>
-        <input type="date" class="input-field" [(ngModel)]="localEndDate"
-          (ngModelChange)="onEndDateChange()" [min]="localStartDate" [max]="today" [disabled]="isPlaying" />
+        <input type="date" class="input-field" [(ngModel)]="localEndDate" (ngModelChange)="onEndDateChange()"
+          [min]="localStartDate" [max]="today" [disabled]="isPlaying" />
       </div>
 
       <div class="input-group">
         <label>Hebel</label>
-        <p-select [options]="leverageOptions" [(ngModel)]="localLeverage"
-          (onChange)="onLeverageChange()" [disabled]="isPlaying"
-          styleClass="input-field" appendTo="body" />
+        <p-select [options]="leverageOptions" [(ngModel)]="localLeverage" (onChange)="onLeverageChange()"
+          [disabled]="isPlaying" styleClass="input-field" appendTo="body" />
       </div>
 
       <!-- Indikatoren -->
       <div class="input-group">
         <label>Indikatoren</label>
         <div class="ema-toggles">
-          <button class="ema-toggle-btn" [class.active]="showEma50"   (click)="toggleEma50.emit()">EMA 50</button>
-          <button class="ema-toggle-btn" [class.active]="showEma200"  (click)="toggleEma200.emit()">EMA 200</button>
-          <button class="ema-toggle-btn" [class.active]="showRSI"     (click)="toggleRSI.emit()">RSI</button>
+          <button class="ema-toggle-btn" [class.active]="showEma50" (click)="toggleEma50.emit()">EMA 50</button>
+          <button class="ema-toggle-btn" [class.active]="showEma200" (click)="toggleEma200.emit()">EMA 200</button>
+          <button class="ema-toggle-btn" [class.active]="showRSI" (click)="toggleRSI.emit()">RSI</button>
         </div>
       </div>
 
     </div>
 
     <!-- Daten laden -->
-    <p-button label="Daten laden" icon="pi pi-download" styleClass="load-btn-full"
-      (onClick)="loadData.emit()" [loading]="loading" [disabled]="isPlaying" severity="primary" />
+    <p-button label="Daten laden" icon="pi pi-download" styleClass="load-btn-full" (onClick)="loadData.emit()"
+      [loading]="loading" [disabled]="isPlaying" severity="primary" />
 
     @if (candlesLoaded) {
-      <div class="candle-info">✓ {{ totalCandles | number }} Kerzen geladen</div>
+    <div class="candle-info">✓ {{ totalCandles | number }} Kerzen geladen</div>
     }
     @if (error) {
-      <div class="error-message"><span>⚠</span> {{ error }}</div>
+    <div class="error-message"><span>⚠</span> {{ error }}</div>
     }
 
     <!-- ── Strategie-Parameter ───────────────────────────── -->
     <div class="section-divider"></div>
     <div class="section-title strategy">RSI-Strategie</div>
 
-    <div class="strategy-grid">
+    <div class="ls-grid">
 
-      <div class="input-group">
-        <label>RSI Kauf-Schwelle (Oversold)</label>
-        <div class="range-input-wrap">
-          <input type="range" min="10" max="45" step="1" [(ngModel)]="localRsiBuy"
-            (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
-          <span class="range-value oversold">{{ localRsiBuy }}</span>
+      <!-- LONG Spalte -->
+      <div class="ls-column long-col">
+        <div class="ls-header long-header">📈 LONG</div>
+
+        <div class="input-group">
+          <label>RSI Kauf &lt; (Oversold)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="10" max="60" step="1" [(ngModel)]="localLongRsiBuy"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">{{ localLongRsiBuy }}</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>RSI Verkauf &gt; (Overbought)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="40" max="90" step="1" [(ngModel)]="localLongRsiSell"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value overbought">{{ localLongRsiSell }}</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Cooldown (Kerzen)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="500" step="1" [(ngModel)]="localLongCooldown"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value neutral">{{ localLongCooldown }}</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Free Zone (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="5" max="100" step="5" [(ngModel)]="localLongFreeZone"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">{{ localLongFreeZone }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Kaufgröße (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongBuyPercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">{{ localLongBuyPercent }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Schließgröße (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongClosePercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">{{ localLongClosePercent }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Profit-Schwelle (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="250" step="1" [(ngModel)]="localLongProfit"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">+{{ localLongProfit }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>DCA-Schwelle (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="250" step="1" [(ngModel)]="localLongLoss"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">-{{ localLongLoss }}%</span>
+          </div>
+        </div>
+        <div class="ls-rescue-divider">🚨 Drawdown-Rescue</div>
+
+        <div class="input-group">
+          <label>Kerzen im Minus</label>
+          <div class="range-input-wrap">
+            <input type="range" min="10" max="2000" step="10" [(ngModel)]="localLongDrawdownCandles"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value neutral">{{ localLongDrawdownCandles }}</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Rescue ab +% Profit</label>
+          <div class="range-input-wrap">
+            <input type="range" min="0.1" max="20" step="0.1" [(ngModel)]="localLongRescueTrigger"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">+{{ localLongRescueTrigger }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Rescue Verkauf (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongRescueClosePercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">{{ localLongRescueClosePercent }}%</span>
+          </div>
         </div>
       </div>
 
-      <div class="input-group">
-        <label>RSI Verkauf-Schwelle (Overbought)</label>
-        <div class="range-input-wrap">
-          <input type="range" min="55" max="90" step="1" [(ngModel)]="localRsiSell"
-            (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
-          <span class="range-value overbought">{{ localRsiSell }}</span>
+      <!-- SHORT Spalte -->
+      <div class="ls-column short-col">
+        <div class="ls-header short-header">
+          📉 SHORT
+          <button class="ema-toggle-btn" [class.active]="localAutoShort"
+            (click)="localAutoShort = !localAutoShort; onStrategyChange()" [disabled]="isPlaying"
+            style="margin-left:auto; font-size:0.65rem; padding: 2px 6px;">
+            {{ localAutoShort ? '✓ AN' : '✗ AUS' }}
+          </button>
         </div>
-      </div>
 
-      <div class="input-group">
-        <label>Kaufgröße (% Gesamtkapital)</label>
-        <div class="range-input-wrap">
-          <input type="range" min="1" max="100" step="1" [(ngModel)]="localBuyPercent"
-            (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
-          <span class="range-value neutral">{{ localBuyPercent }}%</span>
+        <div class="input-group">
+          <label>RSI Cover &lt; (Oversold)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="10" max="60" step="1" [(ngModel)]="localShortRsiBuy"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value oversold">{{ localShortRsiBuy }}</span>
+          </div>
         </div>
-      </div>
 
-      <div class="input-group">
-        <label>Schließgröße (% der Position)</label>
-        <div class="range-input-wrap">
-          <input type="range" min="1" max="100" step="1" [(ngModel)]="localClosePercent"
-            (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
-          <span class="range-value neutral">{{ localClosePercent }}%</span>
+        <div class="input-group">
+          <label>RSI Short &gt; (Overbought)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="40" max="90" step="1" [(ngModel)]="localShortRsiSell"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">{{ localShortRsiSell }}</span>
+          </div>
         </div>
-      </div>
 
-      <div class="input-group">
-        <label>Cooldown nach Trade (Kerzen)</label>
-        <div class="range-input-wrap">
-          <input type="range" min="1" max="50" step="1" [(ngModel)]="localCooldown"
-            (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
-          <span class="range-value neutral">{{ localCooldown }}</span>
+        <div class="input-group">
+          <label>Cooldown (Kerzen)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="500" step="1" [(ngModel)]="localShortCooldown"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value neutral">{{ localShortCooldown }}</span>
+          </div>
         </div>
-      </div>
 
-      <div class="input-group toggle-group">
-        <label>Auto-Short erlaubt</label>
-        <button class="ema-toggle-btn" [class.active]="localAutoShort"
-          (click)="localAutoShort = !localAutoShort; onStrategyChange()"
-          [disabled]="isPlaying">
-          {{ localAutoShort ? '✓ Aktiviert' : '✗ Deaktiviert' }}
-        </button>
+        <div class="input-group">
+          <label>Free Zone (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="5" max="100" step="5" [(ngModel)]="localShortFreeZone"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">{{ localShortFreeZone }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Kaufgröße (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortBuyPercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">{{ localShortBuyPercent }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Schließgröße (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortClosePercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">{{ localShortClosePercent }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Profit-Schwelle (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="250" step="1" [(ngModel)]="localShortProfit"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">+{{ localShortProfit }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>DCA-Schwelle (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="250" step="1" [(ngModel)]="localShortLoss"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">-{{ localShortLoss }}%</span>
+          </div>
+        </div>
+        <div class="ls-rescue-divider">🚨 Drawdown-Rescue</div>
+
+        <div class="input-group">
+          <label>Kerzen im Minus</label>
+          <div class="range-input-wrap">
+            <input type="range" min="10" max="2000" step="10" [(ngModel)]="localShortDrawdownCandles"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value neutral">{{ localShortDrawdownCandles }}</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Rescue ab +% Profit</label>
+          <div class="range-input-wrap">
+            <input type="range" min="0.1" max="20" step="0.1" [(ngModel)]="localShortRescueTrigger"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">+{{ localShortRescueTrigger }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Rescue Cover (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortRescueClosePercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">{{ localShortRescueClosePercent }}%</span>
+          </div>
+        </div>
       </div>
 
     </div>
 
-    <!-- Strategie-Zusammenfassung -->
+    <!-- Zusammenfassung -->
     <div class="strategy-summary">
       <div class="summary-row">
         <span class="oversold-dot">●</span>
-        RSI &lt; {{ localRsiBuy }} → Long {{ localBuyPercent }}% / Short Cover {{ localClosePercent }}%
+        L: RSI &lt;{{ localLongRsiBuy }} buy / &gt;{{ localLongRsiSell }} sell | CD {{ localLongCooldown }}
       </div>
       <div class="summary-row">
         <span class="overbought-dot">●</span>
-        RSI &gt; {{ localRsiSell }} → Long Sell {{ localClosePercent }}%{{ localAutoShort ? ' / Short ' + localBuyPercent + '%' : '' }}
+        S: RSI &gt;{{ localShortRsiSell }} open / &lt;{{ localShortRsiBuy }} cover | CD {{ localShortCooldown }}
       </div>
       <div class="summary-row cooldown-row">
-        <span>⏱</span> {{ localCooldown }} Kerzen Cooldown
+        <span>🔒</span> L-Zone {{ localLongFreeZone }}% ±{{ localLongProfit }}%/-{{ localLongLoss }}% |
+        S-Zone {{ localShortFreeZone }}% ±{{ localShortProfit }}%/-{{ localShortLoss }}%
       </div>
     </div>
-
-  </div>
-</div>

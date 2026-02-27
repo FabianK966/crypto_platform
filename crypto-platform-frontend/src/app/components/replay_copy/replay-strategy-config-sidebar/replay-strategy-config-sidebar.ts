@@ -58,35 +58,77 @@ export class ReplayStrategyConfigSidebarComponent implements OnInit {
   localLeverage = 1;
 
   // Lokale Strategie-Kopien
-  localRsiBuy = 30;
-  localRsiSell = 70;
+  localLongRsiBuy = 30;
+  localLongRsiSell = 70;
+  localLongCooldown = 10;
+  localShortRsiBuy = 30;
+  localShortRsiSell = 70;
+  localShortCooldown = 10;
   localBuyPercent = 10;
   localClosePercent = 50;
-  localCooldown = 10;
   localAutoShort = true;
+  localLongFreeZone = 30;
+  localShortFreeZone = 30;
+  localProfit = 10;
+  localLoss = 10;
+  // Lokale Strategie-Kopien — LONG
+  localLongBuyPercent = 10;
+  localLongClosePercent = 50;
+  localLongProfit = 10;
+  localLongLoss = 10;
+  // Lokale Strategie-Kopien — SHORT
+  localShortBuyPercent = 10;
+  localShortClosePercent = 50;
+  localShortProfit = 10;
+  localShortLoss = 10;
+  // Drawdown-Rescue Long
+  localLongDrawdownCandles = 500;
+  localLongRescueTrigger = 1;
+  localLongRescueClosePercent = 50;
+  // Drawdown-Rescue Short
+  localShortDrawdownCandles = 500;
+  localShortRescueTrigger = 1;
+  localShortRescueClosePercent = 50;
 
   ngOnInit() {
-    this.localSymbol    = this.selectedSymbol;
-    this.localInterval  = this.selectedInterval;
+    this.localSymbol = this.selectedSymbol;
+    this.localInterval = this.selectedInterval;
     this.localStartDate = this.startDate;
-    this.localEndDate   = this.endDate;
-    this.localLeverage  = this.selectedLeverage;
+    this.localEndDate = this.endDate;
+    this.localLeverage = this.selectedLeverage;
+    this.localLongFreeZone = this.strategyConfig.longFreeZonePercent;
+    this.localShortFreeZone = this.strategyConfig.shortFreeZonePercent;
+    this.localLongBuyPercent = this.strategyConfig.longBuyPercent;
+    this.localLongClosePercent = this.strategyConfig.longClosePercent;
+    this.localLongProfit = this.strategyConfig.longProfitThreshold;
+    this.localLongLoss = this.strategyConfig.longLossThreshold;
+    this.localShortBuyPercent = this.strategyConfig.shortBuyPercent;
+    this.localShortClosePercent = this.strategyConfig.shortClosePercent;
+    this.localShortProfit = this.strategyConfig.shortProfitThreshold;
+    this.localShortLoss = this.strategyConfig.shortLossThreshold;
 
     if (this.strategyConfig) {
-      this.localRsiBuy      = this.strategyConfig.rsiBuyThreshold;
-      this.localRsiSell     = this.strategyConfig.rsiSellThreshold;
-      this.localBuyPercent  = this.strategyConfig.buyPortfolioPercent;
-      this.localClosePercent = this.strategyConfig.closePositionPercent;
-      this.localCooldown    = this.strategyConfig.cooldownCandles;
-      this.localAutoShort   = this.strategyConfig.autoShortEnabled;
+      this.localLongRsiBuy = this.strategyConfig.longRsiBuyThreshold;
+      this.localLongRsiSell = this.strategyConfig.longRsiSellThreshold;
+      this.localLongCooldown = this.strategyConfig.longCooldownCandles;
+      this.localShortRsiBuy = this.strategyConfig.shortRsiBuyThreshold;
+      this.localShortRsiSell = this.strategyConfig.shortRsiSellThreshold;
+      this.localShortCooldown = this.strategyConfig.shortCooldownCandles;
+      this.localAutoShort = this.strategyConfig.autoShortEnabled;
+      this.localLongDrawdownCandles = this.strategyConfig.longDrawdownCandles;
+      this.localLongRescueTrigger = this.strategyConfig.longRescueTrigger;
+      this.localLongRescueClosePercent = this.strategyConfig.longRescueClosePercent;
+      this.localShortDrawdownCandles = this.strategyConfig.shortDrawdownCandles;
+      this.localShortRescueTrigger = this.strategyConfig.shortRescueTrigger;
+      this.localShortRescueClosePercent = this.strategyConfig.shortRescueClosePercent;
     }
   }
 
-  onSymbolChange()    { this.emitConfigChange(); }
-  onIntervalChange()  { this.emitConfigChange(); }
+  onSymbolChange() { this.emitConfigChange(); }
+  onIntervalChange() { this.emitConfigChange(); }
   onStartDateChange() { this.emitConfigChange(); }
-  onEndDateChange()   { this.emitConfigChange(); }
-  onLeverageChange()  { this.emitConfigChange(); }
+  onEndDateChange() { this.emitConfigChange(); }
+  onLeverageChange() { this.emitConfigChange(); }
 
   private emitConfigChange() {
     this.configChange.emit({
@@ -98,12 +140,31 @@ export class ReplayStrategyConfigSidebarComponent implements OnInit {
 
   onStrategyChange() {
     this.strategyChange.emit({
-      rsiBuyThreshold:      this.localRsiBuy,
-      rsiSellThreshold:     this.localRsiSell,
-      buyPortfolioPercent:  this.localBuyPercent,
-      closePositionPercent: this.localClosePercent,
-      cooldownCandles:      this.localCooldown,
-      autoShortEnabled:     this.localAutoShort
+      autoShortEnabled: this.localAutoShort,
+
+      longRsiBuyThreshold: this.localLongRsiBuy,
+      longRsiSellThreshold: this.localLongRsiSell,
+      longCooldownCandles: this.localLongCooldown,
+      longFreeZonePercent: this.localLongFreeZone,
+      longBuyPercent: this.localLongBuyPercent,
+      longClosePercent: this.localLongClosePercent,
+      longProfitThreshold: this.localLongProfit,
+      longLossThreshold: this.localLongLoss,
+      longDrawdownCandles: this.localLongDrawdownCandles,
+      longRescueTrigger: this.localLongRescueTrigger,
+      longRescueClosePercent: this.localLongRescueClosePercent,
+      shortDrawdownCandles: this.localShortDrawdownCandles,
+      shortRescueTrigger: this.localShortRescueTrigger,
+      shortRescueClosePercent: this.localShortRescueClosePercent,
+
+      shortRsiBuyThreshold: this.localShortRsiBuy,
+      shortRsiSellThreshold: this.localShortRsiSell,
+      shortCooldownCandles: this.localShortCooldown,
+      shortFreeZonePercent: this.localShortFreeZone,
+      shortBuyPercent: this.localShortBuyPercent,
+      shortClosePercent: this.localShortClosePercent,
+      shortProfitThreshold: this.localShortProfit,
+      shortLossThreshold: this.localShortLoss,
     });
   }
 

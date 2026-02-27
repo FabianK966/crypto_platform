@@ -4,7 +4,7 @@
   <!-- Portfolio (nur sichtbar wenn Daten geladen) -->
   @if (candlesLoaded()) {
   <app-replay-portfolio [selectedSymbol]="selectedSymbol" [currentPrice]="getCurrentPrice()" [isPlaying]="isPlaying()"
-    [tradingService]="tradingService" />
+    [tradingService]="tradingService" [showTradeButtons]="false" />
   }
 
   <div class="main-row">
@@ -13,16 +13,18 @@
     <div class="chart-section">
 
       <div class="chart-header">
-        <h3>{{ selectedSymbol }}/USDT - {{ getIntervalLabel() }} <span class="strategy-badge">⚡ AUTO</span></h3>
+        <h3>{{ selectedSymbol }}/USDT - {{ getIntervalLabel() }}</h3>
 
         <!-- RSI-Anzeige -->
-        <div class="rsi-indicator" [ngClass]="{'overbought': (currentRSI() ?? 0) > strategyConfig.rsiSellThreshold,
-                      'oversold':   (currentRSI() ?? 0) < strategyConfig.rsiBuyThreshold && (currentRSI() ?? 99) > 0}">
+        <div class="rsi-indicator" [ngClass]="{'overbought': (currentRSI() ?? 0) > strategyConfig.longRsiSellThreshold,
+            'oversold':   (currentRSI() ?? 0) < strategyConfig.longRsiBuyThreshold && (currentRSI() ?? 99) > 0}">
           RSI (14): {{ currentRSI()?.toFixed(2) ?? '--' }}
-          <span class="rsi-warning" *ngIf="(currentRSI() ?? 0) > strategyConfig.rsiSellThreshold">⚠️ Overbought → Sell
+          <span class="rsi-warning" *ngIf="(currentRSI() ?? 0) > strategyConfig.longRsiSellThreshold">⚠️ Overbought →
+            Sell
             Signal</span>
           <span class="rsi-warning"
-            *ngIf="(currentRSI() ?? 99) < strategyConfig.rsiBuyThreshold && (currentRSI() ?? 99) > 0">⚠️ Oversold → Buy
+            *ngIf="(currentRSI() ?? 99) < strategyConfig.longRsiBuyThreshold && (currentRSI() ?? 99) > 0">⚠️ Oversold →
+            Buy
             Signal</span>
         </div>
 
@@ -33,22 +35,46 @@
             <span class="stat-label">Auto-Trades</span>
             <span class="stat-value">{{ strategyTradeCount() }}</span>
           </div>
-          <div class="stat-chip cooldown" [class.active]="cooldownRemaining() > 0">
-            <span class="stat-label">Cooldown</span>
+
+          <div class="stat-chip cooldown" [class.active]="longCooldownRemaining() > 0">
+            <span class="stat-label">L-Cooldown</span>
             <span class="stat-value">
-              @if (cooldownRemaining() > 0) { {{ cooldownRemaining() }} Kerzen }
+              @if (longCooldownRemaining() > 0) { {{ longCooldownRemaining() }} K }
               @else { Bereit ✓ }
             </span>
             <div class="cooldown-bar">
-              <div class="cooldown-fill" [style.width.%]="cooldownProgress()"></div>
+              <div class="cooldown-fill" [style.width.%]="longCooldownProgress()"
+                style="background: linear-gradient(90deg,#26a69a,#80cbc4)"></div>
             </div>
           </div>
-          <div class="stat-chip">
-            <span class="stat-label">Schwellen</span>
+
+          <div class="stat-chip cooldown" [class.active]="shortCooldownRemaining() > 0">
+            <span class="stat-label">S-Cooldown</span>
             <span class="stat-value">
-              <span class="oversold-text">{{ strategyConfig.rsiBuyThreshold }}</span>
+              @if (shortCooldownRemaining() > 0) { {{ shortCooldownRemaining() }} K }
+              @else { Bereit ✓ }
+            </span>
+            <div class="cooldown-bar">
+              <div class="cooldown-fill" [style.width.%]="shortCooldownProgress()"
+                style="background: linear-gradient(90deg,#ef5350,#ef9a9a)"></div>
+            </div>
+          </div>
+
+          <div class="stat-chip">
+            <span class="stat-label">L-RSI</span>
+            <span class="stat-value">
+              <span class="oversold-text">{{ strategyConfig.longRsiBuyThreshold }}</span>
               /
-              <span class="overbought-text">{{ strategyConfig.rsiSellThreshold }}</span>
+              <span class="overbought-text">{{ strategyConfig.longRsiSellThreshold }}</span>
+            </span>
+          </div>
+
+          <div class="stat-chip">
+            <span class="stat-label">S-RSI</span>
+            <span class="stat-value">
+              <span class="oversold-text">{{ strategyConfig.shortRsiBuyThreshold }}</span>
+              /
+              <span class="overbought-text">{{ strategyConfig.shortRsiSellThreshold }}</span>
             </span>
           </div>
         </div>
@@ -132,8 +158,9 @@
             </thead>
             <tbody>
               <tr *ngFor="let entry of strategyLog()"
-                [class.buy-row]="entry.action.includes('BUY') || entry.action.includes('COVER')"
-                [class.sell-row]="entry.action.includes('SELL') || entry.action.includes('SHORT')">
+                [class.buy-row]="entry.action.includes('BUY') || entry.action.includes('COVER') || entry.action === 'RESCUE COVER'"
+                [class.sell-row]="entry.action.includes('SELL') || entry.action.includes('SHORT')"
+                [class.rescue-row]="entry.action.includes('RESCUE')">
                 <td class="mono">{{ entry.candle }}</td>
                 <td class="action-cell">
                   <span class="action-badge"
@@ -144,8 +171,9 @@
                 </td>
                 <td class="mono">$ {{ entry.price | number:'1.2-2' }}</td>
                 <td class="mono">{{ entry.qty | number:'1.4-6' }}</td>
-                <td class="mono" [class.oversold-text]="entry.rsi < strategyConfig.rsiBuyThreshold"
-                  [class.overbought-text]="entry.rsi > strategyConfig.rsiSellThreshold">
+                <td class="mono"
+                  [class.oversold-text]="entry.rsi < strategyConfig.longRsiBuyThreshold || entry.rsi < strategyConfig.shortRsiBuyThreshold"
+                  [class.overbought-text]="entry.rsi > strategyConfig.longRsiSellThreshold || entry.rsi > strategyConfig.shortRsiSellThreshold">
                   {{ entry.rsi | number:'1.1-1' }}
                 </td>
                 <td class="reason-cell">{{ entry.reason }}</td>

@@ -21,6 +21,8 @@ export class ReplayPortfolioComponent {
   @Input() currentPrice!: number;                  // Aktueller Preis (von Hauptkomponente)
   @Input() isPlaying!: boolean;                     // Läuft Wiedergabe?
   @Input() tradingService!: ReplayTradingService;   // TradingService
+  @Input() showTradeButtons = true;   
+
 
   initialBalanceInput = 10000;                       // Feld für Startguthaben
   tradeModalOpen = false;                            // Ist Trade-Modal sichtbar?

@@ -44,6 +44,7 @@ public class ReplaySessionService {
         ReplaySession session = ReplaySession.builder()
                 .id(UUID.randomUUID().toString())           // IMMER neue UUID
                 .createdAt(LocalDateTime.now())
+                .sessionType(type)
 
                 // Konfiguration
                 .symbol(dto.getSymbol() != null ? dto.getSymbol().toUpperCase() : "UNKNOWN")

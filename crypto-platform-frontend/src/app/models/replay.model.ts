@@ -79,10 +79,33 @@ export interface ReplaySessionResponse {
 }
 
 export interface StrategyConfig {
-  rsiBuyThreshold: number;
-  rsiSellThreshold: number;
-  buyPortfolioPercent: number;
-  closePositionPercent: number;
-  cooldownCandles: number;
   autoShortEnabled: boolean;
+
+  // ── LONG ──────────────────────────────────────────────
+  longRsiBuyThreshold:    number;
+  longRsiSellThreshold:   number;
+  longCooldownCandles:    number;
+  longFreeZonePercent:    number;
+  longBuyPercent:         number;
+  longClosePercent:       number;
+  longProfitThreshold:    number;
+  longLossThreshold:      number;
+  // NEU: Drawdown-Rescue
+  longDrawdownCandles:    number;   // wie viele Kerzen im Minus bevor Rescue aktiv
+  longRescueTrigger:      number;   // % Profit der Rescue auslöst (z.B. 1)
+  longRescueClosePercent: number;   // % der Position die dann verkauft wird (z.B. 50)
+
+  // ── SHORT ─────────────────────────────────────────────
+  shortRsiBuyThreshold:    number;
+  shortRsiSellThreshold:   number;
+  shortCooldownCandles:    number;
+  shortFreeZonePercent:    number;
+  shortBuyPercent:         number;
+  shortClosePercent:       number;
+  shortProfitThreshold:    number;
+  shortLossThreshold:      number;
+  // NEU: Drawdown-Rescue
+  shortDrawdownCandles:    number;
+  shortRescueTrigger:      number;
+  shortRescueClosePercent: number;
 }

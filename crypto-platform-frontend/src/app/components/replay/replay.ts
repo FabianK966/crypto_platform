@@ -91,7 +91,7 @@ export class ReplayComponent implements OnInit, OnDestroy {
   isSaving = signal(false);
   saveSuccess = signal(false);
   savedSessionId = signal<string | null>(null);
-  showSessionsModal = signal(false);   // NEU: Modal-Sichtbarkeit
+  showSessionsModal = signal(false);   // Modal-Sichtbarkeit
 
   constructor() {
     effect(() => {
