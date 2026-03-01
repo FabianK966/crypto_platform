@@ -28,7 +28,6 @@ export interface IntervalOption {
   label: string;
 }
 
-// ── Payload für "Session speichern" ────────────────────────────
 export interface ReplaySaveRequest {
   sessionType: 'manual' | 'strategy';
   symbol: string;
@@ -53,7 +52,6 @@ export interface ReplaySaveRequest {
   depositHistory: any[];
 }
 
-// Antwort vom Backend nach dem Speichern
 export interface ReplaySessionResponse {
   id: string;
   createdAt: string;
@@ -80,32 +78,37 @@ export interface ReplaySessionResponse {
 
 export interface StrategyConfig {
   autoShortEnabled: boolean;
+  longLeverage: number;
+  shortLeverage: number;
+  longRsiBuyThreshold: number;
+  longRsiSellThreshold: number;
+  longOpenCooldown: number;
+  longCloseCooldown: number;
+  longFreeZonePercent: number;
+  longBuyPercent: number;
+  longBuyScaleThreshold: number;
+  longBuyScalePercent: number;
+  longClosePercent: number;
+  longProfitThreshold: number;
+  longLossThreshold: number;
+  longDrawdownCandles: number;
+  longRescueTrigger: number;
+  longRescueClosePercent: number;
+  longMaxPositionPercent: number;
 
-  // ── LONG ──────────────────────────────────────────────
-  longRsiBuyThreshold:    number;
-  longRsiSellThreshold:   number;
-  longCooldownCandles:    number;
-  longFreeZonePercent:    number;
-  longBuyPercent:         number;
-  longClosePercent:       number;
-  longProfitThreshold:    number;
-  longLossThreshold:      number;
-  // NEU: Drawdown-Rescue
-  longDrawdownCandles:    number;   // wie viele Kerzen im Minus bevor Rescue aktiv
-  longRescueTrigger:      number;   // % Profit der Rescue auslöst (z.B. 1)
-  longRescueClosePercent: number;   // % der Position die dann verkauft wird (z.B. 50)
-
-  // ── SHORT ─────────────────────────────────────────────
-  shortRsiBuyThreshold:    number;
-  shortRsiSellThreshold:   number;
-  shortCooldownCandles:    number;
-  shortFreeZonePercent:    number;
-  shortBuyPercent:         number;
-  shortClosePercent:       number;
-  shortProfitThreshold:    number;
-  shortLossThreshold:      number;
-  // NEU: Drawdown-Rescue
-  shortDrawdownCandles:    number;
-  shortRescueTrigger:      number;
+  shortRsiBuyThreshold: number;
+  shortRsiSellThreshold: number;
+  shortOpenCooldown: number;
+  shortCloseCooldown: number;
+  shortFreeZonePercent: number;
+  shortBuyPercent: number;
+  shortBuyScaleThreshold: number;  
+  shortBuyScalePercent: number;
+  shortClosePercent: number;
+  shortProfitThreshold: number;
+  shortLossThreshold: number;
+  shortDrawdownCandles: number;
+  shortRescueTrigger: number;
   shortRescueClosePercent: number;
+  shortMaxPositionPercent: number;
 }

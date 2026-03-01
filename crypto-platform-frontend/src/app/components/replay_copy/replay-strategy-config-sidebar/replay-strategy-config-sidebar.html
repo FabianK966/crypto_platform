@@ -37,12 +37,6 @@
           [min]="localStartDate" [max]="today" [disabled]="isPlaying" />
       </div>
 
-      <div class="input-group">
-        <label>Hebel</label>
-        <p-select [options]="leverageOptions" [(ngModel)]="localLeverage" (onChange)="onLeverageChange()"
-          [disabled]="isPlaying" styleClass="input-field" appendTo="body" />
-      </div>
-
       <!-- Indikatoren -->
       <div class="input-group">
         <label>Indikatoren</label>
@@ -77,6 +71,15 @@
         <div class="ls-header long-header">📈 LONG</div>
 
         <div class="input-group">
+          <label>Leverage</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongLeverage"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">{{ localLongLeverage }}x</span>
+          </div>
+        </div>
+
+        <div class="input-group">
           <label>RSI Kauf &lt; (Oversold)</label>
           <div class="range-input-wrap">
             <input type="range" min="10" max="60" step="1" [(ngModel)]="localLongRsiBuy"
@@ -95,11 +98,20 @@
         </div>
 
         <div class="input-group">
-          <label>Cooldown (Kerzen)</label>
+          <label>Eröffnung Cooldown (Kerzen)</label>
           <div class="range-input-wrap">
-            <input type="range" min="1" max="500" step="1" [(ngModel)]="localLongCooldown"
+            <input type="range" min="1" max="500" step="1" [(ngModel)]="localLongOpenCooldown"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
-            <span class="range-value neutral">{{ localLongCooldown }}</span>
+            <span class="range-value neutral">{{ localLongOpenCooldown }}</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Schließ Cooldown (Kerzen)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="500" step="1" [(ngModel)]="localLongCloseCooldown"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value neutral">{{ localLongCloseCooldown }}</span>
           </div>
         </div>
 
@@ -122,6 +134,24 @@
         </div>
 
         <div class="input-group">
+          <label>Scale ab Pos-Größe (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongBuyScaleThreshold"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">≥ {{ localLongBuyScaleThreshold }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Kaufgröße ab Scale (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongBuyScalePercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value oversold">{{ localLongBuyScalePercent }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
           <label>Schließgröße (%)</label>
           <div class="range-input-wrap">
             <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongClosePercent"
@@ -136,6 +166,15 @@
             <input type="range" min="1" max="250" step="1" [(ngModel)]="localLongProfit"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
             <span class="range-value oversold">+{{ localLongProfit }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Max Long Position %</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongMaxPositionPercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value neutral">{{ localLongMaxPositionPercent }}%</span>
           </div>
         </div>
 
@@ -189,6 +228,15 @@
         </div>
 
         <div class="input-group">
+          <label>Leverage</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortLeverage"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">{{ localShortLeverage }}x</span>
+          </div>
+        </div>
+
+        <div class="input-group">
           <label>RSI Cover &lt; (Oversold)</label>
           <div class="range-input-wrap">
             <input type="range" min="10" max="60" step="1" [(ngModel)]="localShortRsiBuy"
@@ -207,11 +255,20 @@
         </div>
 
         <div class="input-group">
-          <label>Cooldown (Kerzen)</label>
+          <label>Eröffnung Cooldown (Kerzen)</label>
           <div class="range-input-wrap">
-            <input type="range" min="1" max="500" step="1" [(ngModel)]="localShortCooldown"
+            <input type="range" min="1" max="500" step="1" [(ngModel)]="localShortOpenCooldown"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
-            <span class="range-value neutral">{{ localShortCooldown }}</span>
+            <span class="range-value neutral">{{ localShortOpenCooldown }}</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Schließ Cooldown (Kerzen)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="500" step="1" [(ngModel)]="localShortCloseCooldown"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value neutral">{{ localShortCloseCooldown }}</span>
           </div>
         </div>
 
@@ -234,6 +291,24 @@
         </div>
 
         <div class="input-group">
+          <label>Scale ab Pos-Größe (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortBuyScaleThreshold"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">≥ {{ localShortBuyScaleThreshold }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Kaufgröße ab Scale (%)</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortBuyScalePercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value overbought">{{ localShortBuyScalePercent }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
           <label>Schließgröße (%)</label>
           <div class="range-input-wrap">
             <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortClosePercent"
@@ -248,6 +323,15 @@
             <input type="range" min="1" max="250" step="1" [(ngModel)]="localShortProfit"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
             <span class="range-value overbought">+{{ localShortProfit }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Max Short Position %</label>
+          <div class="range-input-wrap">
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortMaxPositionPercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value neutral">{{ localShortMaxPositionPercent }}%</span>
           </div>
         </div>
 
@@ -295,11 +379,13 @@
     <div class="strategy-summary">
       <div class="summary-row">
         <span class="oversold-dot">●</span>
-        L: RSI &lt;{{ localLongRsiBuy }} buy / &gt;{{ localLongRsiSell }} sell | CD {{ localLongCooldown }}
+        L: RSI &lt;{{ localLongRsiBuy }} buy / &gt;{{ localLongRsiSell }} sell | O:{{ localLongOpenCooldown }} C:{{
+        localLongCloseCooldown }} | {{ localLongLeverage }}x
       </div>
       <div class="summary-row">
         <span class="overbought-dot">●</span>
-        S: RSI &gt;{{ localShortRsiSell }} open / &lt;{{ localShortRsiBuy }} cover | CD {{ localShortCooldown }}
+        S: RSI &gt;{{ localShortRsiSell }} open / &lt;{{ localShortRsiBuy }} cover | O:{{ localShortOpenCooldown }} C:{{
+        localShortCloseCooldown }} | {{ localShortLeverage }}x
       </div>
       <div class="summary-row cooldown-row">
         <span>🔒</span> L-Zone {{ localLongFreeZone }}% ±{{ localLongProfit }}%/-{{ localLongLoss }}% |

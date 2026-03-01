@@ -13,8 +13,8 @@ import { CandleData, ReplayConfig, IntervalOption, ReplaySaveRequest, StrategyCo
 import { createChart, IChartApi, IPriceLine, ISeriesApi, LineStyle, Time } from 'lightweight-charts';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
-import { ReplayTradingService } from '../replay/services/replay-trading.service';
-import { ReplayPortfolioComponent } from '../replay/replay-portfolio/replay-portfolio';
+import { ReplayTradingService } from '../replay_copy/services/replay-strategy-trading.service';
+import { ReplayStrategyPortfolioComponent } from '../replay_copy/replay-strategy-portfolio/replay-strategy-portfolio';
 import { ReplaySessionsModalComponent } from '../replay/replay-sessions-modal/replay-sessions-modal';
 import { ReplayStrategyConfigSidebarComponent } from '../replay_copy/replay-strategy-config-sidebar/replay-strategy-config-sidebar';
 
@@ -33,7 +33,7 @@ interface StrategyLogEntry {
   standalone: true,
   imports: [
     CommonModule, FormsModule, SelectModule, ButtonModule,
-    ReplayPortfolioComponent,
+    ReplayStrategyPortfolioComponent,
     ReplaySessionsModalComponent,
     ReplayStrategyConfigSidebarComponent
   ],
@@ -48,7 +48,7 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
   private replayService = inject(ReplayService);
   tradingService = inject(ReplayTradingService);
 
-  // RSI
+  // ── RSI Chart ────────────────────────────────────────────────────
   private rsiChart: IChartApi | null = null;
   private rsiSeries: ISeriesApi<'Line'> | null = null;
   private rsiLongBuyLine: IPriceLine | null = null;
@@ -59,11 +59,21 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
   currentRSI = signal<number | null>(null);
   private readonly RSI_PERIOD = 14;
 
+  // ── Chart Entry-Lines ────────────────────────────────────────────
   private longEntryPriceLine: IPriceLine | null = null;
   private shortEntryPriceLine: IPriceLine | null = null;
+
+  // ── Drawdown-Zähler ──────────────────────────────────────────────
   private longCandlesInLoss = 0;
   private shortCandlesInLoss = 0;
 
+  // ── Cooldown-Zähler (getrennt für Open/Close, Long/Short) ────────
+  private longOpenCandlesSince = 999;
+  private longCloseCandlesSince = 999;
+  private shortOpenCandlesSince = 999;
+  private shortCloseCandlesSince = 999;
+
+  // ── Haupt-Chart ──────────────────────────────────────────────────
   private chart: IChartApi | null = null;
   private candleSeries: ISeriesApi<'Candlestick'> | null = null;
   private ema50Series: ISeriesApi<'Line'> | null = null;
@@ -74,17 +84,47 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
   private userIsScrolling = false;
   private scrollTimeout: any = null;
 
+  // ── Chart-Performance: inkrementeller Zustand ────────────────────
+  private readonly CHART_TRIM_INTERVAL = 3000;
+  private readonly CHART_DISPLAY_WINDOW = 2000;
+
+  // RSI-Zustand (Wilder's Smoothing)
+  private rsiAvgGain = 0;
+  private rsiAvgLoss = 0;
+  private rsiInitialized = false;
+  private rsiPrevPrice = 0;
+
+  // EMA-Zustände
+  private ema50Value = 0;
+  private ema200Value = 0;
+  private ema50Ready = false;
+  private ema200Ready = false;
+  private ema50SumCount = 0;
+  private ema200SumCount = 0;
+  private ema50Sum = 0;
+  private ema200Sum = 0;
+
+  // letzter gezeichneter Index
+  private lastDrawnIndex = 0;
+
+  // ── Daten ────────────────────────────────────────────────────────
   allCandles: CandleData[] = [];
   availableSymbols = signal<string[]>([]);
   availableIntervals = signal<IntervalOption[]>([]);
 
   speedOptions = [
-    { label: '0.5x', value: 0.5 }, { label: '1x', value: 1 },
-    { label: '2x', value: 2 }, { label: '3x', value: 3 },
-    { label: '5x', value: 5 }, { label: '10x', value: 10 },
-    { label: '25x', value: 25 }, { label: '50x', value: 50 },
-    { label: '100x', value: 100 }, { label: '500x', value: 500 },
-    { label: '1000x', value: 1000 }, { label: '10000x', value: 10000 }
+    { label: '0.5x', value: 0.5 },
+    { label: '1x', value: 1 },
+    { label: '2x', value: 2 },
+    { label: '3x', value: 3 },
+    { label: '5x', value: 5 },
+    { label: '10x', value: 10 },
+    { label: '25x', value: 25 },
+    { label: '50x', value: 50 },
+    { label: '100x', value: 100 },
+    { label: '500x', value: 500 },
+    { label: '1000x', value: 1000 },
+    { label: '10000x', value: 10000 }
   ];
 
   selectedSymbol = 'BTC';
@@ -113,51 +153,88 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
   // Startkapital (eingefroren beim Laden)
   replayStartBalance = 10000;
 
-  // ── Strategie ────────────────────────────────────────────────────
+  // ── Strategie-Konfiguration ──────────────────────────────────────
   strategyConfig: StrategyConfig = {
     autoShortEnabled: true,
+    longLeverage: 1,
+    shortLeverage: 1,
 
     longRsiBuyThreshold: 30,
     longRsiSellThreshold: 70,
-    longCooldownCandles: 10,
+    longOpenCooldown: 10,
+    longCloseCooldown: 3,
     longFreeZonePercent: 30,
-    longBuyPercent: 10,
+    longBuyPercent: 5,
+    longBuyScaleThreshold: 10,
+    longBuyScalePercent: 10,
     longClosePercent: 50,
     longProfitThreshold: 10,
     longLossThreshold: 10,
     longDrawdownCandles: 500,
     longRescueTrigger: 1,
     longRescueClosePercent: 50,
+    longMaxPositionPercent: 100,
 
-    shortDrawdownCandles: 500,
-    shortRescueTrigger: 1,
-    shortRescueClosePercent: 50,
+    shortMaxPositionPercent: 100,
     shortRsiBuyThreshold: 30,
     shortRsiSellThreshold: 70,
-    shortCooldownCandles: 10,
+    shortOpenCooldown: 10,
+    shortCloseCooldown: 3,
     shortFreeZonePercent: 30,
-    shortBuyPercent: 10,
+    shortBuyPercent: 5,
+    shortBuyScaleThreshold: 10,
+    shortBuyScalePercent: 10,
     shortClosePercent: 50,
     shortProfitThreshold: 10,
     shortLossThreshold: 10,
+    shortDrawdownCandles: 500,
+    shortRescueTrigger: 1,
+    shortRescueClosePercent: 50,
   };
 
-
-  // Cooldown-Zähler: startet bei cooldownCandles damit der erste Trade sofort möglich ist
-  private longCandlesSinceLastTrade = 999;
-  private shortCandlesSinceLastTrade = 999;
   strategyLog = signal<StrategyLogEntry[]>([]);
   showStrategyLog = signal(false);
   strategyTradeCount = signal(0);
 
+  // ── Constructor ──────────────────────────────────────────────────
   constructor() {
     effect(() => {
       document.body.style.overflowY = this.candlesLoaded() ? 'auto' : 'hidden';
     });
+
+    // ── Liquidation-Handler mit Vault-Injection ──────────────────
     effect(() => {
       if (this.tradingService.liquidationTriggered()) {
         this.stopPlayback();
-        alert('⚠️ Liquidation! Alle Positionen wurden zwangsgeschlossen. Strategie gestoppt.');
+        const vault = this.tradingService.safetyVault();
+
+        if (vault > 0) {
+          const inject = Math.min(vault, this.tradingService.replayInitialBalance);
+          const remaining = vault - inject;
+          this.tradingService.injectSafetyVault();
+
+          // Cooldowns & Drawdown zurücksetzen damit sofort weitergehandelt wird
+          this.longOpenCandlesSince = 999;
+          this.longCloseCandlesSince = 999;
+          this.shortOpenCandlesSince = 999;
+          this.shortCloseCandlesSince = 999;
+          this.longCandlesInLoss = 0;
+          this.shortCandlesInLoss = 0;
+
+          alert(
+            `⚠️ Liquidation! Alle Positionen zwangsgeschlossen.\n` +
+            `💰 $${inject.toFixed(0)} aus Safety Vault eingezahlt.\n` +
+            (remaining > 0 ? `🔒 $${remaining.toFixed(0)} verbleiben im Vault.\n` : '') +
+            `Strategie wird fortgesetzt.`
+          );
+          setTimeout(() => this.startPlayback(), 500);
+        } else {
+          alert(
+            `⚠️ Liquidation! Alle Positionen wurden zwangsgeschlossen.\n` +
+            `💸 Kein Safety Vault vorhanden — Strategie gestoppt.`
+          );
+        }
+
         this.tradingService.liquidationTriggered.set(false);
       }
     });
@@ -173,6 +250,7 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
     if (this.rsiChart) this.rsiChart.remove();
   }
 
+  // ── Init ─────────────────────────────────────────────────────────
   loadAvailableOptions() {
     this.replayService.getAvailableSymbols().subscribe({
       next: s => this.availableSymbols.set(s),
@@ -194,10 +272,11 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
 
   onStrategyChange(config: StrategyConfig) {
     this.strategyConfig = { ...config };
-    this.longCandlesSinceLastTrade = config.longCooldownCandles;
-    this.shortCandlesSinceLastTrade = config.shortCooldownCandles;
+    this.longOpenCandlesSince = config.longOpenCooldown;
+    this.longCloseCandlesSince = config.longCloseCooldown;
+    this.shortOpenCandlesSince = config.shortOpenCooldown;
+    this.shortCloseCandlesSince = config.shortCloseCooldown;
 
-    // RSI-Linien im Chart live aktualisieren
     this.rsiLongBuyLine?.applyOptions({
       price: config.longRsiBuyThreshold,
       title: `L-Buy (${config.longRsiBuyThreshold})`
@@ -216,6 +295,7 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ── Daten laden ──────────────────────────────────────────────────
   loadReplayData() {
     this.loading.set(true);
     this.error.set(null);
@@ -224,10 +304,21 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
     this.savedSessionId.set(null);
     this.strategyLog.set([]);
     this.strategyTradeCount.set(0);
-    this.longCandlesSinceLastTrade = 999;
-    this.shortCandlesSinceLastTrade = 999;
+
+    this.longOpenCandlesSince = 999;
+    this.longCloseCandlesSince = 999;
+    this.shortOpenCandlesSince = 999;
+    this.shortCloseCandlesSince = 999;
     this.longCandlesInLoss = 0;
     this.shortCandlesInLoss = 0;
+
+    this.rsiAvgGain = 0; this.rsiAvgLoss = 0;
+    this.rsiInitialized = false; this.rsiPrevPrice = 0;
+    this.ema50Value = 0; this.ema200Value = 0;
+    this.ema50Ready = false; this.ema200Ready = false;
+    this.ema50SumCount = 0; this.ema200SumCount = 0;
+    this.ema50Sum = 0; this.ema200Sum = 0;
+    this.lastDrawnIndex = 0;
 
     const config: ReplayConfig = {
       symbol: this.selectedSymbol,
@@ -244,7 +335,6 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
         this.currentCandleIndex.set(0);
         this.loading.set(false);
         this.tradingService.resetPortfolio();
-        // Startkapital einfrieren
         this.replayStartBalance = this.tradingService.replayInitialBalance;
         setTimeout(() => this.initializeChart(), 100);
       },
@@ -256,169 +346,218 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
   }
 
   // ── Strategie-Logik ──────────────────────────────────────────────
-
-  /**
-   * Wird nach jedem stepForward() aufgerufen.
-   * Regeln:
-   *  • RSI < buyThreshold   → Short covern (falls offen) ODER Long öffnen
-   *  • RSI > sellThreshold  → Long schließen (falls offen) ODER Short öffnen (falls aktiviert)
-   *  • Nach jedem Trade: cooldownCandles Pause
-   *  • Nicht genug Balance / Menge zu klein → Trade wird übersprungen (kein Cooldown)
-   *  • Preis = 0 oder RSI nicht verfügbar → überspringen
-   */
   private checkStrategyTrade(): void {
-  const rsi = this.currentRSI();
-  if (rsi === null) return;
-  const price = this.getCurrentPrice();
-  if (price <= 0) return;
+    const rsi = this.currentRSI();
+    if (rsi === null) return;
+    const price = this.getCurrentPrice();
+    if (price <= 0) return;
 
-  const ts  = this.tradingService;
-  const cfg = this.strategyConfig;
-  const totalBalance  = ts.replayTotalBalance();
-  const longNotional  = ts.replayLongQuantity()  * price;
-  const shortNotional = ts.replayShortQuantity() * price;
-  const longFreeZone  = longNotional  < totalBalance * (cfg.longFreeZonePercent  / 100);
-  const shortFreeZone = shortNotional < totalBalance * (cfg.shortFreeZonePercent / 100);
-  const longPnlPct    = ts.longUnrealizedPnlPercent();
-  const shortPnlPct   = ts.shortUnrealizedPnlPercent();
+    const ts = this.tradingService;
+    const cfg = this.strategyConfig;
+    const totalBalance = ts.replayTotalBalance();
+    const longNotional = ts.replayLongQuantity() * price;
+    const shortNotional = ts.replayShortQuantity() * price;
+    const longFreeZone = longNotional < totalBalance * (cfg.longFreeZonePercent / 100);
+    const shortFreeZone = shortNotional < totalBalance * (cfg.shortFreeZonePercent / 100);
+    const longPnlPct = ts.longUnrealizedPnlPercent();
+    const shortPnlPct = ts.shortUnrealizedPnlPercent();
 
-  // ── DRAWDOWN-RESCUE: läuft IMMER, unabhängig vom Cooldown ────────
-  if (ts.hasLong()) {
-    if (longPnlPct < 0) {
-      this.longCandlesInLoss++;
-    } else if (this.longCandlesInLoss < cfg.longDrawdownCandles) {
+    // Flags, um mehrere Trades pro Kerze zu verhindern
+    let longTradeDone = false;
+    let shortTradeDone = false;
+
+    // ── DRAWDOWN-RESCUE ──────────────────────────────────────────────
+    if (ts.hasLong()) {
+      if (longPnlPct < 0) {
+        this.longCandlesInLoss++;
+      } else if (this.longCandlesInLoss < cfg.longDrawdownCandles) {
+        this.longCandlesInLoss = 0;
+      }
+      if (
+        this.longCandlesInLoss >= cfg.longDrawdownCandles &&
+        longPnlPct >= cfg.longRescueTrigger
+      ) {
+        ts.selectedLeverage.set(cfg.longLeverage);
+        const rescueQty = ts.replayLongQuantity() * (cfg.longRescueClosePercent / 100);
+        if (rescueQty >= 0.000001 && ts.decreaseLong(rescueQty, price)) {
+          this.logTrade('RESCUE SELL', price, rescueQty, rsi,
+            `Drawdown-Rescue: ${this.longCandlesInLoss} Kerzen im Minus → +${longPnlPct.toFixed(2)}% Erholung | ${cfg.longRescueClosePercent}% verkauft`);
+          this.strategyTradeCount.update(n => n + 1);
+          this.longCandlesInLoss = 0;
+          longTradeDone = true; // Rescue zählt als Trade
+        }
+      }
+    } else {
       this.longCandlesInLoss = 0;
     }
 
-    if (
-      this.longCandlesInLoss >= cfg.longDrawdownCandles &&
-      longPnlPct >= cfg.longRescueTrigger
-    ) {
-      const rescueQty = ts.replayLongQuantity() * (cfg.longRescueClosePercent / 100);
-      if (rescueQty >= 0.000001 && ts.decreaseLong(rescueQty, price)) {
-        this.logTrade(
-          'RESCUE SELL', price, rescueQty, rsi,
-          `Drawdown-Rescue: ${this.longCandlesInLoss} Kerzen im Minus → +${longPnlPct.toFixed(2)}% Erholung | ${cfg.longRescueClosePercent}% verkauft`
-        );
-        this.strategyTradeCount.update(n => n + 1);
-        this.longCandlesInLoss = 0;
+    if (ts.hasShort()) {
+      if (shortPnlPct < 0) {
+        this.shortCandlesInLoss++;
+      } else if (this.shortCandlesInLoss < cfg.shortDrawdownCandles) {
+        this.shortCandlesInLoss = 0;
       }
-    }
-  } else {
-    this.longCandlesInLoss = 0;
-  }
-
-  if (ts.hasShort()) {
-    if (shortPnlPct < 0) {
-      this.shortCandlesInLoss++;
-    } else if (this.shortCandlesInLoss < cfg.shortDrawdownCandles) {
+      if (
+        this.shortCandlesInLoss >= cfg.shortDrawdownCandles &&
+        shortPnlPct >= cfg.shortRescueTrigger
+      ) {
+        ts.selectedLeverage.set(cfg.shortLeverage);
+        const rescueQty = ts.replayShortQuantity() * (cfg.shortRescueClosePercent / 100);
+        if (rescueQty >= 0.000001 && ts.decreaseShort(rescueQty, price)) {
+          this.logTrade('RESCUE COVER', price, rescueQty, rsi,
+            `Drawdown-Rescue: ${this.shortCandlesInLoss} Kerzen im Minus → +${shortPnlPct.toFixed(2)}% Erholung | ${cfg.shortRescueClosePercent}% gecovert`);
+          this.strategyTradeCount.update(n => n + 1);
+          this.shortCandlesInLoss = 0;
+          shortTradeDone = true; // Rescue zählt als Trade
+        }
+      }
+    } else {
       this.shortCandlesInLoss = 0;
     }
 
-    if (
-      this.shortCandlesInLoss >= cfg.shortDrawdownCandles &&
-      shortPnlPct >= cfg.shortRescueTrigger
-    ) {
-      const rescueQty = ts.replayShortQuantity() * (cfg.shortRescueClosePercent / 100);
-      if (rescueQty >= 0.000001 && ts.decreaseShort(rescueQty, price)) {
-        this.logTrade(
-          'RESCUE COVER', price, rescueQty, rsi,
-          `Drawdown-Rescue: ${this.shortCandlesInLoss} Kerzen im Minus → +${shortPnlPct.toFixed(2)}% Erholung | ${cfg.shortRescueClosePercent}% gecovert`
-        );
-        this.strategyTradeCount.update(n => n + 1);
-        this.shortCandlesInLoss = 0;
-      }
-    }
-  } else {
-    this.shortCandlesInLoss = 0;
-  }
-  // ── Ende Rescue ──────────────────────────────────────────────────
+    // ── LONG-Seite ───────────────────────────────────────────────────
+    const longOpenReady = this.longOpenCandlesSince >= cfg.longOpenCooldown;
+    const longCloseReady = this.longCloseCandlesSince >= cfg.longCloseCooldown;
 
-  // ── LONG-Seite (Cooldown) ────────────────────────────────────────
-  const longCooldownReady = this.longCandlesSinceLastTrade >= cfg.longCooldownCandles;
+    const longPositionPct = (longNotional / totalBalance) * 100;
+    const effectiveLongBuyPct = longPositionPct >= cfg.longBuyScaleThreshold
+      ? cfg.longBuyScalePercent
+      : cfg.longBuyPercent;
 
-  if (longCooldownReady) {
-    if (rsi < cfg.longRsiBuyThreshold) {
-      const hasLong      = ts.hasLong();
-      const longProfitOk = longPnlPct >=  cfg.longProfitThreshold;
-      const longLossOk   = longPnlPct <= -cfg.longLossThreshold;
-      const canBuy = !hasLong
-        ? longFreeZone
-        : longFreeZone || longProfitOk || longLossOk;
+    // RSI-Kauf (nur wenn kein Trade auf Long-Seite in dieser Kerze)
+    if (!longTradeDone && rsi < cfg.longRsiBuyThreshold) {
+      if (longOpenReady) {
+        const hasLong = ts.hasLong();
+        const longProfitOk = longPnlPct >= cfg.longProfitThreshold;
+        const longLossOk = longPnlPct <= -cfg.longLossThreshold;
+        const canBuy = !hasLong
+          ? longFreeZone
+          : longFreeZone || longProfitOk || longLossOk;
 
-      if (canBuy) {
-        const qty = (totalBalance * (cfg.longBuyPercent / 100) * ts.selectedLeverage()) / price;
-        if (qty >= 0.000001 && ts.increaseLong(qty, price)) {
-          this.logTrade('BUY LONG', price, qty, rsi,
-            `RSI ${rsi.toFixed(1)} < ${cfg.longRsiBuyThreshold} | LongPnL: ${longPnlPct.toFixed(1)}% | ${!hasLong ? 'NewLong' : longFreeZone ? 'FreeZone' : longLossOk ? 'DCA' : 'InProfit'}`);
-          this.longCandlesSinceLastTrade = 0;
-          this.strategyTradeCount.update(n => n + 1);
+        if (canBuy) {
+          ts.selectedLeverage.set(cfg.longLeverage);
+          const qty = (totalBalance * (effectiveLongBuyPct / 100) * cfg.longLeverage) / price;
+          if (qty >= 0.000001 && ts.increaseLong(qty, price)) {
+            this.logTrade('BUY LONG', price, qty, rsi,
+              `RSI ${rsi.toFixed(1)} < ${cfg.longRsiBuyThreshold} | LongPnL: ${longPnlPct.toFixed(1)}% | Pos: ${longPositionPct.toFixed(1)}% → buy ${effectiveLongBuyPct}% | ${!hasLong ? 'New' : longFreeZone ? 'FreeZone' : longLossOk ? 'DCA' : 'InProfit'} | ${cfg.longLeverage}x`);
+            this.longOpenCandlesSince = 0;
+            this.strategyTradeCount.update(n => n + 1);
+            longTradeDone = true;
+          }
         }
       }
-    } else if (rsi > cfg.longRsiSellThreshold && ts.hasLong()) {
-      const longInLoss   = longPnlPct < 0;
-      const longInProfit = longPnlPct >= cfg.longProfitThreshold;
-      const canClose     = longFreeZone ? !longInLoss : longInProfit;
+    }
 
-      if (canClose) {
+    // RSI-Verkauf (nur wenn noch kein Long-Trade in dieser Kerze)
+    if (!longTradeDone && rsi > cfg.longRsiSellThreshold && ts.hasLong()) {
+      if (longCloseReady) {
+        const longInLoss = longPnlPct < 0;
+        const longInProfit = longPnlPct >= cfg.longProfitThreshold;
+        const canClose = longFreeZone ? !longInLoss : longInProfit;
+
+        if (canClose) {
+          ts.selectedLeverage.set(cfg.longLeverage);
+          const closeQty = ts.replayLongQuantity() * (cfg.longClosePercent / 100);
+          if (closeQty >= 0.000001 && ts.decreaseLong(closeQty, price)) {
+            this.logTrade('SELL LONG', price, closeQty, rsi,
+              `RSI ${rsi.toFixed(1)} > ${cfg.longRsiSellThreshold} | LongPnL: ${longPnlPct.toFixed(1)}% | ${longFreeZone ? 'FreeZone' : 'InProfit'}`);
+            this.longCloseCandlesSince = 0;
+            this.strategyTradeCount.update(n => n + 1);
+            longTradeDone = true;
+          }
+        }
+      }
+    }
+
+    // NEU: Positionsgröße überschritten + Gewinnschwelle erreicht (Long)
+    if (!longTradeDone && ts.hasLong() && longCloseReady) {
+      if (longPositionPct > cfg.longMaxPositionPercent && longPnlPct >= cfg.longProfitThreshold) {
+        ts.selectedLeverage.set(cfg.longLeverage);
         const closeQty = ts.replayLongQuantity() * (cfg.longClosePercent / 100);
         if (closeQty >= 0.000001 && ts.decreaseLong(closeQty, price)) {
-          this.logTrade('SELL LONG', price, closeQty, rsi,
-            `RSI ${rsi.toFixed(1)} > ${cfg.longRsiSellThreshold} | LongPnL: ${longPnlPct.toFixed(1)}% | ${longFreeZone ? 'FreeZone' : 'InProfit'}`);
-          this.longCandlesSinceLastTrade = 0;
+          this.logTrade('SELL LONG (MaxPos)', price, closeQty, rsi,
+            `Position ${longPositionPct.toFixed(1)}% > ${cfg.longMaxPositionPercent}% und +${longPnlPct.toFixed(1)}% Gewinn → Verkauf ${cfg.longClosePercent}%`);
+          this.longCloseCandlesSince = 0;
           this.strategyTradeCount.update(n => n + 1);
+          longTradeDone = true;
         }
       }
     }
-  }
 
-  this.longCandlesSinceLastTrade = Math.min(
-    this.longCandlesSinceLastTrade + 1,
-    cfg.longCooldownCandles + 1
-  );
+    this.longOpenCandlesSince = Math.min(this.longOpenCandlesSince + 1, cfg.longOpenCooldown + 1);
+    this.longCloseCandlesSince = Math.min(this.longCloseCandlesSince + 1, cfg.longCloseCooldown + 1);
 
-  // ── SHORT-Seite (Cooldown) ───────────────────────────────────────
-  if (!cfg.autoShortEnabled) return;
+    // ── SHORT-Seite ──────────────────────────────────────────────────
+    if (!cfg.autoShortEnabled) return;
 
-  const shortCooldownReady = this.shortCandlesSinceLastTrade >= cfg.shortCooldownCandles;
+    const shortOpenReady = this.shortOpenCandlesSince >= cfg.shortOpenCooldown;
+    const shortCloseReady = this.shortCloseCandlesSince >= cfg.shortCloseCooldown;
 
-  if (shortCooldownReady) {
-    if (rsi < cfg.shortRsiBuyThreshold && ts.hasShort()) {
-      const shortInLoss   = shortPnlPct < 0;
-      const shortInProfit = shortPnlPct >= cfg.shortProfitThreshold;
-      const canCover      = shortFreeZone ? !shortInLoss : shortInProfit;
+    const shortPositionPct = (shortNotional / totalBalance) * 100;
+    const effectiveShortBuyPct = shortPositionPct >= cfg.shortBuyScaleThreshold
+      ? cfg.shortBuyScalePercent
+      : cfg.shortBuyPercent;
 
-      if (canCover) {
+    // RSI-Short-Eröffnung
+    if (!shortTradeDone && rsi > cfg.shortRsiSellThreshold) {
+      if (shortOpenReady) {
+        const hasShort = ts.hasShort();
+        const shortDcaOk = shortPnlPct <= -cfg.shortLossThreshold;
+        const canShort = !hasShort ? shortFreeZone : shortFreeZone || shortDcaOk;
+
+        if (canShort) {
+          ts.selectedLeverage.set(cfg.shortLeverage);
+          const qty = (totalBalance * (effectiveShortBuyPct / 100) * cfg.shortLeverage) / price;
+          if (qty >= 0.000001 && ts.increaseShort(qty, price)) {
+            this.logTrade('OPEN SHORT', price, qty, rsi,
+              `RSI ${rsi.toFixed(1)} > ${cfg.shortRsiSellThreshold} | ShortPnL: ${shortPnlPct.toFixed(1)}% | Pos: ${shortPositionPct.toFixed(1)}% → buy ${effectiveShortBuyPct}% | ${!hasShort ? 'New' : shortFreeZone ? 'FreeZone' : 'DCA'} | ${cfg.shortLeverage}x`);
+            this.shortOpenCandlesSince = 0;
+            this.strategyTradeCount.update(n => n + 1);
+            shortTradeDone = true;
+          }
+        }
+      }
+    }
+
+    // RSI-Cover
+    if (!shortTradeDone && rsi < cfg.shortRsiBuyThreshold && ts.hasShort()) {
+      if (shortCloseReady) {
+        const shortInLoss = shortPnlPct < 0;
+        const shortInProfit = shortPnlPct >= cfg.shortProfitThreshold;
+        const canCover = shortFreeZone ? !shortInLoss : shortInProfit;
+
+        if (canCover) {
+          ts.selectedLeverage.set(cfg.shortLeverage);
+          const closeQty = ts.replayShortQuantity() * (cfg.shortClosePercent / 100);
+          if (closeQty >= 0.000001 && ts.decreaseShort(closeQty, price)) {
+            this.logTrade('SHORT COVER', price, closeQty, rsi,
+              `RSI ${rsi.toFixed(1)} < ${cfg.shortRsiBuyThreshold} | ShortPnL: ${shortPnlPct.toFixed(1)}% | ${shortFreeZone ? 'FreeZone' : 'InProfit'}`);
+            this.shortCloseCandlesSince = 0;
+            this.strategyTradeCount.update(n => n + 1);
+            shortTradeDone = true;
+          }
+        }
+      }
+    }
+
+    // NEU: Positionsgröße überschritten + Gewinnschwelle erreicht (Short)
+    if (!shortTradeDone && ts.hasShort() && shortCloseReady) {
+      if (shortPositionPct > cfg.shortMaxPositionPercent && shortPnlPct >= cfg.shortProfitThreshold) {
+        ts.selectedLeverage.set(cfg.shortLeverage);
         const closeQty = ts.replayShortQuantity() * (cfg.shortClosePercent / 100);
         if (closeQty >= 0.000001 && ts.decreaseShort(closeQty, price)) {
-          this.logTrade('SHORT COVER', price, closeQty, rsi,
-            `RSI ${rsi.toFixed(1)} < ${cfg.shortRsiBuyThreshold} | ShortPnL: ${shortPnlPct.toFixed(1)}% | ${shortFreeZone ? 'FreeZone' : 'InProfit'}`);
-          this.shortCandlesSinceLastTrade = 0;
+          this.logTrade('SHORT COVER (MaxPos)', price, closeQty, rsi,
+            `Position ${shortPositionPct.toFixed(1)}% > ${cfg.shortMaxPositionPercent}% und +${shortPnlPct.toFixed(1)}% Gewinn → Cover ${cfg.shortClosePercent}%`);
+          this.shortCloseCandlesSince = 0;
           this.strategyTradeCount.update(n => n + 1);
-        }
-      }
-    } else if (rsi > cfg.shortRsiSellThreshold) {
-      const hasShort   = ts.hasShort();
-      const shortDcaOk = shortPnlPct <= -cfg.shortLossThreshold;
-      const canShort   = !hasShort ? shortFreeZone : shortFreeZone || shortDcaOk;
-
-      if (canShort) {
-        const qty = (totalBalance * (cfg.shortBuyPercent / 100) * ts.selectedLeverage()) / price;
-        if (qty >= 0.000001 && ts.increaseShort(qty, price)) {
-          this.logTrade('OPEN SHORT', price, qty, rsi,
-            `RSI ${rsi.toFixed(1)} > ${cfg.shortRsiSellThreshold} | ShortPnL: ${shortPnlPct.toFixed(1)}% | ${!hasShort ? 'NewShort' : shortFreeZone ? 'FreeZone' : 'DCA'}`);
-          this.shortCandlesSinceLastTrade = 0;
-          this.strategyTradeCount.update(n => n + 1);
+          shortTradeDone = true;
         }
       }
     }
-  }
 
-  this.shortCandlesSinceLastTrade = Math.min(
-    this.shortCandlesSinceLastTrade + 1,
-    cfg.shortCooldownCandles + 1
-  );
-}
+    this.shortOpenCandlesSince = Math.min(this.shortOpenCandlesSince + 1, cfg.shortOpenCooldown + 1);
+    this.shortCloseCandlesSince = Math.min(this.shortCloseCandlesSince + 1, cfg.shortCloseCooldown + 1);
+  }
 
   private logTrade(action: string, price: number, qty: number, rsi: number, reason: string) {
     const entry: StrategyLogEntry = {
@@ -429,17 +568,29 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
   }
 
   // ── Wiedergabe-Steuerung ─────────────────────────────────────────
-
   reset() {
     this.stopPlayback();
     this.currentCandleIndex.set(0);
-    this.longCandlesSinceLastTrade = 999;
-    this.shortCandlesSinceLastTrade = 999;
-    this.longCandlesInLoss = 0;   // NEU
-    this.shortCandlesInLoss = 0;   // NEU
+
+    this.longOpenCandlesSince = 999;
+    this.longCloseCandlesSince = 999;
+    this.shortOpenCandlesSince = 999;
+    this.shortCloseCandlesSince = 999;
+    this.longCandlesInLoss = 0;
+    this.shortCandlesInLoss = 0;
+
     this.strategyLog.set([]);
     this.strategyTradeCount.set(0);
     this.tradingService.resetPortfolio();
+
+    this.rsiAvgGain = 0; this.rsiAvgLoss = 0;
+    this.rsiInitialized = false; this.rsiPrevPrice = 0;
+    this.ema50Value = 0; this.ema200Value = 0;
+    this.ema50Ready = false; this.ema200Ready = false;
+    this.ema50SumCount = 0; this.ema200SumCount = 0;
+    this.ema50Sum = 0; this.ema200Sum = 0;
+    this.lastDrawnIndex = 0;
+
     this.updateChart();
   }
 
@@ -464,7 +615,19 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
       this.currentCandleIndex.update(i => i + 1);
       this.updateChart();
       this.updateTradingService();
-      this.checkStrategyTrade();          // ← Strategie-Check
+      this.checkStrategyTrade();
+
+      // ── Profit-Harvest prüfen ──────────────────────────────────
+      if (this.tradingService.checkProfitHarvest()) {
+        const count = this.tradingService.harvestCount();
+        const vault = this.tradingService.safetyVault();
+        const harvest = this.tradingService.replayInitialBalance;
+        this.logTrade(
+          'HARVEST', this.getCurrentPrice(), 0, this.currentRSI() ?? 0,
+          `💰 Profit x${count}: $${harvest.toFixed(0)} in Safe Vault gesichert | Vault gesamt: $${vault.toFixed(0)}`
+        );
+      }
+
       this.tradingService.checkLiquidation();
     }
   }
@@ -485,7 +648,6 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
   }
 
   // ── Session speichern ────────────────────────────────────────────
-
   saveSession() {
     if (!this.candlesLoaded() || this.isSaving()) return;
     this.isSaving.set(true);
@@ -493,7 +655,7 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
 
     const ts = this.tradingService;
     const payload: ReplaySaveRequest = {
-      sessionType: 'strategy',        // ← immer 'strategy' in dieser Komponente
+      sessionType: 'strategy',
       symbol: this.selectedSymbol,
       intervalValue: this.selectedInterval,
       startTime: new Date(this.startDate).getTime(),
@@ -531,7 +693,6 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
   }
 
   // ── Chart-Initialisierung ────────────────────────────────────────
-
   initializeChart() {
     if (this.chart) this.chart.remove();
 
@@ -582,7 +743,6 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
       priceLineVisible: false, lastValueVisible: true
     });
 
-    // 4 Schwellen-Linien
     this.rsiLongBuyLine = this.rsiSeries.createPriceLine({
       price: this.strategyConfig.longRsiBuyThreshold,
       color: '#26a69a', lineWidth: 1, lineStyle: 2,
@@ -595,12 +755,12 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
     });
     this.rsiShortBuyLine = this.rsiSeries.createPriceLine({
       price: this.strategyConfig.shortRsiBuyThreshold,
-      color: '#80cbc4', lineWidth: 1, lineStyle: 3,   // gestrichelt, heller
+      color: '#80cbc4', lineWidth: 1, lineStyle: 3,
       axisLabelVisible: true, title: `S-Cover (${this.strategyConfig.shortRsiBuyThreshold})`
     });
     this.rsiShortSellLine = this.rsiSeries.createPriceLine({
       price: this.strategyConfig.shortRsiSellThreshold,
-      color: '#ef9a9a', lineWidth: 1, lineStyle: 3,   // gestrichelt, heller
+      color: '#ef9a9a', lineWidth: 1, lineStyle: 3,
       axisLabelVisible: true, title: `S-Open (${this.strategyConfig.shortRsiSellThreshold})`
     });
 
@@ -625,44 +785,186 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
     this.reset();
   }
 
+  // ── Chart Update (inkrementell + periodischer Trim) ──────────────
   updateChart() {
     if (!this.candleSeries || !this.chart) return;
     const index = this.currentCandleIndex();
-    const visibleCandles = this.allCandles.slice(0, index);
-    const chartData = visibleCandles.map(c => ({
-      time: (c.timestamp / 1000) as Time,
-      open: c.open, high: c.high, low: c.low, close: c.close
-    }));
-    this.candleSeries.setData(chartData);
 
-    if (this.showEma50() && this.ema50Series && visibleCandles.length > 0) {
-      const ema50 = this.calculateEMA(visibleCandles.map(c => c.close), 50);
-      this.ema50Series.setData(visibleCandles.map((c, i) => ({
-        time: (c.timestamp / 1000) as Time, value: ema50[i]
-      })));
+    if (index === 0) {
+      this.candleSeries.setData([]);
+      this.ema50Series?.setData([]);
+      this.ema200Series?.setData([]);
+      this.rsiSeries?.setData([]);
+      this.currentRSI.set(null);
+      this.updateEntryPriceLines();
+      return;
     }
-    if (this.showEma200() && this.ema200Series && visibleCandles.length > 0) {
-      const ema200 = this.calculateEMA(visibleCandles.map(c => c.close), 200);
-      this.ema200Series.setData(visibleCandles.map((c, i) => ({
-        time: (c.timestamp / 1000) as Time, value: ema200[i]
-      })));
-    }
-    if (this.showRSI() && this.rsiSeries && visibleCandles.length > this.RSI_PERIOD) {
-      const rsiValues = this.calculateRSI(visibleCandles.map(c => c.close), this.RSI_PERIOD);
-      if (rsiValues.length > 0) {
-        this.rsiSeries.setData(rsiValues.map((value, i) => ({
-          time: (visibleCandles[i + this.RSI_PERIOD].timestamp / 1000) as Time, value
-        })));
-        this.currentRSI.set(rsiValues[rsiValues.length - 1]);
-      } else { this.currentRSI.set(null); }
-    } else { this.currentRSI.set(null); }
 
+    const candle = this.allCandles[index - 1];
+    const t = (candle.timestamp / 1000) as Time;
+    const close = candle.close;
+
+    // ── Periodisches Trim ────────────────────────────────────────────
+    if (index > this.CHART_DISPLAY_WINDOW && index % this.CHART_TRIM_INTERVAL === 0) {
+      const trimFrom = index - this.CHART_DISPLAY_WINDOW;
+
+      this.candleSeries.setData(this.allCandles.slice(trimFrom, index).map(c => ({
+        time: (c.timestamp / 1000) as Time,
+        open: c.open, high: c.high, low: c.low, close: c.close
+      })));
+
+      if (this.showEma50() && this.ema50Series && this.ema50Ready)
+        this._redrawEmaWindow(this.ema50Series, 50, trimFrom, index);
+      if (this.showEma200() && this.ema200Series && this.ema200Ready)
+        this._redrawEmaWindow(this.ema200Series, 200, trimFrom, index);
+      if (this.showRSI() && this.rsiSeries)
+        this._redrawRsiWindow(trimFrom, index);
+
+      this.lastDrawnIndex = index;
+      this.updateEntryPriceLines();
+      this._updateTimeScale(index);
+      return;
+    }
+
+    // ── Fallback: vollständiger Neuaufbau (nach stepBackward/reset) ──
+    if (index <= this.lastDrawnIndex) {
+      this._fullRedraw(index);
+      return;
+    }
+
+    // ── Inkrementelles Update ────────────────────────────────────────
+    this.candleSeries.update({ time: t, open: candle.open, high: candle.high, low: candle.low, close });
+
+    // EMA 50
+    if (this.showEma50() && this.ema50Series) {
+      if (!this.ema50Ready) {
+        this.ema50Sum += close;
+        this.ema50SumCount++;
+        if (this.ema50SumCount >= 50) {
+          this.ema50Value = this.ema50Sum / 50;
+          this.ema50Ready = true;
+          this.ema50Series.update({ time: t, value: this.ema50Value });
+        }
+      } else {
+        this.ema50Value = (close - this.ema50Value) * (2 / 51) + this.ema50Value;
+        this.ema50Series.update({ time: t, value: this.ema50Value });
+      }
+    }
+
+    // EMA 200
+    if (this.showEma200() && this.ema200Series) {
+      if (!this.ema200Ready) {
+        this.ema200Sum += close;
+        this.ema200SumCount++;
+        if (this.ema200SumCount >= 200) {
+          this.ema200Value = this.ema200Sum / 200;
+          this.ema200Ready = true;
+          this.ema200Series.update({ time: t, value: this.ema200Value });
+        }
+      } else {
+        this.ema200Value = (close - this.ema200Value) * (2 / 201) + this.ema200Value;
+        this.ema200Series.update({ time: t, value: this.ema200Value });
+      }
+    }
+
+    // RSI (Wilder's Smoothing)
+    if (this.showRSI() && this.rsiSeries) {
+      if (this.rsiPrevPrice === 0) {
+        this.rsiPrevPrice = close;
+      } else {
+        const change = close - this.rsiPrevPrice;
+        const gain = change > 0 ? change : 0;
+        const loss = change < 0 ? -change : 0;
+
+        if (!this.rsiInitialized) {
+          this.rsiAvgGain += gain;
+          this.rsiAvgLoss += loss;
+          if ((index - 1) >= this.RSI_PERIOD) {
+            this.rsiAvgGain /= this.RSI_PERIOD;
+            this.rsiAvgLoss /= this.RSI_PERIOD;
+            this.rsiInitialized = true;
+            const rsiVal = this.rsiAvgLoss === 0 ? 100 : 100 - 100 / (1 + this.rsiAvgGain / this.rsiAvgLoss);
+            this.rsiSeries.update({ time: t, value: rsiVal });
+            this.currentRSI.set(rsiVal);
+          }
+        } else {
+          this.rsiAvgGain = (this.rsiAvgGain * (this.RSI_PERIOD - 1) + gain) / this.RSI_PERIOD;
+          this.rsiAvgLoss = (this.rsiAvgLoss * (this.RSI_PERIOD - 1) + loss) / this.RSI_PERIOD;
+          const rsiVal = this.rsiAvgLoss === 0 ? 100 : 100 - 100 / (1 + this.rsiAvgGain / this.rsiAvgLoss);
+          this.rsiSeries.update({ time: t, value: rsiVal });
+          this.currentRSI.set(rsiVal);
+        }
+        this.rsiPrevPrice = close;
+      }
+    }
+
+    this.lastDrawnIndex = index;
     this.updateEntryPriceLines();
+    this._updateTimeScale(index);
+  }
 
-    if (chartData.length === 0 || this.userIsScrolling) return;
+  // ── Chart-Hilfsmethoden ──────────────────────────────────────────
+  private _updateTimeScale(index: number) {
+    if (!this.chart || this.userIsScrolling) return;
     const ts = this.chart.timeScale();
     if (index <= this.FIT_THRESHOLD) ts.fitContent();
     else ts.setVisibleLogicalRange({ from: index - this.VISIBLE_CANDLES, to: index + 5 });
+  }
+
+  private _fullRedraw(index: number) {
+    if (!this.candleSeries) return;
+    const sliced = this.allCandles.slice(0, index);
+
+    this.candleSeries.setData(sliced.map(c => ({
+      time: (c.timestamp / 1000) as Time,
+      open: c.open, high: c.high, low: c.low, close: c.close
+    })));
+
+    if (this.showEma50() && this.ema50Series && sliced.length > 0) {
+      const ema50 = this.calculateEMA(sliced.map(c => c.close), 50);
+      this.ema50Series.setData(sliced.map((c, i) => ({ time: (c.timestamp / 1000) as Time, value: ema50[i] })));
+    }
+    if (this.showEma200() && this.ema200Series && sliced.length > 0) {
+      const ema200 = this.calculateEMA(sliced.map(c => c.close), 200);
+      this.ema200Series.setData(sliced.map((c, i) => ({ time: (c.timestamp / 1000) as Time, value: ema200[i] })));
+    }
+    if (this.showRSI() && this.rsiSeries && sliced.length > this.RSI_PERIOD) {
+      const rsiValues = this.calculateRSI(sliced.map(c => c.close), this.RSI_PERIOD);
+      this.rsiSeries.setData(rsiValues.map((value, i) => ({
+        time: (sliced[i + this.RSI_PERIOD].timestamp / 1000) as Time, value
+      })));
+      this.currentRSI.set(rsiValues[rsiValues.length - 1] ?? null);
+    }
+
+    this.lastDrawnIndex = index;
+    this.updateEntryPriceLines();
+    this._updateTimeScale(index);
+  }
+
+  private _redrawEmaWindow(series: ISeriesApi<'Line'>, period: number, from: number, to: number) {
+    const contextStart = Math.max(0, from - period * 2);
+    const contextCandles = this.allCandles.slice(contextStart, to);
+    const emaAll = this.calculateEMA(contextCandles.map(c => c.close), period);
+    const windowOffset = from - contextStart;
+    series.setData(contextCandles.slice(windowOffset).map((c, i) => ({
+      time: (c.timestamp / 1000) as Time,
+      value: emaAll[windowOffset + i]
+    })));
+  }
+
+  private _redrawRsiWindow(from: number, to: number) {
+    if (!this.rsiSeries) return;
+    const contextStart = Math.max(0, from - this.RSI_PERIOD * 3);
+    const contextCandles = this.allCandles.slice(contextStart, to);
+    const rsiAll = this.calculateRSI(contextCandles.map(c => c.close), this.RSI_PERIOD);
+    const windowOffset = from - contextStart;
+    const rsiWindow = rsiAll.slice(Math.max(0, windowOffset - this.RSI_PERIOD));
+    const startIdx = Math.max(contextStart + this.RSI_PERIOD, from);
+    this.rsiSeries.setData(
+      rsiWindow
+        .map((value, i) => ({ time: (this.allCandles[startIdx + i]?.timestamp / 1000) as Time, value }))
+        .filter(d => d.time)
+    );
   }
 
   private updateEntryPriceLines() {
@@ -697,6 +999,7 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ── Indikatoren ──────────────────────────────────────────────────
   private calculateEMA(data: number[], period: number): number[] {
     if (!data.length) return [];
     const ema: number[] = [];
@@ -736,7 +1039,10 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
           color: '#2962ff', lineWidth: 2, title: 'EMA 50',
           lastValueVisible: true, priceLineVisible: false
         });
-      } else if (this.ema50Series) { this.chart.removeSeries(this.ema50Series); this.ema50Series = null; }
+      } else if (this.ema50Series) {
+        this.chart.removeSeries(this.ema50Series);
+        this.ema50Series = null;
+      }
       this.updateChart();
     }
   }
@@ -749,7 +1055,10 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
           color: '#ff6d00', lineWidth: 2, title: 'EMA 200',
           lastValueVisible: true, priceLineVisible: false
         });
-      } else if (this.ema200Series) { this.chart.removeSeries(this.ema200Series); this.ema200Series = null; }
+      } else if (this.ema200Series) {
+        this.chart.removeSeries(this.ema200Series);
+        this.ema200Series = null;
+      }
       this.updateChart();
     }
   }
@@ -793,6 +1102,7 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ── Helpers ──────────────────────────────────────────────────────
   private updateTradingService() {
     this.tradingService.setCurrentPrice(this.getCurrentPrice(), this.getCurrentDate());
     this.tradingService.updateUsedMargin();
@@ -812,23 +1122,21 @@ export class ReplayCopyComponent implements OnInit, OnDestroy {
     return this.allCandles[this.currentCandleIndex() - 1].close;
   }
 
-  // Long-Cooldown für Anzeige
   longCooldownProgress(): number {
-    const c = Math.min(this.longCandlesSinceLastTrade, this.strategyConfig.longCooldownCandles);
-    return Math.round((c / this.strategyConfig.longCooldownCandles) * 100);
+    const c = Math.min(this.longOpenCandlesSince, this.strategyConfig.longOpenCooldown);
+    return Math.round((c / this.strategyConfig.longOpenCooldown) * 100);
   }
   longCooldownRemaining(): number {
-    return Math.max(0, this.strategyConfig.longCooldownCandles - this.longCandlesSinceLastTrade);
+    return Math.max(0, this.strategyConfig.longOpenCooldown - this.longOpenCandlesSince);
   }
-
-  // Short-Cooldown für Anzeige
   shortCooldownProgress(): number {
-    const c = Math.min(this.shortCandlesSinceLastTrade, this.strategyConfig.shortCooldownCandles);
-    return Math.round((c / this.strategyConfig.shortCooldownCandles) * 100);
+    const c = Math.min(this.shortOpenCandlesSince, this.strategyConfig.shortOpenCooldown);
+    return Math.round((c / this.strategyConfig.shortOpenCooldown) * 100);
   }
   shortCooldownRemaining(): number {
-    return Math.max(0, this.strategyConfig.shortCooldownCandles - this.shortCandlesSinceLastTrade);
+    return Math.max(0, this.strategyConfig.shortOpenCooldown - this.shortOpenCandlesSince);
   }
+
   toggleStrategyLog() {
     this.showStrategyLog.update(v => !v);
   }

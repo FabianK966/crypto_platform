@@ -1,0 +1,229 @@
+/* replay-strategy-portfolio.css */
+
+.portfolio-panel {
+  background: rgba(20, 20, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.portfolio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.portfolio-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.portfolio-title h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.portfolio-symbol-badge {
+  background: rgba(41, 98, 255, 0.15);
+  border: 1px solid rgba(41, 98, 255, 0.4);
+  color: #6b9fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.portfolio-header-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.balance-set-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.balance-set-group label {
+  color: #999;
+  font-size: 0.75rem;
+}
+
+.balance-input {
+  width: 140px;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+}
+
+.btn-set-balance {
+  background: rgba(41, 98, 255, 0.1);
+  border: 1px solid #2962ff;
+  color: #2962ff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-set-balance:hover:not([disabled]) { background: rgba(41, 98, 255, 0.2); }
+.btn-set-balance[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+.btn-reset-portfolio {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  color: #ffc107;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-reset-portfolio:hover { background: rgba(255, 193, 7, 0.2); }
+
+/* Stats Grid */
+.portfolio-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.highlight-card {
+  border-color: rgba(41, 98, 255, 0.3);
+  background: rgba(41, 98, 255, 0.05);
+}
+
+/* Safety Vault Karte */
+.vault-card {
+  border-color: rgba(255, 193, 7, 0.15);
+  background: rgba(255, 193, 7, 0.03);
+  transition: all 0.3s;
+}
+
+.vault-card.vault-active {
+  border-color: rgba(76, 175, 80, 0.4);
+  background: rgba(76, 175, 80, 0.06);
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.08);
+}
+
+.stat-label {
+  color: #777;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.stat-sub {
+  color: #555;
+  font-size: 0.78rem;
+}
+
+.positive { color: #26a69a !important; }
+.negative { color: #ef5350 !important; }
+
+/* Positionen */
+.holdings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.holdings-section h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.no-position {
+  color: #555;
+  font-size: 0.9rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.07);
+  text-align: center;
+}
+
+.holdings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.holdings-table th,
+.holdings-table td {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.holdings-table th {
+  color: #666;
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.holdings-table td {
+  color: #ddd;
+  font-size: 0.9rem;
+}
+
+.position-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.long-badge {
+  background: rgba(38, 166, 154, 0.15);
+  color: #26a69a;
+  border: 1px solid rgba(38, 166, 154, 0.4);
+}
+
+.short-badge {
+  background: rgba(239, 83, 80, 0.15);
+  color: #ef5350;
+  border: 1px solid rgba(239, 83, 80, 0.4);
+}
+
+.long-qty  { color: #26a69a; font-weight: 600; }
+.short-qty { color: #ef5350; font-weight: 600; }
+
+.percent {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-left: 0.25rem;
+}

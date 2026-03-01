@@ -3,8 +3,11 @@
 
   <!-- Portfolio (nur sichtbar wenn Daten geladen) -->
   @if (candlesLoaded()) {
-  <app-replay-portfolio [selectedSymbol]="selectedSymbol" [currentPrice]="getCurrentPrice()" [isPlaying]="isPlaying()"
-    [tradingService]="tradingService" [showTradeButtons]="false" />
+  <app-replay-strategy-portfolio
+    [selectedSymbol]="selectedSymbol"
+    [currentPrice]="getCurrentPrice()"
+    [isPlaying]="isPlaying()"
+    [tradingService]="tradingService" />
   }
 
   <div class="main-row">
@@ -16,21 +19,24 @@
         <h3>{{ selectedSymbol }}/USDT - {{ getIntervalLabel() }}</h3>
 
         <!-- RSI-Anzeige -->
-        <div class="rsi-indicator" [ngClass]="{'overbought': (currentRSI() ?? 0) > strategyConfig.longRsiSellThreshold,
-            'oversold':   (currentRSI() ?? 0) < strategyConfig.longRsiBuyThreshold && (currentRSI() ?? 99) > 0}">
+        <div class="rsi-indicator" [ngClass]="{
+            'overbought': (currentRSI() ?? 0) > strategyConfig.longRsiSellThreshold,
+            'oversold':   (currentRSI() ?? 0) < strategyConfig.longRsiBuyThreshold && (currentRSI() ?? 99) > 0
+          }">
           RSI (14): {{ currentRSI()?.toFixed(2) ?? '--' }}
-          <span class="rsi-warning" *ngIf="(currentRSI() ?? 0) > strategyConfig.longRsiSellThreshold">⚠️ Overbought →
-            Sell
-            Signal</span>
+          <span class="rsi-warning" *ngIf="(currentRSI() ?? 0) > strategyConfig.longRsiSellThreshold">
+            ⚠️ Overbought → Sell Signal
+          </span>
           <span class="rsi-warning"
-            *ngIf="(currentRSI() ?? 99) < strategyConfig.longRsiBuyThreshold && (currentRSI() ?? 99) > 0">⚠️ Oversold →
-            Buy
-            Signal</span>
+            *ngIf="(currentRSI() ?? 99) < strategyConfig.longRsiBuyThreshold && (currentRSI() ?? 99) > 0">
+            ⚠️ Oversold → Buy Signal
+          </span>
         </div>
 
         <!-- Strategie-Status Bar -->
         @if (candlesLoaded()) {
         <div class="strategy-status-bar">
+
           <div class="stat-chip">
             <span class="stat-label">Auto-Trades</span>
             <span class="stat-value">{{ strategyTradeCount() }}</span>
@@ -77,6 +83,18 @@
               <span class="overbought-text">{{ strategyConfig.shortRsiSellThreshold }}</span>
             </span>
           </div>
+
+          <!-- Safety Vault Chip -->
+          <div class="stat-chip" [class.harvest-chip]="tradingService.safetyVault() > 0">
+            <span class="stat-label">💰 Vault</span>
+            <span class="stat-value">
+              $ {{ tradingService.safetyVault() | number:'1.0-0' }}
+            </span>
+            @if (tradingService.harvestCount() > 0) {
+            <span class="stat-sub">{{ tradingService.harvestCount() }}x geerntet</span>
+            }
+          </div>
+
         </div>
         }
 
@@ -140,7 +158,7 @@
       @if (strategyLog().length > 0) {
       <div class="strategy-log-section">
         <div class="log-header" (click)="toggleStrategyLog()">
-          <span>📋 Strategie-Log ({{ strategyLog().length }} Trades)</span>
+          <span>📋 Strategie-Log ({{ strategyLog().length }} Einträge)</span>
           <span>{{ showStrategyLog() ? '▲' : '▼' }}</span>
         </div>
         @if (showStrategyLog()) {
@@ -158,19 +176,27 @@
             </thead>
             <tbody>
               <tr *ngFor="let entry of strategyLog()"
-                [class.buy-row]="entry.action.includes('BUY') || entry.action.includes('COVER') || entry.action === 'RESCUE COVER'"
+                [class.buy-row]="entry.action.includes('BUY') || (entry.action.includes('COVER') && !entry.action.includes('RESCUE'))"
                 [class.sell-row]="entry.action.includes('SELL') || entry.action.includes('SHORT')"
-                [class.rescue-row]="entry.action.includes('RESCUE')">
+                [class.rescue-row]="entry.action.includes('RESCUE')"
+                [class.harvest-row]="entry.action === 'HARVEST'">
                 <td class="mono">{{ entry.candle }}</td>
                 <td class="action-cell">
                   <span class="action-badge"
                     [class.action-buy]="entry.action.includes('BUY') || entry.action.includes('COVER')"
-                    [class.action-sell]="entry.action.includes('SELL') || entry.action.includes('SHORT')">
+                    [class.action-sell]="entry.action.includes('SELL') || entry.action.includes('SHORT')"
+                    [class.action-harvest]="entry.action === 'HARVEST'">
                     {{ entry.action }}
                   </span>
                 </td>
-                <td class="mono">$ {{ entry.price | number:'1.2-2' }}</td>
-                <td class="mono">{{ entry.qty | number:'1.4-6' }}</td>
+                <td class="mono">
+                  @if (entry.price > 0) { $ {{ entry.price | number:'1.2-2' }} }
+                  @else { — }
+                </td>
+                <td class="mono">
+                  @if (entry.qty > 0) { {{ entry.qty | number:'1.4-6' }} }
+                  @else { — }
+                </td>
                 <td class="mono"
                   [class.oversold-text]="entry.rsi < strategyConfig.longRsiBuyThreshold || entry.rsi < strategyConfig.shortRsiBuyThreshold"
                   [class.overbought-text]="entry.rsi > strategyConfig.longRsiSellThreshold || entry.rsi > strategyConfig.shortRsiSellThreshold">
@@ -188,14 +214,29 @@
     </div>
 
     <!-- ── Rechte Spalte: Strategy-Sidebar ───────────────── -->
-    <app-replay-strategy-config-sidebar [availableSymbols]="availableSymbols()"
-      [availableIntervals]="availableIntervals()" [selectedSymbol]="selectedSymbol"
-      [selectedInterval]="selectedInterval" [startDate]="startDate" [endDate]="endDate" [today]="today"
-      [selectedLeverage]="tradingService.selectedLeverage()" [showEma50]="showEma50()" [showEma200]="showEma200()"
-      [loading]="loading()" [error]="error()" [candlesLoaded]="candlesLoaded()" [totalCandles]="totalCandles()"
-      [isPlaying]="isPlaying()" [showRSI]="showRSI()" [strategyConfig]="strategyConfig"
-      (configChange)="onConfigChange($event)" (loadData)="loadReplayData()" (toggleEma50)="toggleEma50()"
-      (toggleEma200)="toggleEma200()" (toggleRSI)="toggleRSI()" (strategyChange)="onStrategyChange($event)" />
+    <app-replay-strategy-config-sidebar
+      [availableSymbols]="availableSymbols()"
+      [availableIntervals]="availableIntervals()"
+      [selectedSymbol]="selectedSymbol"
+      [selectedInterval]="selectedInterval"
+      [startDate]="startDate"
+      [endDate]="endDate"
+      [today]="today"
+      [showEma50]="showEma50()"
+      [showEma200]="showEma200()"
+      [loading]="loading()"
+      [error]="error()"
+      [candlesLoaded]="candlesLoaded()"
+      [totalCandles]="totalCandles()"
+      [isPlaying]="isPlaying()"
+      [showRSI]="showRSI()"
+      [strategyConfig]="strategyConfig"
+      (configChange)="onConfigChange($event)"
+      (loadData)="loadReplayData()"
+      (toggleEma50)="toggleEma50()"
+      (toggleEma200)="toggleEma200()"
+      (toggleRSI)="toggleRSI()"
+      (strategyChange)="onStrategyChange($event)" />
   </div>
 
   <!-- Sessions Modal -->

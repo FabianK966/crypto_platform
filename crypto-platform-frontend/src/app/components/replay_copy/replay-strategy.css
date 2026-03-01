@@ -361,6 +361,11 @@
   color: #888;
 }
 
+.log-table tr.harvest-row td {
+  background: rgba(76, 175, 80, 0.08);
+  border-left: 2px solid rgba(76, 175, 80, 0.5);
+}
+
 .log-table tr.buy-row td {
   background: rgba(38, 166, 154, 0.03);
 }
