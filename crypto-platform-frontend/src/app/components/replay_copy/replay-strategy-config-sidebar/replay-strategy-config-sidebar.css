@@ -74,8 +74,8 @@
 }
 
 .sidebar-fields {
-  display: flex;
-  flex-direction: grid;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
   gap: 1.25rem;
 }
 

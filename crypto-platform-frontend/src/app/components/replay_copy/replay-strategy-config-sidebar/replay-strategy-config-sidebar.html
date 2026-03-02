@@ -47,6 +47,31 @@
         </div>
       </div>
 
+      <div class="config-section">
+        <h4>Safety Vault</h4>
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="localUseSafetyVault" (ngModelChange)="onStrategyChange()">
+          Use Safety Vault (harvest profits)
+        </label>
+      </div>
+
+      <div class="input-group">
+        <label>Enable Loss Cut 🛡️</label>
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="localEnableLossCut" (ngModelChange)="onStrategyChange()">
+          Bei {{ localLossCutThreshold }}% Verlust 50% schließen
+        </label>
+      </div>
+
+      <div class="input-group">
+        <label>Loss Cut Schwelle (%)</label>
+        <div class="range-input-wrap">
+          <input type="range" min="50" max="500" step="10" [(ngModel)]="localLossCutThreshold"
+            (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+          <span class="range-value neutral">-{{ localLossCutThreshold }}%</span>
+        </div>
+      </div>
+
     </div>
 
     <!-- Daten laden -->
@@ -118,7 +143,7 @@
         <div class="input-group">
           <label>Free Zone (%)</label>
           <div class="range-input-wrap">
-            <input type="range" min="5" max="100" step="5" [(ngModel)]="localLongFreeZone"
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongFreeZone"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
             <span class="range-value oversold">{{ localLongFreeZone }}%</span>
           </div>
@@ -127,7 +152,7 @@
         <div class="input-group">
           <label>Kaufgröße (%)</label>
           <div class="range-input-wrap">
-            <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongBuyPercent"
+            <input type="range" min="0" max="20" step="0.1" [(ngModel)]="localLongBuyPercent"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
             <span class="range-value oversold">{{ localLongBuyPercent }}%</span>
           </div>
@@ -175,6 +200,15 @@
             <input type="range" min="1" max="100" step="1" [(ngModel)]="localLongMaxPositionPercent"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
             <span class="range-value neutral">{{ localLongMaxPositionPercent }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Min. Long Position %</label>
+          <div class="range-input-wrap">
+            <input type="range" min="0" max="100" step="1" [(ngModel)]="localMinLongPositionPercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+            <span class="range-value neutral">{{ localMinLongPositionPercent }}%</span>
           </div>
         </div>
 
@@ -275,7 +309,7 @@
         <div class="input-group">
           <label>Free Zone (%)</label>
           <div class="range-input-wrap">
-            <input type="range" min="5" max="100" step="5" [(ngModel)]="localShortFreeZone"
+            <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortFreeZone"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
             <span class="range-value overbought">{{ localShortFreeZone }}%</span>
           </div>
@@ -284,7 +318,7 @@
         <div class="input-group">
           <label>Kaufgröße (%)</label>
           <div class="range-input-wrap">
-            <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortBuyPercent"
+            <input type="range" min="0" max="20" step="0.1" [(ngModel)]="localShortBuyPercent"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
             <span class="range-value overbought">{{ localShortBuyPercent }}%</span>
           </div>
@@ -332,6 +366,15 @@
             <input type="range" min="1" max="100" step="1" [(ngModel)]="localShortMaxPositionPercent"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
             <span class="range-value neutral">{{ localShortMaxPositionPercent }}%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Min. Short Position %</label>
+          <div class="range-input-wrap">
+            <input type="range" min="0" max="100" step="1" [(ngModel)]="localMinShortPositionPercent"
+              (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+            <span class="range-value neutral">{{ localMinShortPositionPercent }}%</span>
           </div>
         </div>
 
@@ -384,7 +427,8 @@
       </div>
       <div class="summary-row">
         <span class="overbought-dot">●</span>
-        S: RSI &gt;{{ localShortRsiSell }} open / &lt;{{ localShortRsiBuy }} cover | O:{{ localShortOpenCooldown }} C:{{
+        S: RSI &gt;{{ localShortRsiSell }} open / &lt;{{ localShortRsiBuy }} cover | O:{{ localShortOpenCooldown }}
+        C:{{
         localShortCloseCooldown }} | {{ localShortLeverage }}x
       </div>
       <div class="summary-row cooldown-row">

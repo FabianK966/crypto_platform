@@ -66,24 +66,6 @@
             </div>
           </div>
 
-          <div class="stat-chip">
-            <span class="stat-label">L-RSI</span>
-            <span class="stat-value">
-              <span class="oversold-text">{{ strategyConfig.longRsiBuyThreshold }}</span>
-              /
-              <span class="overbought-text">{{ strategyConfig.longRsiSellThreshold }}</span>
-            </span>
-          </div>
-
-          <div class="stat-chip">
-            <span class="stat-label">S-RSI</span>
-            <span class="stat-value">
-              <span class="oversold-text">{{ strategyConfig.shortRsiBuyThreshold }}</span>
-              /
-              <span class="overbought-text">{{ strategyConfig.shortRsiSellThreshold }}</span>
-            </span>
-          </div>
-
           <!-- Safety Vault Chip -->
           <div class="stat-chip" [class.harvest-chip]="tradingService.safetyVault() > 0">
             <span class="stat-label">💰 Vault</span>

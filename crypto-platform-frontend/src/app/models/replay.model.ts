@@ -78,6 +78,9 @@ export interface ReplaySessionResponse {
 
 export interface StrategyConfig {
   autoShortEnabled: boolean;
+  useSafetyVault: boolean;
+  enableLossCut: boolean;
+  lossCutThreshold: number;
   longLeverage: number;
   shortLeverage: number;
   longRsiBuyThreshold: number;
@@ -95,14 +98,16 @@ export interface StrategyConfig {
   longRescueTrigger: number;
   longRescueClosePercent: number;
   longMaxPositionPercent: number;
+  minlongpositionpercent: number;
 
+  minshortpositionpercent: number;
   shortRsiBuyThreshold: number;
   shortRsiSellThreshold: number;
   shortOpenCooldown: number;
   shortCloseCooldown: number;
   shortFreeZonePercent: number;
   shortBuyPercent: number;
-  shortBuyScaleThreshold: number;  
+  shortBuyScaleThreshold: number;
   shortBuyScalePercent: number;
   shortClosePercent: number;
   shortProfitThreshold: number;

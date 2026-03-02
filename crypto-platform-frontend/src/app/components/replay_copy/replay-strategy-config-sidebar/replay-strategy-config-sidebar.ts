@@ -61,47 +61,47 @@ export class ReplayStrategyConfigSidebarComponent implements OnInit {
 
   // Lokale Strategie-Kopien
   localLongRsiBuy = 30;
-  localLongRsiSell = 70;
+  localLongRsiSell = 72;
   localShortRsiBuy = 30;
-  localShortRsiSell = 70;
-  localLongOpenCooldown = 10;
-  localLongCloseCooldown = 3;
-  localShortOpenCooldown = 10;
-  localShortCloseCooldown = 3;
-  localLongBuyScaleThreshold = 10;
-  localLongBuyScalePercent = 10;
-  localShortBuyScaleThreshold = 10;
-  localShortBuyScalePercent = 10;
-  localBuyPercent = 10;
-  localClosePercent = 50;
+  localShortRsiSell = 74;
+  localLongOpenCooldown = 3;
+  localLongCloseCooldown = 5;
+  localShortOpenCooldown = 3;
+  localShortCloseCooldown = 5;
+  localLongBuyScaleThreshold = 25;
+  localLongBuyScalePercent = 5;
+  localShortBuyScaleThreshold = 20;
+  localShortBuyScalePercent = 4;
+  localMinLongPositionPercent = 4;
+  localMinShortPositionPercent = 4;
   localAutoShort = true;
-  localLongFreeZone = 30;
-  localShortFreeZone = 30;
-  localProfit = 10;
-  localLoss = 10;
-  // Lokale Strategie-Kopien — LONG
-  localLongBuyPercent = 10;
-  localLongMaxPositionPercent = 100;
-  localLongClosePercent = 50;
-  localLongProfit = 10;
-  localLongLoss = 10;
-  // Lokale Strategie-Kopien — SHORT
-  localShortBuyPercent = 10;
-  localShortMaxPositionPercent = 100;
-  localShortClosePercent = 50;
-  localShortProfit = 10;
-  localShortLoss = 10;
-  // Drawdown-Rescue Long
-  localLongDrawdownCandles = 500;
-  localLongRescueTrigger = 1;
-  localLongRescueClosePercent = 50;
-  // Drawdown-Rescue Short
-  localShortDrawdownCandles = 500;
-  localShortRescueTrigger = 1;
-  localShortRescueClosePercent = 50;
+  localUseSafetyVault = true;
+  localEnableLossCut = false;
+  localLossCutThreshold = 100;
+  localLongFreeZone = 15;
+  localShortFreeZone = 10;
+  localLongBuyPercent = 1;
+  localLongMaxPositionPercent = 50;
+  localLongClosePercent = 10;
+  localLongProfit = 5;
+  localLongLoss = 12;
+  localShortBuyPercent = 1;
+  localShortMaxPositionPercent = 30;
+  localShortClosePercent = 20;
+  localShortProfit = 4;
+  localShortLoss = 16;
+  localLongDrawdownCandles = 2000;
+  localLongRescueTrigger = 9;
+  localLongRescueClosePercent = 95;
+  localShortDrawdownCandles = 2000;
+  localShortRescueTrigger = 6;
+  localShortRescueClosePercent = 98;
 
   ngOnInit() {
     this.localSymbol = this.selectedSymbol;
+    this.localUseSafetyVault = this.strategyConfig.useSafetyVault;
+    this.localEnableLossCut = this.strategyConfig.enableLossCut;
+    this.localLossCutThreshold = this.strategyConfig.lossCutThreshold;
     this.localInterval = this.selectedInterval;
     this.localStartDate = this.startDate;
     this.localEndDate = this.endDate;
@@ -161,6 +161,9 @@ export class ReplayStrategyConfigSidebarComponent implements OnInit {
   onStrategyChange() {
     this.strategyChange.emit({
       autoShortEnabled: this.localAutoShort,
+      useSafetyVault: this.localUseSafetyVault,
+      enableLossCut: this.localEnableLossCut,
+      lossCutThreshold: this.localLossCutThreshold,
       longRsiBuyThreshold: this.localLongRsiBuy,
       longRsiSellThreshold: this.localLongRsiSell,
       longLeverage: this.localLongLeverage,
@@ -193,6 +196,8 @@ export class ReplayStrategyConfigSidebarComponent implements OnInit {
       shortClosePercent: this.localShortClosePercent,
       shortProfitThreshold: this.localShortProfit,
       shortLossThreshold: this.localShortLoss,
+      minlongpositionpercent: this.localMinLongPositionPercent,
+      minshortpositionpercent: this.localMinShortPositionPercent
     });
   }
 
