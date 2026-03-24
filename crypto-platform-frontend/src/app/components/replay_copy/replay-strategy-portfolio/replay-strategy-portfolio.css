@@ -130,6 +130,44 @@
   box-shadow: 0 0 12px rgba(76, 175, 80, 0.08);
 }
 
+/* Max Drawdown Karte */
+.drawdown-card {
+  border-color: rgba(239, 83, 80, 0.1);
+  background: rgba(239, 83, 80, 0.02);
+  transition: all 0.3s;
+}
+
+.drawdown-card.drawdown-active {
+  border-color: rgba(239, 83, 80, 0.25);
+  background: rgba(239, 83, 80, 0.04);
+}
+
+.drawdown-value {
+  color: #ef5350 !important;
+}
+
+/* Fortschrittsbalken */
+.drawdown-bar-track {
+  margin-top: 0.5rem;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.drawdown-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+  max-width: 100%;
+}
+
+/* Farben je nach Schweregrad */
+.drawdown-bar-low  { background: #26a69a; }   /* < 15% — grün */
+.drawdown-bar-mid  { background: #ffc107; }   /* 15–35% — gelb */
+.drawdown-bar-high { background: #ef5350; }   /* >= 35% — rot */
+
+/* ── Basis-Styles ── */
 .stat-label {
   color: #777;
   font-size: 0.78rem;

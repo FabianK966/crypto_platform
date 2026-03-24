@@ -1,7 +1,11 @@
 import {
   Button,
   ButtonModule
-} from "./chunk-M7JLUI3A.js";
+} from "./chunk-AXI4UBJP.js";
+import {
+  Badge,
+  BadgeModule
+} from "./chunk-G6DVPOPN.js";
 import {
   BaseEditableHolder,
   BaseInput,
@@ -10,19 +14,10 @@ import {
   MotionModule,
   Select,
   SelectModule
-} from "./chunk-SZGVTYM4.js";
-import {
-  Scroller,
-  ScrollerModule
-} from "./chunk-GTK4PUUZ.js";
+} from "./chunk-5EQ7WPNJ.js";
 import {
   AutoFocus
 } from "./chunk-7MO6B5JF.js";
-import {
-  InputText,
-  InputTextModule
-} from "./chunk-YOBBWYQC.js";
-import "./chunk-UECOTVFO.js";
 import {
   ObjectUtils,
   UniqueComponentId,
@@ -37,6 +32,10 @@ import {
 import {
   Ripple
 } from "./chunk-X5LCEWOY.js";
+import {
+  Scroller,
+  ScrollerModule
+} from "./chunk-GTK4PUUZ.js";
 import {
   AngleDoubleLeftIcon,
   AngleDoubleRightIcon,
@@ -65,6 +64,11 @@ import {
   TrashIcon
 } from "./chunk-QPX5C5TN.js";
 import {
+  InputText,
+  InputTextModule
+} from "./chunk-YOBBWYQC.js";
+import "./chunk-UECOTVFO.js";
+import {
   FormsModule,
   NG_VALUE_ACCESSOR,
   NgControl,
@@ -72,10 +76,6 @@ import {
   NgModel,
   RequiredValidator
 } from "./chunk-FNO6ZY34.js";
-import {
-  Badge,
-  BadgeModule
-} from "./chunk-G6DVPOPN.js";
 import {
   Bind,
   BindModule

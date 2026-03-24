@@ -299,6 +299,76 @@
   }
 }
 
+/* ── Equity-Vergleichschart ─────────────────────────────────────── */
+.equity-chart-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 6px 10px;
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+
+.equity-chart-title {
+  font-size: 0.78rem;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.equity-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.bh-dot {
+  background: repeating-linear-gradient(90deg, #2962ff 0px, #2962ff 4px, transparent 4px, transparent 8px);
+}
+
+.legend-label {
+  font-size: 0.72rem;
+  color: #555;
+  margin-right: 8px;
+}
+
+.btn-toggle-equity {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid #1e1e1e;
+  color: #444;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-toggle-equity:hover {
+  border-color: #333;
+  color: #777;
+}
+
+.equity-chart-container {
+  height: 180px;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+}
+
 /* ── Strategie-Log ──────────────────────────────────────── */
 .strategy-log-section {
   margin-top: 1.5rem;
@@ -397,6 +467,24 @@
   background: rgba(239, 83, 80, 0.15);
   color: #ef5350;
   border: 1px solid rgba(239, 83, 80, 0.3);
+}
+
+.action-harvest { 
+  background: rgba(255,193,7,0.15);  
+  color: #ffc107; 
+  border: 1px solid rgba(255,193,7,0.3); 
+}
+
+.rescue-row  { 
+  background: rgba(255,193,7,0.04) !important; 
+}
+
+.harvest-row { 
+  background: rgba(255,193,7,0.06) !important; 
+}
+
+.refill-row  { 
+  background: rgba(33,150,243,0.06) !important; 
 }
 
 .reason-cell {

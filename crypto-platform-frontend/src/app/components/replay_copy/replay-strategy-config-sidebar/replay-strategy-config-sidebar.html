@@ -59,7 +59,7 @@
         <label>Enable Loss Cut 🛡️</label>
         <label class="checkbox-label">
           <input type="checkbox" [(ngModel)]="localEnableLossCut" (ngModelChange)="onStrategyChange()">
-          Bei {{ localLossCutThreshold }}% Verlust 50% schließen
+          Bei {{ localLossCutThreshold }}% Verlust 90% schließen
         </label>
       </div>
 
@@ -70,6 +70,15 @@
             (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
           <span class="range-value neutral">-{{ localLossCutThreshold }}%</span>
         </div>
+      </div>
+
+      <!-- ── Stop-Loss (global toggle) ─────────────────── -->
+      <div class="input-group stop-loss-toggle-group">
+        <label>Enable Stop-Loss ⛔</label>
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="localEnableStopLoss" (ngModelChange)="onStrategyChange()">
+          99% sofort schließen bei Schwelle
+        </label>
       </div>
 
     </div>
@@ -125,7 +134,7 @@
         <div class="input-group">
           <label>Eröffnung Cooldown (Kerzen)</label>
           <div class="range-input-wrap">
-            <input type="range" min="1" max="500" step="1" [(ngModel)]="localLongOpenCooldown"
+            <input type="range" min="0" max="500" step="1" [(ngModel)]="localLongOpenCooldown"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
             <span class="range-value neutral">{{ localLongOpenCooldown }}</span>
           </div>
@@ -134,7 +143,7 @@
         <div class="input-group">
           <label>Schließ Cooldown (Kerzen)</label>
           <div class="range-input-wrap">
-            <input type="range" min="1" max="500" step="1" [(ngModel)]="localLongCloseCooldown"
+            <input type="range" min="0" max="500" step="1" [(ngModel)]="localLongCloseCooldown"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
             <span class="range-value neutral">{{ localLongCloseCooldown }}</span>
           </div>
@@ -220,12 +229,25 @@
             <span class="range-value oversold">-{{ localLongLoss }}%</span>
           </div>
         </div>
+
+        @if (localEnableStopLoss) {
+          <div class="ls-stoploss-divider">⛔ Stop-Loss</div>
+          <div class="input-group">
+            <label>SL-Schwelle Long (%)</label>
+            <div class="range-input-wrap">
+              <input type="range" min="1" max="99" step="1" [(ngModel)]="localLongStopLossPercent"
+                (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
+              <span class="range-value stoploss">-{{ localLongStopLossPercent }}%</span>
+            </div>
+          </div>
+        }
+
         <div class="ls-rescue-divider">🚨 Drawdown-Rescue</div>
 
         <div class="input-group">
           <label>Kerzen im Minus</label>
           <div class="range-input-wrap">
-            <input type="range" min="10" max="2000" step="10" [(ngModel)]="localLongDrawdownCandles"
+            <input type="range" min="10" max="10000" step="10" [(ngModel)]="localLongDrawdownCandles"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying" />
             <span class="range-value neutral">{{ localLongDrawdownCandles }}</span>
           </div>
@@ -291,7 +313,7 @@
         <div class="input-group">
           <label>Eröffnung Cooldown (Kerzen)</label>
           <div class="range-input-wrap">
-            <input type="range" min="1" max="500" step="1" [(ngModel)]="localShortOpenCooldown"
+            <input type="range" min="0" max="500" step="1" [(ngModel)]="localShortOpenCooldown"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
             <span class="range-value neutral">{{ localShortOpenCooldown }}</span>
           </div>
@@ -300,7 +322,7 @@
         <div class="input-group">
           <label>Schließ Cooldown (Kerzen)</label>
           <div class="range-input-wrap">
-            <input type="range" min="1" max="500" step="1" [(ngModel)]="localShortCloseCooldown"
+            <input type="range" min="0" max="500" step="1" [(ngModel)]="localShortCloseCooldown"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
             <span class="range-value neutral">{{ localShortCloseCooldown }}</span>
           </div>
@@ -386,12 +408,25 @@
             <span class="range-value overbought">-{{ localShortLoss }}%</span>
           </div>
         </div>
+
+        @if (localEnableStopLoss) {
+          <div class="ls-stoploss-divider">⛔ Stop-Loss</div>
+          <div class="input-group">
+            <label>SL-Schwelle Short (%)</label>
+            <div class="range-input-wrap">
+              <input type="range" min="1" max="99" step="1" [(ngModel)]="localShortStopLossPercent"
+                (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
+              <span class="range-value stoploss">-{{ localShortStopLossPercent }}%</span>
+            </div>
+          </div>
+        }
+
         <div class="ls-rescue-divider">🚨 Drawdown-Rescue</div>
 
         <div class="input-group">
           <label>Kerzen im Minus</label>
           <div class="range-input-wrap">
-            <input type="range" min="10" max="2000" step="10" [(ngModel)]="localShortDrawdownCandles"
+            <input type="range" min="10" max="10000" step="10" [(ngModel)]="localShortDrawdownCandles"
               (ngModelChange)="onStrategyChange()" [disabled]="isPlaying || !localAutoShort" />
             <span class="range-value neutral">{{ localShortDrawdownCandles }}</span>
           </div>
@@ -428,11 +463,18 @@
       <div class="summary-row">
         <span class="overbought-dot">●</span>
         S: RSI &gt;{{ localShortRsiSell }} open / &lt;{{ localShortRsiBuy }} cover | O:{{ localShortOpenCooldown }}
-        C:{{
-        localShortCloseCooldown }} | {{ localShortLeverage }}x
+        C:{{ localShortCloseCooldown }} | {{ localShortLeverage }}x
       </div>
       <div class="summary-row cooldown-row">
         <span>🔒</span> L-Zone {{ localLongFreeZone }}% ±{{ localLongProfit }}%/-{{ localLongLoss }}% |
         S-Zone {{ localShortFreeZone }}% ±{{ localShortProfit }}%/-{{ localShortLoss }}%
       </div>
+      @if (localEnableStopLoss) {
+        <div class="summary-row stoploss-row">
+          <span>⛔</span> Stop-Loss: Long -{{ localLongStopLossPercent }}% | Short -{{ localShortStopLossPercent }}%
+        </div>
+      }
     </div>
+
+  </div>
+</div>

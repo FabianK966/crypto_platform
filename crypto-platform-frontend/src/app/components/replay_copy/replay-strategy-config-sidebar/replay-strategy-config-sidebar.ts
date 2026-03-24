@@ -97,6 +97,10 @@ export class ReplayStrategyConfigSidebarComponent implements OnInit {
   localShortRescueTrigger = 6;
   localShortRescueClosePercent = 98;
 
+  localEnableStopLoss = false;
+  localLongStopLossPercent = 15;
+  localShortStopLossPercent = 15;
+
   ngOnInit() {
     this.localSymbol = this.selectedSymbol;
     this.localUseSafetyVault = this.strategyConfig.useSafetyVault;
@@ -120,6 +124,9 @@ export class ReplayStrategyConfigSidebarComponent implements OnInit {
     this.localShortLoss = this.strategyConfig.shortLossThreshold;
     this.localLongMaxPositionPercent = this.strategyConfig.longMaxPositionPercent ?? 100;
     this.localShortMaxPositionPercent = this.strategyConfig.shortMaxPositionPercent ?? 100;
+    this.localEnableStopLoss = this.strategyConfig.enableStopLoss ?? false;
+    this.localLongStopLossPercent = this.strategyConfig.longStopLossPercent ?? 15;
+    this.localShortStopLossPercent = this.strategyConfig.shortStopLossPercent ?? 15;
 
     if (this.strategyConfig) {
       this.localLongRsiBuy = this.strategyConfig.longRsiBuyThreshold;
@@ -164,6 +171,9 @@ export class ReplayStrategyConfigSidebarComponent implements OnInit {
       useSafetyVault: this.localUseSafetyVault,
       enableLossCut: this.localEnableLossCut,
       lossCutThreshold: this.localLossCutThreshold,
+      enableStopLoss:       this.localEnableStopLoss,
+      longStopLossPercent:  this.localLongStopLossPercent,
+      shortStopLossPercent: this.localShortStopLossPercent,
       longRsiBuyThreshold: this.localLongRsiBuy,
       longRsiSellThreshold: this.localLongRsiSell,
       longLeverage: this.localLongLeverage,

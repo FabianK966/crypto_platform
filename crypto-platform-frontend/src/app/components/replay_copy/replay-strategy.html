@@ -110,6 +110,37 @@
       <div #chartContainer class="chart-container"></div>
       <div #rsiChartContainer class="rsi-chart-container"></div>
 
+      <!-- ── Equity-Vergleichschart ──────────────────────── -->
+      <div class="equity-chart-header">
+        <span class="equity-chart-title">📈 Equity Vergleich</span>
+        <div class="equity-legend">
+          <span class="legend-dot" style="background:#26a69a"></span>
+          <span class="legend-label">Strategy</span>
+          <span class="legend-dot bh-dot"></span>
+          <span class="legend-label">Buy &amp; Hold</span>
+        </div>
+        <!-- Live-Werte im Header -->
+        @if (candlesLoaded() && currentCandleIndex() > 0) {
+          <div class="equity-live-values">
+            <span class="equity-live-strategy"
+              [class.positive]="tradingService.replayTotalBalance() >= tradingService.replayInitialBalance"
+              [class.negative]="tradingService.replayTotalBalance() < tradingService.replayInitialBalance">
+              S: ${{ tradingService.replayTotalBalance() | number:'1.0-0' }}
+            </span>
+            <span class="equity-live-sep">·</span>
+            <span class="equity-live-bh">
+              B&amp;H: ${{ (tradingService.replayInitialBalance / (allCandles[0]?.close || 1)) * getCurrentPrice() | number:'1.0-0' }}
+            </span>
+          </div>
+        }
+        <button class="btn-toggle-equity" (click)="toggleEquityChart()">
+          {{ showEquityChart() ? '▲' : '▼' }}
+        </button>
+      </div>
+      @if (showEquityChart()) {
+        <div #equityChartContainer class="equity-chart-container"></div>
+      }
+
       <!-- Steuerung -->
       @if (candlesLoaded()) {
       <div class="replay-controls">

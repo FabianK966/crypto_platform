@@ -1,9 +1,10 @@
 import {
+  Badge,
+  BadgeModule
+} from "./chunk-G6DVPOPN.js";
+import {
   AutoFocus
 } from "./chunk-7MO6B5JF.js";
-import {
-  Fluid
-} from "./chunk-UECOTVFO.js";
 import {
   Ripple
 } from "./chunk-X5LCEWOY.js";
@@ -11,9 +12,8 @@ import {
   SpinnerIcon
 } from "./chunk-QPX5C5TN.js";
 import {
-  Badge,
-  BadgeModule
-} from "./chunk-G6DVPOPN.js";
+  Fluid
+} from "./chunk-UECOTVFO.js";
 import {
   Bind
 } from "./chunk-TZFV7LTJ.js";
@@ -2304,4 +2304,4 @@ export {
   Button,
   ButtonModule
 };
-//# sourceMappingURL=chunk-M7JLUI3A.js.map
+//# sourceMappingURL=chunk-AXI4UBJP.js.map

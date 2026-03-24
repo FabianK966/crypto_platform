@@ -4,51 +4,59 @@
 
 import { Injectable, signal, computed } from '@angular/core';
 
-// Schnittstelle für einen einzelnen Trade
 export interface ReplayTrade {
-  type: 'buy' | 'sell';             // Kauf oder Verkauf
-  quantity: number;                 // Menge in Coins
-  price: number;                    // Ausführungspreis
-  fee: number;                      // Berechnete Gebühr für diesen Trade
-  timestamp: string;                // Zeitstempel
-  total: number;                    // Gesamtwert (quantity * price)
-  positionType: 'long' | 'short';   // Zu welcher Position gehört der Trade
+  type: 'buy' | 'sell';
+  quantity: number;
+  price: number;
+  fee: number;
+  timestamp: string;
+  total: number;
+  positionType: 'long' | 'short';
 }
 
-// Schnittstelle für eine Einzahlung
 export interface ReplayDeposit {
-  amount: number;                   // Einzahlungsbetrag
-  timestamp: string;                // Zeitstempel
-  newBalance: number;               // Neuer Cash-Bestand nach Einzahlung
+  amount: number;
+  timestamp: string;
+  newBalance: number;
 }
 
 @Injectable()
 export class ReplayTradingService {
 
   // --- Kernzustände (Signale) ---
-  replayCashBalance    = signal(10000);                  // Verfügbares Cash
-  replayLongQuantity   = signal(0);                      // Anzahl Coins in Long-Position
-  replayLongAvgPrice   = signal(0);                      // Durchschnittlicher Einstiegspreis Long
-  replayLongDebt       = signal(0);                      // Geliehener Betrag (bei Hebel)
-  replayShortQuantity  = signal(0);                      // Anzahl Coins in Short-Position (positiv)
-  replayShortAvgPrice  = signal(0);                      // Durchschnittlicher Einstiegspreis Short
-  replayRealizedPnl    = signal(0);                      // Realisierter Gewinn/Verlust
-  replayTradeHistory   = signal<ReplayTrade[]>([]);      // Historie aller Trades
-  replayDepositHistory = signal<ReplayDeposit[]>([]);    // Historie aller Einzahlungen
-  replayUsedMargin     = signal(0);                      // Derzeit genutzte Margin
-  totalFees            = signal(0);                      // Kumulierte Gebühren
-  liquidationTriggered = signal(false);                  // Signal für Liquidation
-  selectedLeverage     = signal(1);                      // Vom Benutzer gewählter Hebel
+  replayCashBalance    = signal(10000);
+  replayLongQuantity   = signal(0);
+  replayLongAvgPrice   = signal(0);
+  replayLongDebt       = signal(0);
+  replayShortQuantity  = signal(0);
+  replayShortAvgPrice  = signal(0);
+  replayRealizedPnl    = signal(0);
+  replayTradeHistory   = signal<ReplayTrade[]>([]);
+  replayDepositHistory = signal<ReplayDeposit[]>([]);
+  replayUsedMargin     = signal(0);
+  totalFees            = signal(0);
+  liquidationTriggered = signal(false);
+  selectedLeverage     = signal(1);
 
   // ── Safety Vault ─────────────────────────────────────────────────
-  safetyVault  = signal(0);   // Geerntetes / gesichertes Kapital
-  harvestCount = signal(0);   // Wie oft bereits geerntet
+  safetyVault  = signal(0);
+  harvestCount = signal(0);
 
-  replayInitialBalance = 10000; // Ursprüngliches Startguthaben (für Reset)
-  replayStartBalance   = 10000; // Wird nur beim allerersten Start gesetzt
+  // ── Max Drawdown ──────────────────────────────────────────────────
+  // Speichert den größten beobachteten Rückgang vom Peak zum Trough.
+  // Wird jedes Mal aktualisiert wenn updateDrawdown() aufgerufen wird.
+  maxDrawdownPercent = signal(0);   // z.B. 23.45 für 23.45%
+  maxDrawdownDollar  = signal(0);   // absoluter Betrag in $
 
-  private maintenanceMarginFactor = 0.05; // 5% Wartungsmargin
-  private readonly BASE_FEE_RATE  = 0.0005; // 0.05%
+  // Interne Tracking-Variablen (kein Signal nötig, nur Rechenwerte)
+  private ddRunningPeak   = 0;   // aktueller Hochpunkt der Balance
+  private ddRunningTrough = 0;   // Tiefpunkt nach dem aktuellen Peak
+
+  replayInitialBalance = 10000;
+  replayStartBalance   = 10000;
+
+  private maintenanceMarginFactor = 0.05;
+  private readonly BASE_FEE_RATE  = 0.0005;
 
   // --- Computed Werte ---
   hasLong  = computed(() => this.replayLongQuantity()  > 0);
@@ -80,14 +88,12 @@ export class ReplayTradingService {
   replayAssetValue    = computed(() => this.longAssetValue()    + this.shortAssetValue());
   replayUnrealizedPnl = computed(() => this.longUnrealizedPnl() + this.shortUnrealizedPnl());
 
-  // Gesamtkapital = Cash + Long-Wert - Long-Schulden + Short-Wert
   replayTotalBalance = computed(() =>
     this.replayCashBalance() + this.longAssetValue() - this.replayLongDebt() + this.shortAssetValue()
   );
 
   freeMargin = computed(() => this.replayTotalBalance() - this.replayUsedMargin());
 
-  // --- Aktuelle Marktdaten ---
   private currentPrice     = signal(0);
   private currentTimestamp = signal('');
 
@@ -102,7 +108,52 @@ export class ReplayTradingService {
     this.replayCashBalance.set(amount);
   }
 
-  // Setzt das gesamte Portfolio auf den Anfangszustand zurück
+  // ── Max Drawdown Tracking ─────────────────────────────────────────
+  // Aufrufen nach jeder Balance-Änderung (wird in updateUsedMargin() gemacht).
+  //
+  // Algorithmus:
+  //   1. Neuer Peak?  → Peak hochsetzen, Trough auf Peak zurücksetzen
+  //   2. Neuer Trough unter bisherigem Trough?  → Trough aktualisieren
+  //   3. Drawdown aus diesem Peak-Trough-Paar berechnen
+  //   4. Größer als bisheriger Max Drawdown?  → Max Drawdown aktualisieren
+  //
+  // "Peak → Trough" wird also immer vom aktuellen Running-Peak aus gemessen,
+  // d.h. nach einem neuen Allzeithoch fängt die Messung neu an.
+  // Das Maximum über alle Zeiträume hinweg wird in den Signalen gespeichert.
+  private updateDrawdown(): void {
+    const total = this.replayTotalBalance();
+    if (total <= 0) return;
+
+    // ── Initialisierung beim ersten Aufruf ──
+    if (this.ddRunningPeak === 0) {
+      this.ddRunningPeak   = total;
+      this.ddRunningTrough = total;
+      return;
+    }
+
+    // ── Neuer Peak → Trough zurücksetzen ──
+    if (total > this.ddRunningPeak) {
+      this.ddRunningPeak   = total;
+      this.ddRunningTrough = total;
+      return; // Kein Drawdown wenn wir ein neues Hoch erreichen
+    }
+
+    // ── Neuer Trough unterhalb des aktuellen Troughs ──
+    if (total < this.ddRunningTrough) {
+      this.ddRunningTrough = total;
+    }
+
+    // ── Drawdown aus aktuellem Peak-Trough-Paar berechnen ──
+    const drawdownDollar  = this.ddRunningPeak - this.ddRunningTrough;
+    const drawdownPercent = (drawdownDollar / this.ddRunningPeak) * 100;
+
+    // ── Maximalen Drawdown aktualisieren wenn größer als bisheriger ──
+    if (drawdownPercent > this.maxDrawdownPercent()) {
+      this.maxDrawdownPercent.set(drawdownPercent);
+      this.maxDrawdownDollar.set(drawdownDollar);
+    }
+  }
+
   resetPortfolio() {
     this.replayCashBalance.set(this.replayInitialBalance);
     this.replayStartBalance = this.replayInitialBalance;
@@ -119,14 +170,18 @@ export class ReplayTradingService {
     this.liquidationTriggered.set(false);
     this.safetyVault.set(0);
     this.harvestCount.set(0);
+    // Drawdown-Tracking zurücksetzen
+    this.maxDrawdownPercent.set(0);
+    this.maxDrawdownDollar.set(0);
+    this.ddRunningPeak   = 0;
+    this.ddRunningTrough = 0;
   }
 
   deposit(amount: number) {
     this.replayCashBalance.update(b => b + amount);
     const newBalance = this.replayCashBalance();
     this.replayDepositHistory.update(h => [
-      { amount, timestamp: this.currentTimestamp(), newBalance },
-      ...h
+      { amount, timestamp: this.currentTimestamp(), newBalance }, ...h
     ]);
   }
 
@@ -139,23 +194,39 @@ export class ReplayTradingService {
   }
 
   // ── Profit Harvest ───────────────────────────────────────────────
-  // Prüft ob realizedPnl die nächste Harvest-Schwelle erreicht hat.
-  // Schwelle = (harvestCount + 1) * initialBalance
-  // Wenn ja → initialBalance-Betrag aus Cash in Vault verschieben.
-  // Gibt true zurück wenn geerntet wurde.
   checkProfitHarvest(): boolean {
     const threshold = (this.harvestCount() + 1) * this.replayInitialBalance;
     if (this.replayRealizedPnl() < threshold) return false;
     const harvest = this.replayInitialBalance;
-    if (this.replayCashBalance() < harvest) return false; // Nicht genug Cash
+    if (this.replayCashBalance() < harvest) return false;
     this.replayCashBalance.update(b => b - harvest);
     this.safetyVault.update(v => v + harvest);
     this.harvestCount.update(c => c + 1);
     return true;
   }
 
-  // Bei Liquidation: maximal initialBalance aus dem Vault ins Portfolio zurückführen.
-  // Überschuss verbleibt im Vault für zukünftige Liquidationen.
+  // ── Vault-Refill bei 90% Verlust ─────────────────────────────────
+  // Greift VOR der Liquidation: wenn die Gesamtbilanz unter 10% des
+  // Startkapitals fällt, wird aus dem Safety Vault so viel aufgefüllt,
+  // dass die Balance wieder auf replayInitialBalance gebracht wird.
+  // Positionen bleiben offen – keine Zwangsliquidation.
+  // Gibt { injected, newVault } zurück wenn aufgefüllt, sonst null.
+  checkVaultRefill(): { injected: number; newVault: number } | null {
+    if (this.safetyVault() <= 0) return null;
+    const refillThreshold = this.replayInitialBalance * 0.1;
+    if (this.replayTotalBalance() >= refillThreshold) return null;
+
+    // Genug injizieren um Balance auf initialBalance zu bringen
+    const needed = this.replayInitialBalance - this.replayTotalBalance();
+    const inject = Math.min(this.safetyVault(), needed);
+    if (inject <= 0) return null;
+
+    this.replayCashBalance.update(b => b + inject);
+    this.safetyVault.update(v => v - inject);
+    const newVault = this.safetyVault();
+    return { injected: inject, newVault };
+  }
+
   injectSafetyVault(): boolean {
     const vault = this.safetyVault();
     if (vault <= 0) return false;
@@ -282,11 +353,15 @@ export class ReplayTradingService {
     return true;
   }
 
+  // updateUsedMargin wird nach jeder Balance-Änderung aufgerufen
+  // → idealer Punkt um Drawdown zu tracken
   updateUsedMargin() {
     if (this.currentPrice() <= 0) return;
     const longMargin  = (this.replayLongQuantity()  * this.currentPrice()) / this.selectedLeverage();
     const shortMargin = (this.replayShortQuantity() * this.currentPrice()) / this.selectedLeverage();
     this.replayUsedMargin.set(longMargin + shortMargin);
+    // Nach jeder Margin-Berechnung Drawdown aktualisieren
+    this.updateDrawdown();
   }
 
   checkLiquidation(): boolean {
@@ -294,7 +369,6 @@ export class ReplayTradingService {
       const price = this.currentPrice();
       if (price <= 0) return false;
 
-      // Long liquidieren
       if (this.hasLong()) {
         const qty         = this.replayLongQuantity();
         const proceeds    = qty * price;
@@ -312,7 +386,6 @@ export class ReplayTradingService {
         }, ...h]);
       }
 
-      // Short liquidieren
       if (this.hasShort()) {
         const qty         = this.replayShortQuantity();
         const costToCover = qty * price;
@@ -330,6 +403,8 @@ export class ReplayTradingService {
       }
 
       this.replayUsedMargin.set(0);
+      // Drawdown auch bei Liquidation tracken
+      this.updateDrawdown();
       this.liquidationTriggered.set(true);
       return true;
     }

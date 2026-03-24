@@ -80,6 +80,11 @@ export interface StrategyConfig {
   autoShortEnabled: boolean;
   useSafetyVault: boolean;
   enableLossCut: boolean;
+
+  enableStopLoss: boolean;
+  longStopLossPercent: number; 
+  shortStopLossPercent: number;
+
   lossCutThreshold: number;
   longLeverage: number;
   shortLeverage: number;

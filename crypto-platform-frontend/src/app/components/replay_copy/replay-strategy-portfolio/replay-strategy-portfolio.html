@@ -1,5 +1,5 @@
 <!-- replay-strategy-portfolio.html -->
-<!-- Portfolio für Strategy-Replay: Kein manuelles Trading, aber Safety Vault Anzeige -->
+<!-- Portfolio für Strategy-Replay: Kein manuelles Trading, Safety Vault + Max Drawdown Anzeige -->
 
 <div class="portfolio-panel">
 
@@ -114,6 +114,31 @@
       </div>
     </div>
 
+    <!-- Max Drawdown Karte -->
+    <div class="stat-card drawdown-card" [class.drawdown-active]="tradingService.maxDrawdownPercent() > 0">
+      <div class="stat-label">📉 Max Drawdown</div>
+      <div class="stat-value drawdown-value">
+        {{ tradingService.maxDrawdownPercent() | number:'1.2-2' }}%
+      </div>
+      <div class="stat-sub">
+        @if (tradingService.maxDrawdownDollar() > 0) {
+          - $ {{ tradingService.maxDrawdownDollar() | number:'1.2-2' }} vom Peak
+        } @else {
+          Noch kein Rückgang
+        }
+      </div>
+      @if (tradingService.maxDrawdownPercent() > 0) {
+        <div class="drawdown-bar-track">
+          <div class="drawdown-bar-fill"
+            [style.width.%]="tradingService.maxDrawdownPercent()"
+            [class.drawdown-bar-low]="tradingService.maxDrawdownPercent() < 15"
+            [class.drawdown-bar-mid]="tradingService.maxDrawdownPercent() >= 15 && tradingService.maxDrawdownPercent() < 35"
+            [class.drawdown-bar-high]="tradingService.maxDrawdownPercent() >= 35">
+          </div>
+        </div>
+      }
+    </div>
+
   </div>
 
   <!-- Aktuelle Positionen -->
@@ -124,17 +149,12 @@
       <div class="no-position">Keine offenen Positionen — Strategie handelt automatisch</div>
     }
 
-    <!-- Long-Position -->
     @if (tradingService.hasLong()) {
       <table class="holdings-table">
         <thead>
           <tr>
-            <th>Position</th>
-            <th>Quantity</th>
-            <th>Avg. Entry</th>
-            <th>Current</th>
-            <th>Value</th>
-            <th>Unrealized P&L</th>
+            <th>Position</th><th>Quantity</th><th>Avg. Entry</th>
+            <th>Current</th><th>Value</th><th>Unrealized P&L</th>
           </tr>
         </thead>
         <tbody>
@@ -154,17 +174,12 @@
       </table>
     }
 
-    <!-- Short-Position -->
     @if (tradingService.hasShort()) {
       <table class="holdings-table">
         <thead>
           <tr>
-            <th>Position</th>
-            <th>Quantity</th>
-            <th>Avg. Entry</th>
-            <th>Current</th>
-            <th>Value</th>
-            <th>Unrealized P&L</th>
+            <th>Position</th><th>Quantity</th><th>Avg. Entry</th>
+            <th>Current</th><th>Value</th><th>Unrealized P&L</th>
           </tr>
         </thead>
         <tbody>
@@ -184,7 +199,6 @@
       </table>
     }
 
-    <!-- Trade-Historie -->
     <app-replay-history [tradingService]="tradingService" />
   </div>
 

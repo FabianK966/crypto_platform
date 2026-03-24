@@ -1,4 +1,8 @@
 import {
+  Badge,
+  BadgeModule
+} from "./chunk-G6DVPOPN.js";
+import {
   Tooltip,
   TooltipModule,
   zindexutils
@@ -19,10 +23,6 @@ import {
 } from "./chunk-KQD5ZT4X.js";
 import "./chunk-H2QO2SA4.js";
 import "./chunk-SK3WZKZU.js";
-import {
-  Badge,
-  BadgeModule
-} from "./chunk-G6DVPOPN.js";
 import {
   Bind,
   BindModule
