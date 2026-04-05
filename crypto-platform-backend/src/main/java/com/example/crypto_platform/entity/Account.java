@@ -18,6 +18,12 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "username", unique = true, length = 50)
+    private String username;
+
+    @Column(name = "password_hash", length = 255)
+    private String passwordHash;
+
     /**
      * Initial Balance (Cash)
      */

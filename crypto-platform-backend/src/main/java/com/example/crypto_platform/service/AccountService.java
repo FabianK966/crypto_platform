@@ -3,6 +3,9 @@ package com.example.crypto_platform.service;
 import com.example.crypto_platform.entity.Account;
 import com.example.crypto_platform.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -12,19 +15,42 @@ import java.math.BigDecimal;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public Account register(String username, String password) {
+        if (accountRepository.existsByUsername(username)) {
+            throw new RuntimeException("Username already taken");
+        }
+        Account account = new Account();
+        account.setUsername(username);
+        account.setPasswordHash(passwordEncoder.encode(password));
+        account.setInitialBalance(BigDecimal.ZERO);
+        account.setTotalRealizedProfit(BigDecimal.ZERO);
+        return accountRepository.save(account);
+    }
+
+    public Account login(String username, String password) {
+        Account account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+        if (!passwordEncoder.matches(password, account.getPasswordHash())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+        return account;
+    }
 
     /**
-     * Hole den Account (oder erstelle ihn beim ersten Aufruf)
+     * Hole den Account des aktuell authentifizierten Benutzers
      */
     @Transactional
     public Account getOrCreateAccount() {
-        return accountRepository.findById(1L)
-                .orElseGet(() -> {
-                    Account account = new Account();
-                    account.setInitialBalance(BigDecimal.ZERO);
-                    account.setTotalRealizedProfit(BigDecimal.ZERO);
-                    return accountRepository.save(account);
-                });
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            throw new RuntimeException("Not authenticated");
+        }
+        String username = authentication.getName();
+        return accountRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Account not found for user: " + username));
     }
 
     /**

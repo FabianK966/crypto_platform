@@ -1,17 +1,20 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router'; // <-- importieren
+import { Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar';
-// PortfolioComponent wird nicht mehr direkt importiert, sondern über Router geladen
+import { AuthService } from './services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent], // RouterOutlet hinzugefügt
+  imports: [RouterOutlet, NavbarComponent, CommonModule],
   template: `
     <div class="app-container">
-      <app-navbar />
+      @if (auth.isLoggedIn()) {
+        <app-navbar />
+      }
       <main class="main-content">
-        <router-outlet></router-outlet>  <!-- Hier werden die gerouteten Komponenten angezeigt -->
+        <router-outlet></router-outlet>
       </main>
     </div>
   `,
@@ -29,4 +32,6 @@ import { NavbarComponent } from './components/navbar/navbar';
     }
   `]
 })
-export class App {}
+export class App {
+  auth = inject(AuthService);
+}

@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn spring-boot:run --no-transfer-progress)",
+      "Bash(curl -s http://localhost:8080/actuator/health)",
+      "Bash(curl -s http://localhost:8080/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"username\":\"test\",\"password\":\"test\"}')",
+      "Bash(curl -s http://localhost:8080/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"username\":\"test\",\"password\":\"test123\"}')",
+      "Bash(curl -sv http://localhost:8080/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"username\":\"admin\",\"password\":\"admin\"}')",
+      "Bash(curl -sv http://localhost:8080/api/auth/register -X POST -H \"Content-Type: application/json\" -d '{\"username\":\"testuser123\",\"password\":\"testpass123\"}')",
+      "Bash(curl -s http://localhost:8080/api/auth/login -X POST -H 'Content-Type: application/json' -d '{\"username\":\"testuser123\",\"password\":\"__TRACKED_VAR__\"}')",
+      "Bash(curl -s http://localhost:8080/api/account -H 'Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ0ZXN0dXNlcjEyMyIsImlhdCI6MTc3NTQwNjc4MiwiZXhwIjoxNzc1NDkzMTgyfQ.NTTylJhC4UQxtGcSSs5BiR_wE7DYkL9Zu6mhnSt9IrPKiM-iSjAHSs5hC9kexA8X')",
+      "Bash(curl -s http://localhost:8080/api/portfolio/summary -H 'Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ0ZXN0dXNlcjEyMyIsImlhdCI6MTc3NTQwNjc4MiwiZXhwIjoxNzc1NDkzMTgyfQ.NTTylJhC4UQxtGcSSs5BiR_wE7DYkL9Zu6mhnSt9IrPKiM-iSjAHSs5hC9kexA8X')",
+      "Bash(curl -s 'http://localhost:8080/api/market/prices?symbols=BTCUSDT,ETHUSDT' -H 'Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ0ZXN0dXNlcjEyMyIsImlhdCI6MTc3NTQwNjc4MiwiZXhwIjoxNzc1NDkzMTgyfQ.NTTylJhC4UQxtGcSSs5BiR_wE7DYkL9Zu6mhnSt9IrPKiM-iSjAHSs5hC9kexA8X')",
+      "Bash(curl -s http://localhost:8080/api/replay/symbols -H 'Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ0ZXN0dXNlcjEyMyIsImlhdCI6MTc3NTQwNjc4MiwiZXhwIjoxNzc1NDkzMTgyfQ.NTTylJhC4UQxtGcSSs5BiR_wE7DYkL9Zu6mhnSt9IrPKiM-iSjAHSs5hC9kexA8X')",
+      "Bash(curl -s \"https://api.binance.com/api/v3/ticker/24hr?symbols=%5B%22BTCUSDT%22%2C%22ETHUSDT%22%5D\")",
+      "Bash(curl -sv 'http://localhost:8080/api/market/prices?symbols=BTCUSDT,ETHUSDT' -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(curl -sv \"http://localhost:8080/api/replay/symbols\" -H \"Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ0ZXN0dXNlcjEyMyIsImlhdCI6MTc3NTQwNjc4MiwiZXhwIjoxNzc1NDkzMTgyfQ.NTTylJhC4UQxtGcSSs5BiR_wE7DYkL9Zu6mhnSt9IrPKiM-iSjAHSs5hC9kexA8X\")",
+      "Bash(curl -s \"http://localhost:8080/api/replay/intervals\" -H \"Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ0ZXN0dXNlcjEyMyIsImlhdCI6MTc3NTQwNjc4MiwiZXhwIjoxNzc1NDkzMTgyfQ.NTTylJhC4UQxtGcSSs5BiR_wE7DYkL9Zu6mhnSt9IrPKiM-iSjAHSs5hC9kexA8X\")",
+      "Bash(curl -s \"http://localhost:8080/api/replay/candles\" -X POST -H \"Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ0ZXN0dXNlcjEyMyIsImlhdCI6MTc3NTQwNjc4MiwiZXhwIjoxNzc1NDkzMTgyfQ.NTTylJhC4UQxtGcSSs5BiR_wE7DYkL9Zu6mhnSt9IrPKiM-iSjAHSs5hC9kexA8X\" -H \"Content-Type: application/json\" -d '{\"symbol\":\"BTC\",\"interval\":\"1h\",\"startDate\":\"2024-01-01\",\"endDate\":\"2024-01-02\"}')",
+      "Bash(powershell.exe \"Get-Process java -ErrorAction SilentlyContinue | Select-Object Id, Name\")",
+      "Bash(powershell.exe \"Get-NetTCPConnection -LocalPort 8080 -State Listen | Select-Object OwningProcess\")",
+      "Bash(powershell.exe \"Stop-Process -Id 19924 -Force\")",
+      "Bash(ls /c/Users/krame/Desktop/cryptoplatform/crypto-platform-backend/target/*.jar)",
+      "Bash(ls /c/Users/krame/Desktop/cryptoplatform/*.bat)",
+      "Bash(ls /c/Users/krame/Desktop/cryptoplatform/*.sh)",
+      "Bash(ls /c/Users/krame/Desktop/cryptoplatform/crypto-platform-backend/*.bat)",
+      "Bash(echo \"java not in PATH directly\" ls /c/Users/krame/Desktop/cryptoplatform/crypto-platform-backend/mvnw*)",
+      "Bash(./mvnw spring-boot:run -q)",
+      "Bash(curl -s http://localhost:8080/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"username\":\"testuser123\",\"password\":\"testpass123\"}')",
+      "Bash(powershell.exe \"Stop-Process -Id 25724 -Force\" sleep 3)"
+    ]
+  }
+}

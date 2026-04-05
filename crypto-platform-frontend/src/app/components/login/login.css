@@ -1,0 +1,97 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 60% 20%, rgba(41, 98, 255, 0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 80%, rgba(52, 211, 153, 0.08) 0%, transparent 50%),
+              #0a0a0a;
+}
+
+.login-card {
+  background: rgba(18, 18, 18, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(20px);
+}
+
+.login-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+
+.brand-icon {
+  font-size: 2rem;
+  color: #60a5fa;
+  filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.5));
+}
+
+.brand-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #60a5fa, #34d399);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+}
+
+.login-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  text-align: center;
+  margin: 0 0 2rem 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.error-msg {
+  margin-bottom: 1rem;
+}
+
+.submit-btn {
+  margin-bottom: 1.25rem;
+}
+
+.toggle-text {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.toggle-text a {
+  color: #60a5fa;
+  cursor: pointer;
+  margin-left: 0.4rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.toggle-text a:hover {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
+.w-full {
+  width: 100%;
+}

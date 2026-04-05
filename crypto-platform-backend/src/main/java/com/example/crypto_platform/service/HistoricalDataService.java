@@ -29,6 +29,9 @@ public class HistoricalDataService {
      * @return Liste von Kerzen
      */
     public List<CandleDto> getHistoricalCandles(String symbol, String interval, Long startTime, Long endTime) {
+        if (startTime == null || endTime == null) {
+            throw new IllegalArgumentException("startTime and endTime must not be null");
+        }
         System.out.println("Fetching historical data for " + symbol + " (" + interval + ")");
         System.out.println("   From: " + timestampToDate(startTime) + " To: " + timestampToDate(endTime));
 

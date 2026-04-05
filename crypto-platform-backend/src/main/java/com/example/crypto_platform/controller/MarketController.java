@@ -3,8 +3,8 @@ package com.example.crypto_platform.controller;
 import com.example.crypto_platform.dto.MarketPriceDto;
 import com.example.crypto_platform.service.BinanceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,10 +17,16 @@ public class MarketController {
     private final BinanceService binanceService;
 
     @GetMapping("/prices")
-    public Mono<List<MarketPriceDto>> getPrices(
+    public ResponseEntity<List<MarketPriceDto>> getPrices(
             @RequestParam String symbols
     ) {
-        List<String> symbolList = Arrays.asList(symbols.split(","));
-        return binanceService.getCurrentPrices(symbolList);
+        try {
+            List<String> symbolList = Arrays.asList(symbols.split(","));
+            List<MarketPriceDto> prices = binanceService.getCurrentPrices(symbolList).block();
+            return ResponseEntity.ok(prices != null ? prices : List.of());
+        } catch (Exception e) {
+            System.err.println("Error fetching market prices: " + e.getMessage());
+            return ResponseEntity.ok(List.of());
+        }
     }
 }

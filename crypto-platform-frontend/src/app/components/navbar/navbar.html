@@ -6,5 +6,18 @@
                 <span class="brand-text">Crypto Platform</span>
             </div>
         </ng-template>
+        <ng-template pTemplate="end">
+            <div class="navbar-end">
+                <span class="username">{{ auth.currentUser() }}</span>
+                <p-button
+                    label="Logout"
+                    icon="pi pi-sign-out"
+                    severity="secondary"
+                    size="small"
+                    (onClick)="logout()"
+                    styleClass="logout-btn"
+                />
+            </div>
+        </ng-template>
     </p-menubar>
 </div>

@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,20 +23,21 @@ public class BinanceService {
      * Holt aktuelle Preise für mehrere Symbole
      */
     public Mono<List<MarketPriceDto>> getCurrentPrices(List<String> symbols) {
+        String symbolsParam = "[" + symbols.stream()
+                .map(s -> "\"" + s + "\"")
+                .collect(Collectors.joining(",")) + "]";
+
         return webClient.get()
-                .uri("/api/v3/ticker/24hr")
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/v3/ticker/24hr")
+                        .queryParam("symbols", symbolsParam)
+                        .build())
                 .retrieve()
                 .bodyToFlux(Map.class)
-                .filter(ticker -> {
-                    String symbol = (String) ticker.get("symbol");
-                    boolean matches = symbols.contains(symbol);
-                    return matches;
-                })
                 .map(ticker -> {
                     String symbol = (String) ticker.get("symbol");
                     String lastPrice = (String) ticker.get("lastPrice");
                     String priceChangePercent = (String) ticker.get("priceChangePercent");
-
 
                     return new MarketPriceDto(
                             symbol,

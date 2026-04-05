@@ -1,0 +1,53 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-header">
+      <i class="pi pi-bolt brand-icon"></i>
+      <h1 class="brand-name">Crypto Platform</h1>
+    </div>
+
+    <h2 class="login-title">{{ mode === 'login' ? 'Sign In' : 'Create Account' }}</h2>
+
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input
+        id="username"
+        type="text"
+        pInputText
+        [(ngModel)]="username"
+        placeholder="Enter username"
+        class="w-full"
+        autocomplete="username"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <p-password
+        id="password"
+        [(ngModel)]="password"
+        placeholder="Enter password"
+        [feedback]="mode === 'register'"
+        [toggleMask]="true"
+        styleClass="w-full"
+        inputStyleClass="w-full"
+      />
+    </div>
+
+    @if (error()) {
+      <p-message severity="error" [text]="error()!" styleClass="w-full error-msg" />
+    }
+
+    <p-button
+      [label]="mode === 'login' ? 'Sign In' : 'Register'"
+      [loading]="loading()"
+      (onClick)="submit()"
+      styleClass="w-full submit-btn"
+      [disabled]="!username || !password"
+    />
+
+    <p class="toggle-text">
+      {{ mode === 'login' ? "Don't have an account?" : 'Already have an account?' }}
+      <a (click)="toggleMode()">{{ mode === 'login' ? 'Register' : 'Sign In' }}</a>
+    </p>
+  </div>
+</div>
